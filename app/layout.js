@@ -1,5 +1,9 @@
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Outfit } from "next/font/google";
 import "./globals.css";
+import Navbar from "../components/general/Navbar";
+import Footer from "../components/general/Footer";
+import { Toaster } from "sonner";
+import AuthSessionProvider from "../components/general/AuthSessionProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -8,6 +12,11 @@ const geistSans = Geist({
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
+  subsets: ["latin"],
+});
+
+const outfit = Outfit({
+  variable: "--font-outfit",
   subsets: ["latin"],
 });
 
@@ -20,9 +29,14 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} ${outfit.variable} antialiased`}
       >
-        {children}
+        <AuthSessionProvider>
+          <Toaster />
+          <Navbar />
+          {children}
+          <Footer />
+        </AuthSessionProvider>
       </body>
     </html>
   );
