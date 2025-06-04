@@ -24,17 +24,21 @@ const JobSchema = new mongoose.Schema(
       required: true,
     },
     experience: {
-      type: String, // e.g. "2+ years", "Entry Level"
-      required: true,
-    },
-    minAge: {
-      type: Number,
-      default: 18,
+      type: String,
+      enum: [
+        "entry-level",
+        "1+ year ",
+        "2+ years",
+        "3+ years",
+        "4+ years",
+        "5+ years",
+      ],
     },
     age: {
       type: Number,
     },
     category: {
+      type: String,
       enum: [
         "nursing",
         "medical Officer",
@@ -44,7 +48,6 @@ const JobSchema = new mongoose.Schema(
         "medical engineer",
         "dental",
         "administration",
-        "",
       ],
       required: true,
     },
@@ -55,21 +58,27 @@ const JobSchema = new mongoose.Schema(
     preferredCommunicationLanguage: {
       type: String,
       default: "English",
+      enum: [
+        "kikuyu",
+        "swahili",
+        "english",
+        "kalenjin",
+        "kisii",
+        "luo",
+        "meru",
+        "kamba",
+        "luhya",
+        "masai",
+        "somali",
+        "other",
+      ],
     },
     description: {
       type: String,
     },
     postedBy: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-    },
-    createdAt: {
-      type: Date,
-      default: Date.now,
-    },
-    updatedAt: {
-      type: Date,
-      default: Date.now,
+      type: String,
+      required: true,
     },
   },
   { timestamps: true }
