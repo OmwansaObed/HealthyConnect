@@ -19,17 +19,17 @@ export async function POST(request) {
         { status: 400 }
       );
 
-    const existingJob = await Job.findOne({
-      title: data.title,
-      company: data.company,
-      location: data.location,
-    });
+    // const existingJob = await Job.findOne({
+    //   title: data.title,
+    //   company: data.company,
+    //   location: data.location,
+    // });
 
-    if (existingJob)
-      return NextResponse.json(
-        { error: "Job already exists" },
-        { status: 409 }
-      );
+    // if (existingJob)
+    //   return NextResponse.json(
+    //     { error: "Job already exists" },
+    //     { status: 409 }
+    //   );
 
     const job = await Job.create(data);
 
@@ -43,58 +43,61 @@ export async function POST(request) {
 }
 
 // GET request handler to fetch all jobs
-export async function GET() {
-  try {
-    await connectDB();
-    const jobs = await Job.find({})
-      .sort({ createdAt: -1 })
-      .populate("postedBy");
-    if (!jobs || jobs.length === 0) {
-      return NextResponse.json({ message: "No jobs found" }, { status: 404 });
-    }
+export async function GET(request) {
+  const { searchParams } = new URL(request.url);
+  const page = parseInt(searchParams.get("page")) || 1;
+  const limit = parseInt(searchParams.get("limit")) || 10;
+  const skip = (page - 1) * limit;
 
-    return NextResponse.json({ jobs }, { status: 200 });
-  } catch (error) {
-    return NextResponse.json(
-      { error: error.message || "Failed to fetch jobs" },
-      { status: 500 }
-    );
-  }
+  await connectDB();
+  const jobs = await Job.find({})
+    .sort({ createdAt: -1 })
+    .skip(skip)
+    .limit(limit);
+
+  const total = await Job.countDocuments();
+
+  return NextResponse.json({
+    jobs,
+    total,
+    page,
+    totalPages: Math.ceil(total / limit),
+  });
 }
 
 // PATCH request handler to update a job by ID
 export async function PATCH(request) {
-    try {
-        await connectDB();
-        const { id, ...updateData } = await request.json();
-        if (!id) {
-            return NextResponse.json(
-                { error: "Job ID is required" },
-                { status: 400 }
-            );
-        }
-        // Allow updating any subset of fields (even just one)
-        if (Object.keys(updateData).length === 0) {
-            return NextResponse.json(
-                { error: "At least one field to update is required" },
-                { status: 400 }
-            );
-        }
-        const updatedJob = await Job.findByIdAndUpdate(
-            id,
-            { $set: updateData },
-            { new: true, runValidators: true }
-        );
-        if (!updatedJob) {
-            return NextResponse.json({ error: "Job not found" }, { status: 404 });
-        }
-        return NextResponse.json({ job: updatedJob }, { status: 200 });
-    } catch (error) {
-        return NextResponse.json(
-            { error: error.message || "Failed to update job" },
-            { status: 500 }
-        );
+  try {
+    await connectDB();
+    const { id, ...updateData } = await request.json();
+    if (!id) {
+      return NextResponse.json(
+        { error: "Job ID is required" },
+        { status: 400 }
+      );
     }
+    // Allow updating any subset of fields (even just one)
+    if (Object.keys(updateData).length === 0) {
+      return NextResponse.json(
+        { error: "At least one field to update is required" },
+        { status: 400 }
+      );
+    }
+    const updatedJob = await Job.findByIdAndUpdate(
+      id,
+      { $set: updateData },
+      { new: true, runValidators: true }
+    );
+    if (!updatedJob) {
+      return NextResponse.json({ error: "Job not found" }, { status: 404 });
+    }
+    return NextResponse.json({ job: updatedJob }, { status: 200 });
+  } catch (error) {
+    return NextResponse.json(
+      { error: error.message || "Failed to update job" },
+      { status: 500 }
+    );
+  }
 }
 
 // DELETE request handler to delete a job by ID

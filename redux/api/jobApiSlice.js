@@ -16,7 +16,13 @@ export const jobApiSlice = apiSlice.injectEndpoints({
         url: JOBS_URL,
         method: "GET",
       }),
-      providesTags: ["Job"],
+      providesTags: (result) =>
+        result?.jobs
+          ? [
+              ...result.jobs.map((job) => ({ type: "Job", id: job._id })),
+              { type: "Job", id: "LIST" },
+            ]
+          : [{ type: "Job", id: "LIST" }],
     }),
     updateJob: builder.mutation({
       query: ({ id, ...updateData }) => ({

@@ -20,15 +20,19 @@ import {
   Building,
   ArrowRight,
   Loader2,
+  Phone,
 } from "lucide-react";
 import { GiLaserWarning } from "react-icons/gi";
 import { MdScience } from "react-icons/md";
 import { useGetJobsQuery } from "../../redux/api/jobApiSlice";
 
 export default function JobSearchPage() {
-  // Replace dummy data and manual loading state with RTK Query
-  const { data, isLoading, error } = useGetJobsQuery();
+  const [page, setPage] = useState(1);
+  const limit = 10; // You can make this dynamic if you want
+  const { data, isLoading, error } = useGetJobsQuery({ page, limit });
   const jobs = data?.jobs || [];
+  const totalPages = data?.totalPages || 1;
+  const totalCount = data?.total || 0;
   console.log("Jobs data:", jobs);
   const [filteredJobs, setFilteredJobs] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -474,25 +478,25 @@ export default function JobSearchPage() {
                                   {job.title}
                                 </h3>
                                 <span
-                                  className={`px-2 py-1 rounded-full text-xs font-medium self-start ${getJobTypeColor(
+                                  className={`px-2 py-1 rounded-full text-xs font-semibold self-start ${getJobTypeColor(
                                     job.type
-                                  )}`}
+                                  )} shadow-sm`}
                                 >
                                   {job.type.replace("-", " ").toUpperCase()}
                                 </span>
                               </div>
 
                               {/* Company & Location */}
-                              <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-sm text-gray-600 mb-3">
-                                <div className="flex items-center gap-1">
+                              <div className="flex flex-wrap sm:flex-nowrap sm:items-center gap-2 sm:gap-4 text-sm text-gray-600 mb-3">
+                                <div className="flex items-center gap-1 min-w-0">
                                   <Building className="w-4 h-4 flex-shrink-0" />
-                                  <span className="truncate">
+                                  <span className="truncate font-medium">
                                     {job.postedBy}
                                   </span>
                                 </div>
-                                <div className="flex items-center gap-1">
+                                <div className="flex items-center gap-1 min-w-0">
                                   <MapPin className="w-4 h-4 flex-shrink-0" />
-                                  <span>
+                                  <span className="truncate">
                                     {job.location.county}, {job.location.state}
                                   </span>
                                 </div>
@@ -510,9 +514,9 @@ export default function JobSearchPage() {
                               {/* Experience & Salary */}
                               <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-4 sm:mb-0">
                                 <span
-                                  className={`px-2 py-1 rounded-full text-xs font-medium self-start ${getExperienceColor(
+                                  className={`px-2 py-1 rounded-full text-xs font-semibold self-start ${getExperienceColor(
                                     job.experience
-                                  )}`}
+                                  )} shadow-sm`}
                                 >
                                   {job.experience
                                     .replace("-", " ")
@@ -520,16 +524,19 @@ export default function JobSearchPage() {
                                 </span>
                                 <div className="flex items-center gap-1 text-sm text-gray-600">
                                   <DollarSign className="w-4 h-4" />
-                                  <span className="truncate">{job.salary}</span>
+                                  <span className="truncate font-medium">
+                                    {job.salary}
+                                  </span>
                                 </div>
                               </div>
                             </div>
                           </div>
 
                           {/* Action Buttons */}
-                          <div className="flex sm:flex-col items-center sm:items-end gap-2 sm:gap-3 sm:ml-4">
-                            <button className="flex-1 sm:flex-none px-4 py-2 sm:px-6 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium text-sm sm:text-base whitespace-nowrap">
-                              Phone Number
+                          <div className="flex sm:flex-col justify-center items-center  sm:items-end gap-2 sm:gap-3 sm:ml-4 ">
+                            <button className="flex items-center gap-2 px-4 py-2 sm:px-6 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-semibold text-sm sm:text-base whitespace-nowrap shadow">
+                              <Phone className="w-5 h-5 text-white" />
+                              <span>{job.phone}</span>
                             </button>
                           </div>
                         </div>
@@ -558,6 +565,42 @@ export default function JobSearchPage() {
                 )}
               </div>
             )}
+          </div>
+        </div>
+
+        {/* Pagination Controls */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mt-8">
+          <div className="flex-1 min-w-0">
+            <span className="text-sm text-gray-600">
+              Showing{" "}
+              <span className="font-medium">
+                {filteredJobs.length > 0 ? (page - 1) * limit + 1 : 0}
+              </span>
+              {" - "}
+              <span className="font-medium">
+                {filteredJobs.length > 0
+                  ? Math.min(page * limit, totalCount)
+                  : 0}
+              </span>{" "}
+              of <span className="font-medium">{totalCount}</span> jobs
+            </span>
+          </div>
+
+          <div className="flex gap-2">
+            <button
+              onClick={() => setPage(page - 1)}
+              disabled={page === 1}
+              className="px-4 py-2 bg-white border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Prev
+            </button>
+            <button
+              onClick={() => setPage(page + 1)}
+              disabled={page === totalPages}
+              className="px-4 py-2 bg-white border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Next
+            </button>
           </div>
         </div>
       </div>

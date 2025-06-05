@@ -25,14 +25,7 @@ const JobSchema = new mongoose.Schema(
     },
     experience: {
       type: String,
-      enum: [
-        "entry-level",
-        "1+ year ",
-        "2+ years",
-        "3+ years",
-        "4+ years",
-        "5+ years",
-      ],
+      enum: ["entry-level", "1+", "2+", "3+", "4+", "5+"],
     },
     age: {
       type: Number,
@@ -54,6 +47,22 @@ const JobSchema = new mongoose.Schema(
     salary: {
       type: String,
       default: "Not listed",
+    },
+    phone: {
+      type: String,
+      required: true,
+      validate: {
+        validator: function (v) {
+          return /^(\+254|0)?[7-9]\d{8}$/.test(v);
+        },
+        message: (props) =>
+          `${props.value} is not a valid Kenyan phone number!`,
+      },
+    },
+    status: {
+      type: String,
+      enum: ["open", "closed", "pending"],
+      default: "open",
     },
     preferredCommunicationLanguage: {
       type: String,
