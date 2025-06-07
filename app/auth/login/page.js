@@ -4,6 +4,7 @@ import { Mail, Lock, Eye, EyeOff } from "lucide-react";
 import { signIn } from "next-auth/react";
 import { redirect, useRouter } from "next/navigation";
 import { toast } from "sonner";
+import Link from "next/link";
 
 const Login = () => {
   const [email, setEmail] = useState("");

@@ -18,6 +18,28 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    profession: {
+      type: String,
+      enum: [
+        "nurse",
+        "medical-officer-intern",
+        "Medica-officer",
+        "phsychiatrist",
+        "physi-ortho",
+        "pharmtechs",
+        "labtechs",
+        "registerd-clinical-officer",
+        "coho",
+        "theatretechs",
+        "ambulance-crews",
+        "casuals",
+        "chvs",
+        "student",
+        "dentists",
+        "public-health-officers",
+        "psychology",
+      ],
+    },
   },
   { timestamps: true }
 );

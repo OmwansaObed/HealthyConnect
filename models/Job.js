@@ -27,9 +27,6 @@ const JobSchema = new mongoose.Schema(
       type: String,
       enum: ["entry-level", "1+", "2+", "3+", "4+", "5+"],
     },
-    age: {
-      type: Number,
-    },
     category: {
       type: String,
       enum: [
@@ -52,9 +49,7 @@ const JobSchema = new mongoose.Schema(
       type: String,
       required: true,
       validate: {
-        validator: function (v) {
-          return /^(\+254|0)?[7-9]\d{8}$/.test(v);
-        },
+        validator: (v) => /^(\+254|0)?[7-9]\d{8}$/.test(v),
         message: (props) =>
           `${props.value} is not a valid Kenyan phone number!`,
       },
@@ -66,7 +61,6 @@ const JobSchema = new mongoose.Schema(
     },
     preferredCommunicationLanguage: {
       type: String,
-      default: "English",
       enum: [
         "kikuyu",
         "swahili",
@@ -81,6 +75,7 @@ const JobSchema = new mongoose.Schema(
         "somali",
         "other",
       ],
+      default: "english",
     },
     description: {
       type: String,
@@ -88,6 +83,34 @@ const JobSchema = new mongoose.Schema(
     postedBy: {
       type: String,
       required: true,
+    },
+    preference: {
+      gender: {
+        type: String,
+        enum: ["male", "female"],
+      },
+      age: {
+        type: String,
+        enum: ["18-25", "26-35", "36-45", "46-55", "56+"],
+      },
+      contactType: {
+        type: String,
+        enum: ["text-only", "calls-only", "any"],
+        default: "any",
+      },
+      time: {
+        type: String,
+        enum: ["day", "night", "any"],
+        default: "any",
+      },
+      certificate: {
+        type: String,
+        enum: ["diploma", "degree", "masters", "phd"],
+      },
+      completedRecently: {
+        type: Boolean,
+        default: false,
+      },
     },
   },
   { timestamps: true }

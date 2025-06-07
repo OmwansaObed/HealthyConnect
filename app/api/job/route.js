@@ -1,5 +1,6 @@
 import { connectDB } from "../../../lib/db.js";
 import Job from "../../../models/Job.js";
+import Notification from "../../../models/Notifications.js";
 import { NextResponse } from "next/server";
 
 export async function POST(request) {
@@ -19,19 +20,14 @@ export async function POST(request) {
         { status: 400 }
       );
 
-    // const existingJob = await Job.findOne({
-    //   title: data.title,
-    //   company: data.company,
-    //   location: data.location,
-    // });
-
-    // if (existingJob)
-    //   return NextResponse.json(
-    //     { error: "Job already exists" },
-    //     { status: 409 }
-    //   );
-
     const job = await Job.create(data);
+
+    // Create a notification for the new job
+    await Notification.create({
+      type: "job_posted",
+      message: `${job.title} was posted by ${job.postedBy}.`,
+      jobId: job._id,
+    });
 
     return NextResponse.json({ job }, { status: 201 });
   } catch (error) {
