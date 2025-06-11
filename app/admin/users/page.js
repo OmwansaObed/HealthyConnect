@@ -26,13 +26,13 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import JobViewModal from "../../../components/admin/job-listing/JobViewModal";
 
-export default function UsersAdminDashboard({
+const UsersAdminDashboard = ({
   getStatusBadge,
   getStatusColor,
   showViewModal,
   setShowViewModal,
   selectedJob,
-}) {
+}) => {
   const { data: users = [], isLoading, error } = useGetUsersQuery();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedProfession, setSelectedProfession] = useState("all");
@@ -755,4 +755,5 @@ export default function UsersAdminDashboard({
       )}
     </div>
   );
-}
+};
+export default UsersAdminDashboard;
