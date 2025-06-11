@@ -1,10 +1,12 @@
 "use client";
 import React, { useState } from "react";
 import { Mail, Lock, Eye, EyeOff } from "lucide-react";
-import { signIn } from "next-auth/react";
+import { getSession, signIn } from "next-auth/react";
 import { redirect, useRouter } from "next/navigation";
 import { toast } from "sonner";
 import Link from "next/link";
+import { useDispatch } from "react-redux";
+import { setUser } from "../../../redux/api/userSlice";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -12,11 +14,22 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const router = useRouter();
 
-  const handleGoogleLogin = () => {
+  const router = useRouter();
+  const dispatch = useDispatch();
+
+  const handleGoogleLogin = async () => {
     try {
       signIn("google", { callbackUrl: "/", prompt: "select_account" });
+      const session = await getSession();
+      if (session?.user) {
+        dispatch(setUser(session.user));
+      }
+      router.push("/");
+      setError(null);
+      setEmail("");
+      setPassword("");
+      setLoading(false);
     } catch (error) {
       console.error("Google login error:", error);
       toast.error("An error occurred during Google login");
@@ -42,10 +55,16 @@ const Login = () => {
     if (response.status !== 200) {
       console.error("Login error:", response.error);
       toast.error(response.error);
+
       setLoading(false);
       setError(response?.error);
     } else if (response?.ok === true) {
-      console.log("Login successful");
+      const session = await getSession();
+
+      if (session?.user) {
+        dispatch(setUser(session.user));
+      }
+
       toast.success("Login successful!");
       router.push("/");
       setEmail("");

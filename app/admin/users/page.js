@@ -26,13 +26,33 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import JobViewModal from "../../../components/admin/job-listing/JobViewModal";
 
-const UsersAdminDashboard = ({
-  getStatusBadge,
-  getStatusColor,
-  showViewModal,
-  setShowViewModal,
-  selectedJob,
-}) => {
+// Helper functions for job status (move inside component)
+const getStatusBadge = (status) => {
+  switch (status) {
+    case "open":
+      return "Open";
+    case "closed":
+      return "Closed";
+    case "pending":
+      return "Pending";
+    default:
+      return status;
+  }
+};
+const getStatusColor = (status) => {
+  switch (status) {
+    case "open":
+      return "bg-green-100 text-green-800";
+    case "closed":
+      return "bg-red-100 text-red-800";
+    case "pending":
+      return "bg-yellow-100 text-yellow-800";
+    default:
+      return "bg-gray-100 text-gray-800";
+  }
+};
+
+const UsersAdminDashboard = () => {
   const { data: users = [], isLoading, error } = useGetUsersQuery();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedProfession, setSelectedProfession] = useState("all");
@@ -551,49 +571,42 @@ const UsersAdminDashboard = ({
               </div>
             )}
             {modalType === "view" && selectedUser && (
-              // <div className="space-y-4">
-              //   <div className="flex items-center space-x-3 mb-4">
-              //     <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold">
-              //       {selectedUser.username.charAt(0).toUpperCase()}
-              //     </div>
-              //     <div>
-              //       <h4 className="font-bold text-gray-900">
-              //         {selectedUser.username}
-              //       </h4>
-              //       <p className="text-gray-600">{selectedUser.email}</p>
-              //     </div>
-              //   </div>
-              //   <div className="space-y-2">
-              //     <div className="flex justify-between">
-              //       <span className="text-gray-600">Profession:</span>
-              //       <span className="font-medium">
-              //         {professions.find(
-              //           (p) => p.value === selectedUser.profession
-              //         )?.label || selectedUser.profession}
-              //       </span>
-              //     </div>
-              //     <div className="flex justify-between">
-              //       <span className="text-gray-600">Role:</span>
-              //       <span className="font-medium">
-              //         {selectedUser.isAdmin ? "Admin" : "User"}
-              //       </span>
-              //     </div>
-              //     <div className="flex justify-between">
-              //       <span className="text-gray-600">Joined:</span>
-              //       <span className="font-medium">
-              //         {formatDate(selectedUser.createdAt)}
-              //       </span>
-              //     </div>
-              //   </div>
-              // </div>
-              <JobViewModal
-                job={selectedJob}
-                isOpen={showViewModal}
-                onClose={() => setShowViewModal(false)}
-                getStatusColor={getStatusColor}
-                getStatusBadge={getStatusBadge}
-              />
-            )}
+  <div className="space-y-4">
+    <div className="flex items-center space-x-3 mb-4">
+      <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold">
+        {selectedUser.username.charAt(0).toUpperCase()}
+      </div>
+      <div>
+        <h4 className="font-bold text-gray-900">
+          {selectedUser.username}
+        </h4>
+        <p className="text-gray-600">{selectedUser.email}</p>
+      </div>
+    </div>
+    <div className="space-y-2">
+      <div className="flex justify-between">
+        <span className="text-gray-600">Profession:</span>
+        <span className="font-medium">
+          {professions.find(
+            (p) => p.value === selectedUser.profession
+          )?.label || selectedUser.profession}
+        </span>
+      </div>
+      <div className="flex justify-between">
+        <span className="text-gray-600">Role:</span>
+        <span className="font-medium">
+          {selectedUser.isAdmin ? "Admin" : "User"}
+        </span>
+      </div>
+      <div className="flex justify-between">
+        <span className="text-gray-600">Joined:</span>
+        <span className="font-medium">
+          {formatDate(selectedUser.createdAt)}
+        </span>
+      </div>
+    </div>
+  </div>
+)}
             {(modalType === "edit" || modalType === "create") && (
               <div className="space-y-4">
                 <div>
@@ -757,3 +770,4 @@ const UsersAdminDashboard = ({
   );
 };
 export default UsersAdminDashboard;
+

@@ -13,12 +13,13 @@ const Register = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(null);
 
   const handleGoogleSignup = () => {
     try {
-      signIn("google", { callbackUrl: "/", prompt: "select_account" });
-    } catch (error) {
-      console.error("Google signup error:", error);
+      signIn("google", { callbackUrl: "/" });
+    } catch (err) {
+      console.error("Google signup error:", err);
       toast.error("An error occurred during Google signup");
     }
   };
@@ -29,56 +30,60 @@ const Register = () => {
       toast.error("Please fill in all fields");
       return;
     }
+
     setLoading(true);
     setError(null);
+    setSuccess(null);
+
     try {
-      const response = await axios.post("/api/auth/signup", {
+      const res = await axios.post("/api/auth/signup", {
         username,
         email,
         password,
       });
-      if (response.ok) {
-        toast.success("Registration successful!");
-        window.location.href = "/auth/login";
-        setUsername("");
-        setEmail("");
-        setPassword("");
-        setLoading(false);
-        setError(null);
+
+      if (res.status === 201) {
+        setSuccess("Registration successful!");
+        toast.success("Redirecting to login...");
+        setTimeout(() => {
+          window.location.href = "/auth/login";
+        }, 1500);
+      } else if (res.status === 409) {
+        const msg = "Username or email already exists";
+        setError(msg);
+        toast.error(msg);
       } else {
-        toast.error(response?.data.message || "Registration failed");
-        setLoading(false);
-        setError(response?.data.message || "Registration failed");
+        const msg = res.data.message || "Registration failed";
+        setError(msg);
+        toast.error(msg);
       }
-    } catch (error) {
-      console.error("Registration error:", error);
-      toast.error(
-        error?.response?.data?.message ||
-          "An error occurred during registration"
-      );
+    } catch (err) {
+      const msg =
+        err?.response?.data?.message || "An error occurred during registration";
+      setError(msg);
+      toast.error(msg);
+    } finally {
       setLoading(false);
-      setError(
-        error?.response?.data?.message ||
-          "An error occurred during registration"
-      );
     }
   };
 
   return (
-    <div className="bg-gradient-to-t from-blue-100 to-white min-h-screen  flex items-center justify-center px-4">
-      <div className="w-full max-w-md space-y-8 ">
+    <div className="bg-gradient-to-t from-blue-100 to-white min-h-screen flex items-center justify-center px-4">
+      <div className="w-full max-w-md space-y-8">
         <div className="text-center">
           <h1 className="text-3xl font-bold text-[#0A2647]">Create Account</h1>
           <p className="text-[#144272] mt-2">Sign up to get started</p>
         </div>
 
-        <div className="space-y-6">
+        <div className="space-y-6 bg-white p-8 rounded-xl shadow-md border border-blue-100">
           {/* Google Signup Button */}
           <button
             onClick={handleGoogleSignup}
-            className="w-full flex  items-center justify-center gap-3 py-3 px-4 border border-blue-500 rounded-lg hover:cursor-pointer hover:bg-red-100/10  transition-colors duration-200"
+            className="w-full flex items-center justify-center gap-3 py-3 px-4 border border-blue-500 rounded-lg hover:bg-blue-50 transition-colors duration-200"
+            aria-label="Sign up with Google"
           >
             <svg className="w-5 h-5" viewBox="0 0 24 24">
+              {/* SVG paths unchanged */}
               <path
                 fill="#4285F4"
                 d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
@@ -104,20 +109,20 @@ const Register = () => {
           {/* Divider */}
           <div className="relative">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-[#2c3ab3]"></div>
+              <div className="w-full border-t border-gray-300"></div>
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-[#F5F6FA] text-blue-500">or</span>
+              <span className="px-2 bg-white text-gray-500">or</span>
             </div>
           </div>
 
           {/* Email/Password Form */}
-          <div className="space-y-4">
-            {/* username */}
+          <form onSubmit={handleEmailSignup} className="space-y-4">
+            {/* Username */}
             <div>
               <label
                 htmlFor="username"
-                className="block text-sm font-medium text-[#144272] mb-2"
+                className="block text-sm font-medium text-[#144272] mb-1"
               >
                 Username
               </label>
@@ -125,7 +130,7 @@ const Register = () => {
                 <UserRound className="absolute left-3 top-1/2 transform -translate-y-1/2 text-blue-500 w-5 h-5" />
                 <input
                   id="username"
-                  type="username"
+                  type="text"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   required
@@ -134,10 +139,12 @@ const Register = () => {
                 />
               </div>
             </div>
+
+            {/* Email */}
             <div>
               <label
                 htmlFor="email"
-                className="block text-sm font-medium text-[#144272] mb-2"
+                className="block text-sm font-medium text-[#144272] mb-1"
               >
                 Email address
               </label>
@@ -155,10 +162,11 @@ const Register = () => {
               </div>
             </div>
 
+            {/* Password */}
             <div>
               <label
                 htmlFor="password"
-                className="block text-sm font-medium text-[#144272] mb-2"
+                className="block text-sm font-medium text-[#144272] mb-1"
               >
                 Password
               </label>
@@ -177,6 +185,7 @@ const Register = () => {
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-3 top-1/2 transform -translate-y-1/2 text-blue-500 hover:text-[#205295]"
+                  aria-label={showPassword ? "Hide password" : "Show password"}
                 >
                   {showPassword ? (
                     <EyeOff className="w-5 h-5" />
@@ -188,13 +197,15 @@ const Register = () => {
             </div>
 
             <button
-              type="button"
-              onClick={handleEmailSignup}
-              className="w-full bg-blue-500 text-white py-3 px-4 rounded-lg font-medium hover:bg-blue-600 transition-colors duration-200"
+              type="submit"
+              disabled={loading}
+              className={`w-full bg-blue-500 text-white py-3 px-4 rounded-lg font-medium hover:bg-blue-600 transition-colors duration-200 ${
+                loading ? "opacity-70 cursor-not-allowed" : ""
+              }`}
             >
-              Create Account
+              {loading ? "Creating..." : "Create Account"}
             </button>
-          </div>
+          </form>
 
           <div className="text-center">
             <p className="text-[#144272] text-sm">
@@ -207,9 +218,16 @@ const Register = () => {
               </Link>
             </p>
           </div>
+
+          {/* Error & Success Messages */}
           {error && (
-            <div className="text-[#EA4335] bg-[#FDEDED] py-3 text-sm text-center mt-2 rounded">
+            <div className="text-red-600 bg-red-50 py-2 text-sm text-center rounded">
               {error}
+            </div>
+          )}
+          {success && (
+            <div className="text-green-600 bg-green-50 py-2 text-sm text-center rounded">
+              {success}
             </div>
           )}
         </div>
