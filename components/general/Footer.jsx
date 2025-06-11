@@ -37,19 +37,19 @@ export default function Footer() {
                 <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
                   <Mail className="w-4 h-4 text-blue-600" />
                 </div>
-                <span>contact@healthyconnect.com</span>
+                <span>legal@healthyconnect.com</span>
               </div>
               <div className="flex items-center space-x-3 text-gray-600 hover:text-blue-600 transition-colors cursor-pointer">
                 <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
                   <Phone className="w-4 h-4 text-blue-600" />
                 </div>
-                <span>+1 (555) 123-4567</span>
+                <span>+254 794 909 991</span>
               </div>
               <div className="flex items-center space-x-3 text-gray-600 hover:text-blue-600 transition-colors cursor-pointer">
                 <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
                   <MapPin className="w-4 h-4 text-blue-600" />
                 </div>
-                <span>123 Healthcare Ave, Medical District, NY 10001</span>
+                <span>Mradi, Embakasi, Nairobi</span>
               </div>
             </div>
           </div>
