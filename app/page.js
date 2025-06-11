@@ -120,8 +120,7 @@ export default function Homepage() {
           <h1 className="text-4xl lg:text-6xl font-bold text-white mb-6 leading-tight">
             Your Dream
             <span className="bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">
-              {" "}
-              Healthcare Career{" "}
+              Healthcare Career
             </span>
             Starts Here
           </h1>
@@ -130,11 +129,16 @@ export default function Homepage() {
             that match your passion for making a difference in people's lives.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
-            <button className="px-8 py-4 bg-white text-blue-600 rounded-xl hover:bg-gray-100 font-bold text-lg shadow-lg hover:shadow-xl hover:cursor-pointer  transition-all">
-              Get Started
-            </button>
+            <a href="#get-started" style={{ scrollBehavior: "smooth" }}>
+              <button className="px-8 py-4 bg-white text-blue-600 rounded-xl hover:bg-gray-100 font-bold text-lg shadow-lg hover:shadow-xl hover:cursor-pointer  transition-all">
+                Get Started
+              </button>
+            </a>
 
-            <button className="px-8 py-4 bg-blue-700 border outline-none text-white rounded-xl hover:bg-blue-800 font-bold text-lg hover:cursor-pointer shadow-lg hover:shadow-xl transition-all">
+            <button
+              onClick={() => router.push("/jobs")}
+              className="px-8 py-4 bg-blue-700 border outline-none text-white rounded-xl hover:bg-blue-800 font-bold text-lg hover:cursor-pointer shadow-lg hover:shadow-xl transition-all"
+            >
               Browse Jobs
             </button>
           </div>
@@ -156,7 +160,7 @@ export default function Homepage() {
         </div>
       </section>
       {/* Job Categories */}
-      <section className="py-20">
+      <section id="get-started" className="py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-gray-900 mb-4">

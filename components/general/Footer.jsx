@@ -8,6 +8,7 @@ import {
   Facebook,
   Heart,
   ArrowRight,
+  Instagram,
 } from "lucide-react";
 
 export default function Footer() {
@@ -83,7 +84,7 @@ export default function Footer() {
           </div>
 
           {/* Employers */}
-          <div>
+          {/* <div>
             <h3 className="text-blue-700 font-bold text-lg mb-6">
               For Employers
             </h3>
@@ -109,13 +110,13 @@ export default function Footer() {
                 </li>
               ))}
             </ul>
-          </div>
+          </div> */}
         </div>
 
         {/* Second Row */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mt-12 pt-8 border-t border-blue-200">
           {/* Popular Categories */}
-          <div>
+          {/* <div>
             <h3 className="text-blue-700 font-bold text-lg mb-6">
               Popular Categories
             </h3>
@@ -140,27 +141,30 @@ export default function Footer() {
                 </li>
               ))}
             </ul>
-          </div>
+          </div> */}
 
           {/* Company */}
           <div>
             <h3 className="text-blue-700 font-bold text-lg mb-6">Company</h3>
             <ul className="space-y-3">
-              {["About Us", "Our Mission", "Careers", "Press", "Contact"].map(
-                (item) => (
-                  <li key={item}>
-                    <a
-                      href="#"
-                      className="group flex items-center text-gray-600 hover:text-blue-600 transition-colors"
-                    >
-                      <ArrowRight className="w-4 h-4 mr-2 opacity-0 group-hover:opacity-100 transition-opacity" />
-                      <span className="group-hover:translate-x-1 transition-transform">
-                        {item}
-                      </span>
-                    </a>
-                  </li>
-                )
-              )}
+              {[
+                { name: "About Us", link: "/about" },
+                { name: "Our Mission", link: "/mission" },
+                { name: "Careers", link: "/jobs" },
+                { name: "Contact", link: "/contact" },
+              ].map(({ name, link }) => (
+                <li key={name}>
+                  <a
+                    href={link}
+                    className="group flex items-center text-gray-600 hover:text-blue-600 transition-colors"
+                  >
+                    <ArrowRight className="w-4 h-4 mr-2 opacity-0 group-hover:opacity-100 transition-opacity" />
+                    <span className="group-hover:translate-x-1 transition-transform">
+                      {name}
+                    </span>
+                  </a>
+                </li>
+              ))}
             </ul>
           </div>
 
@@ -169,20 +173,20 @@ export default function Footer() {
             <h3 className="text-blue-700 font-bold text-lg mb-6">Support</h3>
             <ul className="space-y-3">
               {[
-                "Help Center",
-                "FAQs",
-                "Privacy Policy",
-                "Terms of Service",
-                "Cookie Policy",
-              ].map((item) => (
-                <li key={item}>
+                { name: "Help Center", link: "/help-center" },
+                { name: "FAQs", link: "/faqs" },
+
+                { name: "Terms of Service", link: "/terms" },
+                { name: "Cookie Policy", link: "/cookies" },
+              ].map(({ name, link }) => (
+                <li key={name}>
                   <a
-                    href="#"
+                    href={link}
                     className="group flex items-center text-gray-600 hover:text-blue-600 transition-colors"
                   >
                     <ArrowRight className="w-4 h-4 mr-2 opacity-0 group-hover:opacity-100 transition-opacity" />
                     <span className="group-hover:translate-x-1 transition-transform">
-                      {item}
+                      {name}
                     </span>
                   </a>
                 </li>
@@ -197,19 +201,19 @@ export default function Footer() {
             </h3>
             <div className="flex space-x-3 mb-6">
               <a
-                href="#"
+                href="https://instagram.com/gamestar010"
                 className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center hover:bg-blue-700 transition-all duration-200 shadow-sm hover:shadow-md"
               >
-                <Linkedin className="w-5 h-5 text-white" />
+                <Instagram className="w-5 h-5 text-white" />
               </a>
               <a
-                href="#"
+                href="https://x.com/CartoonAfi46044"
                 className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center hover:bg-blue-700 transition-all duration-200 shadow-sm hover:shadow-md"
               >
                 <Twitter className="w-5 h-5 text-white" />
               </a>
               <a
-                href="#"
+                href="https://www.facebook.com/gamestar.aficionado/"
                 className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center hover:bg-blue-700 transition-all duration-200 shadow-sm hover:shadow-md"
               >
                 <Facebook className="w-5 h-5 text-white" />

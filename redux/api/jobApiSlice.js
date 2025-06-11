@@ -3,7 +3,7 @@ import { JOBS_URL } from "../constants";
 
 export const jobApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
-    createJob: builder.mutation({
+    addJob: builder.mutation({
       query: (jobData) => ({
         url: `${JOBS_URL}`,
         method: "POST",
@@ -12,8 +12,8 @@ export const jobApiSlice = apiSlice.injectEndpoints({
       invalidatesTags: ["Job"],
     }),
     getJobs: builder.query({
-      query: () => ({
-        url: JOBS_URL,
+      query: ({ page = 1, limit = 10 }) => ({
+        url: `${JOBS_URL}?page=${page}&limit=${limit}`,
         method: "GET",
       }),
       providesTags: (result) =>
@@ -41,10 +41,11 @@ export const jobApiSlice = apiSlice.injectEndpoints({
       invalidatesTags: ["Job"],
     }),
   }),
+  overrideExisting: true,
 });
 
 export const {
-  useCreateJobMutation,
+  useAddJobMutation,
   useGetJobsQuery,
   useUpdateJobMutation,
   useDeleteJobMutation,

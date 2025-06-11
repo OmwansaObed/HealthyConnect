@@ -8,7 +8,7 @@ const JobSchema = new mongoose.Schema(
       trim: true,
     },
     location: {
-      state: { type: String, required: true },
+      state: { type: String },
       county: { type: String },
     },
     type: {
@@ -21,11 +21,11 @@ const JobSchema = new mongoose.Schema(
         "temporary",
         "internship",
       ],
-      required: true,
     },
     experience: {
       type: String,
       enum: ["entry-level", "1+", "2+", "3+", "4+", "5+"],
+      default: "not-listed",
     },
     category: {
       type: String,
@@ -38,12 +38,12 @@ const JobSchema = new mongoose.Schema(
         "medical engineer",
         "dental",
         "administration",
+        "orthopedics",
       ],
-      required: true,
     },
     salary: {
       type: String,
-      default: "Not listed",
+      default: "not-listed",
     },
     phone: {
       type: String,
@@ -82,20 +82,21 @@ const JobSchema = new mongoose.Schema(
     },
     postedBy: {
       type: String,
-      required: true,
     },
     preference: {
       gender: {
         type: String,
-        enum: ["male", "female"],
+        enum: ["male", "female", "any"], // "any" was already here - this is correct
+        default: "any",
       },
       age: {
         type: String,
-        enum: ["18-25", "26-35", "36-45", "46-55", "56+"],
+        enum: ["18-25", "26-35", "36-45", "46-55", "56+", "any"],
+        default: "any",
       },
       contactType: {
         type: String,
-        enum: ["text-only", "calls-only", "any"],
+        enum: ["text-or-whatsapp-only", "calls-or-text", "any"],
         default: "any",
       },
       time: {
@@ -105,7 +106,8 @@ const JobSchema = new mongoose.Schema(
       },
       certificate: {
         type: String,
-        enum: ["diploma", "degree", "masters", "phd"],
+        enum: ["diploma", "degree", "masters", "phd", "any"],
+        default: "any",
       },
       completedRecently: {
         type: Boolean,

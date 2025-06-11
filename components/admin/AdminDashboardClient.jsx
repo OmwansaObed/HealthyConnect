@@ -15,17 +15,12 @@ import {
   Plus,
   Users,
 } from "lucide-react";
-import AdminSidebar from "./AdminSidebar";
+
 import AdminHeader from "./AdminHeader";
 import AdminStatsWidget from "./AdminStatsWidget";
+import AdminSidebar from "./AdminSidebar";
 
 const AdminDashboardClient = () => {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-
-  const toggleSidebar = () => {
-    setIsSidebarOpen(!isSidebarOpen);
-  };
-
   const quickActions = [
     {
       title: "Post New Job",
@@ -91,16 +86,9 @@ const AdminDashboardClient = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <AdminSidebar isOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
-
-      <div className={`transition-all duration-300 ease-in-out md:ml-64`}>
-        <AdminHeader
-          toggleSidebar={toggleSidebar}
-          isSidebarOpen={isSidebarOpen}
-        />
-
-        <main className="p-4 sm:p-6 space-y-6">
+    <div className="min-h-screen bg-gray-50 flex">
+      <div className="flex-1 flex flex-col min-w-0">
+        <main className="flex-1 p-4 sm:p-6 space-y-6 overflow-auto">
           <div className="bg-gradient-to-r from-blue-600 to-indigo-700 rounded-2xl p-6 text-white">
             <h2 className="text-2xl font-bold mb-2">Good morning, Admin! 👋</h2>
             <p className="text-blue-100 mb-4">

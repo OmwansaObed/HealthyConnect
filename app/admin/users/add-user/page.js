@@ -87,8 +87,6 @@ export default function AddUserPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
-      <AdminSidebar isOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
-
       {/* Main Content Area */}
       <div className="flex-1 md:ml-64">
         {/* Mobile Header */}

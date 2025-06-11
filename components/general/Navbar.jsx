@@ -186,7 +186,7 @@ export default function Navbar() {
     }
     // Not signed in
     return (
-      <div className="flex items-center space-x-3">
+      <div className="flex items-center space-x-3 z-10">
         <button
           onClick={() => signIn()}
           className="px-6 py-2 text-gray-700 hover:text-blue-600 font-medium transition-all duration-300 rounded-lg hover:bg-blue-50 transform hover:scale-105"
@@ -332,7 +332,7 @@ export default function Navbar() {
 
   return (
     <>
-      <nav className="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm backdrop-blur-md bg-white/95">
+      <nav className=" border-b border-gray-200 sticky top-0 z-50 shadow-sm backdrop-blur-md bg-white/95">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             {/* Logo */}

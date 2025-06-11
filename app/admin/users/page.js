@@ -24,8 +24,15 @@ import {
 } from "../../../redux/api/usersApiSlice";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import JobViewModal from "../../../components/admin/job-listing/JobViewModal";
 
-export default function UsersAdminDashboard() {
+export default function UsersAdminDashboard({
+  getStatusBadge,
+  getStatusColor,
+  showViewModal,
+  setShowViewModal,
+  selectedJob,
+}) {
   const { data: users = [], isLoading, error } = useGetUsersQuery();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedProfession, setSelectedProfession] = useState("all");
@@ -544,41 +551,48 @@ export default function UsersAdminDashboard() {
               </div>
             )}
             {modalType === "view" && selectedUser && (
-              <div className="space-y-4">
-                <div className="flex items-center space-x-3 mb-4">
-                  <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold">
-                    {selectedUser.username.charAt(0).toUpperCase()}
-                  </div>
-                  <div>
-                    <h4 className="font-bold text-gray-900">
-                      {selectedUser.username}
-                    </h4>
-                    <p className="text-gray-600">{selectedUser.email}</p>
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Profession:</span>
-                    <span className="font-medium">
-                      {professions.find(
-                        (p) => p.value === selectedUser.profession
-                      )?.label || selectedUser.profession}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Role:</span>
-                    <span className="font-medium">
-                      {selectedUser.isAdmin ? "Admin" : "User"}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Joined:</span>
-                    <span className="font-medium">
-                      {formatDate(selectedUser.createdAt)}
-                    </span>
-                  </div>
-                </div>
-              </div>
+              // <div className="space-y-4">
+              //   <div className="flex items-center space-x-3 mb-4">
+              //     <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold">
+              //       {selectedUser.username.charAt(0).toUpperCase()}
+              //     </div>
+              //     <div>
+              //       <h4 className="font-bold text-gray-900">
+              //         {selectedUser.username}
+              //       </h4>
+              //       <p className="text-gray-600">{selectedUser.email}</p>
+              //     </div>
+              //   </div>
+              //   <div className="space-y-2">
+              //     <div className="flex justify-between">
+              //       <span className="text-gray-600">Profession:</span>
+              //       <span className="font-medium">
+              //         {professions.find(
+              //           (p) => p.value === selectedUser.profession
+              //         )?.label || selectedUser.profession}
+              //       </span>
+              //     </div>
+              //     <div className="flex justify-between">
+              //       <span className="text-gray-600">Role:</span>
+              //       <span className="font-medium">
+              //         {selectedUser.isAdmin ? "Admin" : "User"}
+              //       </span>
+              //     </div>
+              //     <div className="flex justify-between">
+              //       <span className="text-gray-600">Joined:</span>
+              //       <span className="font-medium">
+              //         {formatDate(selectedUser.createdAt)}
+              //       </span>
+              //     </div>
+              //   </div>
+              // </div>
+              <JobViewModal
+                job={selectedJob}
+                isOpen={showViewModal}
+                onClose={() => setShowViewModal(false)}
+                getStatusColor={getStatusColor}
+                getStatusBadge={getStatusBadge}
+              />
             )}
             {(modalType === "edit" || modalType === "create") && (
               <div className="space-y-4">

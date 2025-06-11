@@ -8,13 +8,7 @@ export async function POST(request) {
   try {
     const data = await request.json();
 
-    if (
-      !data.title ||
-      !data.location ||
-      !data.salary ||
-      !data.description ||
-      !data.postedBy
-    )
+    if (!data.title || !data.description)
       return NextResponse.json(
         { error: "All fields are required" },
         { status: 400 }

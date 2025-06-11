@@ -29,7 +29,58 @@ import {
 } from "lucide-react";
 import { GiLaserWarning } from "react-icons/gi";
 import { MdScience } from "react-icons/md";
-import { useGetJobsQuery } from "../../redux/api/jobApiSlice";
+
+// Mock data for demonstration
+const mockJobs = [
+  {
+    _id: "1",
+    title: "Registered Nurse - ICU",
+    location: { state: "Nairobi", county: "Nairobi" },
+    type: "full-time",
+    experience: "2+",
+    category: "nursing",
+    salary: "KES 80,000 - 120,000",
+    phone: "+254712345678",
+    status: "open",
+    preferredCommunicationLanguage: "english",
+    description:
+      "We are seeking an experienced ICU nurse to join our dynamic healthcare team. The ideal candidate will have strong clinical skills and experience in critical care.",
+    postedBy: "Nairobi Hospital",
+    preference: {
+      gender: "any",
+      age: "26-35",
+      contactType: "calls-or-text",
+      time: "day",
+      certificate: "degree",
+      completedRecently: false,
+    },
+    createdAt: "2024-06-08T10:00:00Z",
+  },
+  {
+    _id: "2",
+    title: "Medical Officer - Emergency",
+    location: { state: "Mombasa", county: "Mombasa" },
+    type: "locum",
+    experience: "3+",
+    category: "medical Officer",
+    salary: "KES 150,000 - 200,000",
+    phone: "+254723456789",
+    status: "open",
+    preferredCommunicationLanguage: "swahili",
+    description:
+      "Urgent need for a medical officer in our emergency department. Must be available for immediate start.",
+    postedBy: "Coast General Hospital",
+    preference: {
+      gender: "any",
+      age: "any",
+      contactType: "any",
+      time: "any",
+      certificate: "degree",
+      completedRecently: true,
+    },
+    createdAt: "2024-06-07T15:30:00Z",
+  },
+];
 
 // Constants
 const CATEGORIES = [
@@ -127,6 +178,9 @@ const formatPreference = (preference) => {
   if (preference.time && preference.time !== "any") {
     prefs.push(`Shift: ${preference.time}`);
   }
+  if (preference.contactType && preference.contactType !== "any") {
+    prefs.push(`Contact: ${preference.contactType.replace("-", " ")}`);
+  }
   if (preference.completedRecently) {
     prefs.push("Recent graduates preferred");
   }
@@ -172,7 +226,193 @@ const FilterSelect = ({ label, value, options, onChange }) => (
   </div>
 );
 
-const JobCard = ({ job }) => {
+// Job Detail Modal Component
+const JobDetailModal = ({ job, isOpen, onClose }) => {
+  if (!isOpen || !job) return null;
+
+  const category = CATEGORIES.find((c) => c.value === job.category);
+  const IconComponent = category?.icon || Briefcase;
+
+  return (
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl border border-white/50 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+        {/* Header */}
+        <div className="sticky top-0 bg-white/95 backdrop-blur-sm border-b border-gray-200 p-6 flex justify-between items-start">
+          <div className="flex-1">
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">
+              {job.title}
+            </h2>
+            {job.postedBy && (
+              <p className="text-gray-600 text-sm">by {job.postedBy}</p>
+            )}
+          </div>
+          <button
+            onClick={onClose}
+            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+          >
+            <X className="w-5 h-5 text-gray-500" />
+          </button>
+        </div>
+
+        {/* Content */}
+        <div className="p-6 space-y-6">
+          {/* Status and Basic Info */}
+          <div className="flex flex-wrap gap-3">
+            <span
+              className={`inline-flex px-3 py-1 text-sm font-medium rounded-full ${getStatusBadge(
+                job.status
+              )}`}
+            >
+              {job.status.toUpperCase()}
+            </span>
+            <span
+              className={`px-3 py-1 rounded-full text-sm font-semibold ${getJobTypeColor(
+                job.type
+              )} border`}
+            >
+              {job.type.replace("-", " ").toUpperCase()}
+            </span>
+            <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium border border-blue-200">
+              {job.category}
+            </span>
+          </div>
+
+          {/* Key Details Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Location */}
+            <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
+              <div className="p-2 bg-green-100 rounded-lg">
+                <MapPin className="w-4 h-4 text-green-600" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-gray-900">Location</p>
+                <p className="text-sm text-gray-600">
+                  {job.location?.state}
+                  {job.location?.county && `, ${job.location.county}`}
+                </p>
+              </div>
+            </div>
+
+            {/* Experience */}
+            {formatExperience(job.experience) && (
+              <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
+                <div className="p-2 bg-orange-100 rounded-lg">
+                  <GraduationCap className="w-4 h-4 text-orange-600" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-gray-900">
+                    Experience
+                  </p>
+                  <p className="text-sm text-gray-600">
+                    {formatExperience(job.experience)}
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {/* Salary */}
+            {job.salary && job.salary !== "not-listed" && (
+              <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
+                <div className="p-2 bg-emerald-100 rounded-lg">
+                  <DollarSign className="w-4 h-4 text-emerald-600" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-gray-900">Salary</p>
+                  <p className="text-sm text-gray-600">{job.salary}</p>
+                </div>
+              </div>
+            )}
+
+            {/* Language */}
+            {formatLanguage(job.preferredCommunicationLanguage) && (
+              <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
+                <div className="p-2 bg-indigo-100 rounded-lg">
+                  <Globe className="w-4 h-4 text-indigo-600" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-gray-900">Language</p>
+                  <p className="text-sm text-gray-600">
+                    {formatLanguage(job.preferredCommunicationLanguage)}{" "}
+                    preferred
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {/* Posted Date */}
+            <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
+              <div className="p-2 bg-purple-100 rounded-lg">
+                <Calendar className="w-4 h-4 text-purple-600" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-gray-900">Posted</p>
+                <p className="text-sm text-gray-600">
+                  {formatDate(job.createdAt)}
+                </p>
+              </div>
+            </div>
+
+            {/* Contact */}
+            <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
+              <div className="p-2 bg-blue-100 rounded-lg">
+                <Phone className="w-4 h-4 text-blue-600" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-gray-900">Contact</p>
+                <p className="text-sm text-gray-600">{job.phone}</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Description */}
+          {job.description && (
+            <div className="space-y-2">
+              <h3 className="text-lg font-semibold text-gray-900">
+                Job Description
+              </h3>
+              <div className="p-4 bg-gray-50 rounded-lg">
+                <p className="text-gray-700 leading-relaxed">
+                  {job.description}
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* Preferences */}
+          {formatPreference(job.preference) && (
+            <div className="space-y-2">
+              <h3 className="text-lg font-semibold text-gray-900">
+                Employer Preferences
+              </h3>
+              <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
+                <div className="flex items-start space-x-2">
+                  <User className="w-4 h-4 text-blue-600 mt-0.5" />
+                  <p className="text-sm text-blue-800">
+                    {formatPreference(job.preference)}
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Action Buttons */}
+          <div className="flex space-x-3 pt-4 border-t border-gray-200">
+            <button className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-colors font-semibold shadow-lg">
+              <Phone className="w-5 h-5" />
+              <span>Call {job.phone}</span>
+            </button>
+            <button className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors font-semibold shadow-lg">
+              <MessageCircle className="w-5 h-5" />
+              <span>Message</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const JobCard = ({ job, onViewDetails }) => {
   const category = CATEGORIES.find((c) => c.value === job.category);
   const IconComponent = category?.icon || Briefcase;
 
@@ -284,12 +524,13 @@ const JobCard = ({ job }) => {
       )}
 
       <div className="flex space-x-2">
-        {/* <button
+        <button
+          onClick={() => onViewDetails(job)}
           className="flex-1 p-2 text-blue-600 hover:bg-blue-50 rounded-xl transition-colors border border-blue-200"
           title="View Details"
         >
           <Eye className="w-4 h-4 mx-auto" />
-        </button> */}
+        </button>
         <button className="flex-2 flex items-center justify-center gap-2 px-4 py-2 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-colors font-semibold text-sm whitespace-nowrap shadow">
           <Phone className="w-4 h-4" />
           <span>{job.phone}</span>
@@ -298,56 +539,6 @@ const JobCard = ({ job }) => {
     </div>
   );
 };
-
-const Pagination = ({ page, totalPages, totalCount, limit, setPage }) => (
-  <div className="mt-8 flex items-center justify-between">
-    <div className="text-sm text-gray-600">
-      Showing <span className="font-medium">{(page - 1) * limit + 1}</span> to{" "}
-      <span className="font-medium">{Math.min(page * limit, totalCount)}</span>{" "}
-      of <span className="font-medium">{totalCount}</span> results
-    </div>
-
-    <div className="flex space-x-2">
-      <button
-        onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
-        disabled={page === 1}
-        className={`px-3 py-1.5 rounded-lg border ${
-          page === 1
-            ? "bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed"
-            : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
-        }`}
-      >
-        Previous
-      </button>
-
-      {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
-        <button
-          key={pageNum}
-          onClick={() => setPage(pageNum)}
-          className={`px-3 py-1.5 rounded-lg border ${
-            page === pageNum
-              ? "bg-blue-600 text-white border-blue-600"
-              : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
-          }`}
-        >
-          {pageNum}
-        </button>
-      ))}
-
-      <button
-        onClick={() => setPage((prev) => Math.min(prev + 1, totalPages))}
-        disabled={page === totalPages}
-        className={`px-3 py-1.5 rounded-lg border ${
-          page === totalPages
-            ? "bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed"
-            : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
-        }`}
-      >
-        Next
-      </button>
-    </div>
-  </div>
-);
 
 const NoResults = ({ clearAllFilters }) => (
   <div className="col-span-full text-center py-12 px-4">
@@ -373,8 +564,8 @@ const NoResults = ({ clearAllFilters }) => (
 export default function JobSearchPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [showFilters, setShowFilters] = useState(false);
-  const [page, setPage] = useState(1);
-  const limit = 10;
+  const [selectedJob, setSelectedJob] = useState(null);
+  const [showModal, setShowModal] = useState(false);
 
   // Filter states
   const [selectedCategory, setSelectedCategory] = useState("");
@@ -382,11 +573,9 @@ export default function JobSearchPage() {
   const [selectedExperience, setSelectedExperience] = useState("");
   const [selectedLocation, setSelectedLocation] = useState("");
 
-  // API call for jobs
-  const { data, isLoading } = useGetJobsQuery({ page, limit });
-  const jobs = data?.jobs ?? [];
-  const totalPages = data?.totalPages || 1;
-  const totalCount = data?.totalCount || 0;
+  // Using mock data for demonstration
+  const jobs = mockJobs;
+  const isLoading = false;
 
   // Filter jobs based on search and filters
   const filteredJobs = jobs.filter((job) => {
@@ -433,6 +622,16 @@ export default function JobSearchPage() {
     setSelectedExperience("");
     setSelectedLocation("");
     setSearchTerm("");
+  };
+
+  const handleViewDetails = (job) => {
+    setSelectedJob(job);
+    setShowModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setShowModal(false);
+    setSelectedJob(null);
   };
 
   return (
@@ -560,32 +759,83 @@ export default function JobSearchPage() {
             </div>
           </div>
 
-          {/* Jobs List */}
-          <div className="w-full lg:w-3/4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-              {isLoading ? (
-                <div className="col-span-full flex justify-center py-12">
-                  <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
-                </div>
-              ) : filteredJobs.length > 0 ? (
-                filteredJobs.map((job) => <JobCard key={job._id} job={job} />)
-              ) : (
-                <NoResults clearAllFilters={clearAllFilters} />
-              )}
+          {/* Main Content */}
+          <div className="flex-1">
+            {/* Results Header */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+              <div>
+                <h2 className="text-lg font-bold text-gray-900">
+                  {filteredJobs.length}{" "}
+                  {filteredJobs.length === 1 ? "Job" : "Jobs"} Found
+                </h2>
+                {searchTerm ||
+                selectedCategory ||
+                selectedType ||
+                selectedExperience ||
+                selectedLocation ? (
+                  <p className="text-sm text-gray-500 mt-1">
+                    Showing results for:{" "}
+                    {[
+                      searchTerm && `"${searchTerm}"`,
+                      selectedCategory &&
+                        CATEGORIES.find((c) => c.value === selectedCategory)
+                          ?.label,
+                      selectedType &&
+                        JOB_TYPES.find((t) => t.value === selectedType)?.label,
+                      selectedExperience &&
+                        EXPERIENCE_LEVELS.find(
+                          (e) => e.value === selectedExperience
+                        )?.label,
+                      selectedLocation &&
+                        LOCATIONS.find((l) => l.value === selectedLocation)
+                          ?.label,
+                    ]
+                      .filter(Boolean)
+                      .join(", ")}
+                  </p>
+                ) : null}
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-gray-500">Sort by:</span>
+                <select className="text-sm border border-gray-300 rounded-lg px-3 py-2 bg-white/80 backdrop-blur-sm">
+                  <option>Most Recent</option>
+                  <option>Highest Salary</option>
+                  <option>Most Relevant</option>
+                </select>
+              </div>
             </div>
 
-            {!isLoading && filteredJobs.length > 0 && (
-              <Pagination
-                page={page}
-                totalPages={totalPages}
-                totalCount={totalCount}
-                limit={limit}
-                setPage={setPage}
-              />
+            {/* Loading State */}
+            {isLoading ? (
+              <div className="flex justify-center items-center py-12">
+                <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
+              </div>
+            ) : (
+              /* Job Listings */
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {filteredJobs.length > 0 ? (
+                  filteredJobs.map((job) => (
+                    <JobCard
+                      key={job._id}
+                      job={job}
+                      onViewDetails={handleViewDetails}
+                    />
+                  ))
+                ) : (
+                  <NoResults clearAllFilters={clearAllFilters} />
+                )}
+              </div>
             )}
           </div>
         </div>
       </div>
+
+      {/* Job Detail Modal */}
+      <JobDetailModal
+        job={selectedJob}
+        isOpen={showModal}
+        onClose={handleCloseModal}
+      />
     </div>
   );
 }
