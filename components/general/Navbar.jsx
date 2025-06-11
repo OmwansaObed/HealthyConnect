@@ -42,14 +42,18 @@ export default function Navbar() {
         <Link
           key={link.name}
           href={link.href}
-          className={`group flex items-center space-x-3 font-medium transition-all duration-300 ${
+          className={`group flex items-center space-x-3 font-medium transition-all duration-300 transform hover:scale-105 ${
             mobile
-              ? "px-5 py-4 text-white hover:text-blue-200 hover:bg-white/10 rounded-xl text-lg"
-              : "px-4 py-2 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg"
+              ? "px-5 py-4 text-white hover:text-blue-200 hover:bg-white/10 rounded-xl text-lg shadow-sm hover:shadow-md backdrop-blur-sm border border-transparent hover:border-white/20"
+              : "px-4 py-2 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg shadow-sm hover:shadow-md"
           }`}
           onClick={closeMobileMenu}
         >
-          <Icon className={`${mobile ? "w-5 h-5" : "w-4 h-4"}`} />
+          <Icon
+            className={`${
+              mobile ? "w-5 h-5" : "w-4 h-4"
+            } transition-all duration-300 group-hover:rotate-3`}
+          />
           <span>{link.name}</span>
         </Link>
       );
@@ -63,14 +67,14 @@ export default function Navbar() {
     }
   };
 
-  // Notification Bell Component for consistency
+  // Enhanced Notification Bell Component
   const NotificationBell = ({ mobile = false }) => (
     <div className="relative">
       <button
-        className={`relative p-2 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+        className={`relative p-2 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 transform hover:scale-110 ${
           mobile
-            ? "hover:bg-white/10 text-white"
-            : "hover:bg-blue-50 text-gray-700"
+            ? "hover:bg-white/10 text-white shadow-lg backdrop-blur-sm"
+            : "hover:bg-blue-50 text-gray-700 shadow-sm hover:shadow-md"
         } ${unread ? "animate-pulse" : ""}`}
         onClick={mobile ? () => setUnread(false) : handleBellClick}
       >
@@ -86,11 +90,18 @@ export default function Navbar() {
           }`}
         />
         {unread && (
-          <span
-            className={`absolute -top-1 -right-1 block w-3 h-3 rounded-full ring-2 animate-ping ${
-              mobile ? "bg-yellow-400 ring-blue-600" : "bg-red-600 ring-white"
-            }`}
-          />
+          <>
+            <span
+              className={`absolute -top-1 -right-1 block w-3 h-3 rounded-full ring-2 ${
+                mobile ? "bg-yellow-400 ring-blue-600" : "bg-red-600 ring-white"
+              }`}
+            />
+            <span
+              className={`absolute -top-1 -right-1 block w-3 h-3 rounded-full animate-ping ${
+                mobile ? "bg-yellow-400" : "bg-red-600"
+              }`}
+            />
+          </>
         )}
       </button>
       {!mobile && showNotifications && (
@@ -101,6 +112,7 @@ export default function Navbar() {
     </div>
   );
 
+  // Enhanced AuthButtons with consistent styling
   const AuthButtons = () => {
     if (session) {
       // Check for admin
@@ -108,7 +120,7 @@ export default function Navbar() {
         return (
           <Link
             href="/admin/dashboard"
-            className="flex items-center space-x-3 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-all duration-300 shadow-sm hover:shadow-md transform hover:scale-105"
+            className="flex items-center space-x-3 px-6 py-3 bg-gradient-to-r from-emerald-600 to-emerald-700 text-white rounded-xl hover:from-emerald-700 hover:to-emerald-800 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 backdrop-blur-sm"
           >
             <Grid3X3 className="w-5 h-5 text-white" />
             <span className="font-medium">Admin Dashboard</span>
@@ -117,14 +129,14 @@ export default function Navbar() {
       }
       // Not admin: show notifications + profile
       return (
-        <div className="flex items-center space-x-3">
+        <div className="flex items-center space-x-4">
           <NotificationBell />
           <div className="relative">
             <button
               onClick={handleProfileMenuToggle}
-              className="flex items-center space-x-3 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all duration-300 shadow-sm hover:shadow-md transform hover:scale-105"
+              className="flex items-center space-x-3 px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 backdrop-blur-sm"
             >
-              <div className="w-7 h-7 bg-blue-500 rounded-full flex items-center justify-center">
+              <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center shadow-md">
                 <User className="w-4 h-4 text-white" />
               </div>
               <span className="font-medium">
@@ -140,41 +152,41 @@ export default function Navbar() {
                   onClick={handleProfileMenuClose}
                   aria-label="Close profile menu"
                 />
-                <div className="absolute right-0 mt-2 w-56 bg-white border border-gray-200 rounded-xl shadow-xl z-50 overflow-hidden animate-in slide-in-from-top-2 duration-200">
-                  <div className="p-2">
-                    <div className="px-4 py-3 border-b border-gray-100">
-                      <p className="text-sm font-medium text-gray-900">
+                <div className="absolute right-0 mt-3 w-64 bg-white/95 backdrop-blur-md border border-gray-200 rounded-2xl shadow-2xl z-50 overflow-hidden animate-in slide-in-from-top-2 duration-300">
+                  <div className="p-3">
+                    <div className="px-4 py-4 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl mb-3">
+                      <p className="text-sm font-bold text-gray-900">
                         {session.user?.name}
                       </p>
-                      <p className="text-xs text-gray-500">
+                      <p className="text-xs text-gray-600 mt-1">
                         {session.user?.email}
                       </p>
                     </div>
                     <Link
                       href="/profile"
-                      className="flex items-center space-x-3 px-4 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-700 rounded-lg transition-all duration-200 mt-2"
+                      className="flex items-center space-x-3 px-4 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-700 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-sm hover:shadow-md"
                       onClick={handleProfileMenuClose}
                     >
-                      <User className="w-4 h-4" />
-                      <span>My Profile</span>
+                      <User className="w-5 h-5" />
+                      <span className="font-medium">My Profile</span>
                     </Link>
                     <Link
                       href="/settings"
-                      className="flex items-center space-x-3 px-4 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-700 rounded-lg transition-all duration-200"
+                      className="flex items-center space-x-3 px-4 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-700 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-sm hover:shadow-md"
                       onClick={handleProfileMenuClose}
                     >
-                      <Settings className="w-4 h-4" />
-                      <span>Settings</span>
+                      <Settings className="w-5 h-5" />
+                      <span className="font-medium">Settings</span>
                     </Link>
                     <button
                       onClick={() => {
                         handleProfileMenuClose();
                         signOut();
                       }}
-                      className="flex items-center space-x-3 w-full px-4 py-3 text-red-600 hover:bg-red-50 rounded-lg transition-all duration-200 mt-1"
+                      className="flex items-center space-x-3 w-full px-4 py-3 text-red-600 hover:bg-red-50 rounded-xl transition-all duration-300 mt-2 transform hover:scale-105 shadow-sm hover:shadow-md"
                     >
-                      <LogOut className="w-4 h-4" />
-                      <span>Sign Out</span>
+                      <LogOut className="w-5 h-5" />
+                      <span className="font-medium">Sign Out</span>
                     </button>
                   </div>
                 </div>
@@ -184,18 +196,18 @@ export default function Navbar() {
         </div>
       );
     }
-    // Not signed in
+    // Not signed in - Enhanced styling
     return (
-      <div className="flex items-center space-x-3 z-10">
+      <div className="flex items-center space-x-4 z-10">
         <button
           onClick={() => signIn()}
-          className="px-6 py-2 text-gray-700 hover:text-blue-600 font-medium transition-all duration-300 rounded-lg hover:bg-blue-50 transform hover:scale-105"
+          className="px-6 py-3 text-gray-700 hover:text-blue-600 font-medium transition-all duration-300 rounded-xl hover:bg-blue-50 transform hover:scale-105 shadow-sm hover:shadow-md backdrop-blur-sm"
         >
           Sign In
         </button>
         <Link
           href="/auth/signup"
-          className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium transition-all duration-300 shadow-sm hover:shadow-md transform hover:scale-105"
+          className="px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 font-medium transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 backdrop-blur-sm"
         >
           Sign Up
         </Link>
@@ -206,25 +218,23 @@ export default function Navbar() {
   const MobileAuth = () =>
     session ? (
       <div className="space-y-4 bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-sm border border-white/20 rounded-2xl p-4 shadow-lg">
-        <div className="flex items-center px-4 py-4 bg-white/10 rounded-xl border border-white/20">
-          <div className="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center mr-4 shadow-md">
+        <div className="flex items-center px-4 py-4 bg-white/10 rounded-xl border border-white/20 shadow-md">
+          <div className="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center mr-4 shadow-lg">
             <User className="w-6 h-6 text-white" />
           </div>
           <div>
-            <p className="text-white font-medium text-lg">
-              {session.user?.name}
-            </p>
+            <p className="text-white font-bold text-lg">{session.user?.name}</p>
             <p className="text-blue-100 text-sm">{session.user?.email}</p>
           </div>
         </div>
 
-        <div className="flex items-center justify-between px-4 py-4 text-white hover:text-blue-200 hover:bg-white/10 rounded-xl transition-all duration-300 border border-transparent hover:border-white/20">
+        <div className="flex items-center justify-between px-4 py-4 text-white hover:text-blue-200 hover:bg-white/10 rounded-xl transition-all duration-300 border border-transparent hover:border-white/20 shadow-sm hover:shadow-md transform hover:scale-105">
           <div className="flex items-center space-x-3">
             <NotificationBell mobile={true} />
-            <span className="text-lg">Notifications</span>
+            <span className="text-lg font-medium">Notifications</span>
           </div>
           {unread && (
-            <span className="px-2 py-1 bg-yellow-400 text-blue-900 text-xs font-bold rounded-full animate-pulse">
+            <span className="px-3 py-1 bg-yellow-400 text-blue-900 text-xs font-bold rounded-full animate-pulse shadow-md">
               New
             </span>
           )}
@@ -232,20 +242,20 @@ export default function Navbar() {
 
         <Link
           href="/profile"
-          className="flex items-center space-x-3 px-4 py-4 text-white hover:text-blue-200 hover:bg-white/10 rounded-xl transition-all duration-300 border border-transparent hover:border-white/20"
+          className="flex items-center space-x-3 px-4 py-4 text-white hover:text-blue-200 hover:bg-white/10 rounded-xl transition-all duration-300 border border-transparent hover:border-white/20 shadow-sm hover:shadow-md transform hover:scale-105"
           onClick={closeMobileMenu}
         >
           <User className="w-5 h-5" />
-          <span className="text-lg">My Profile</span>
+          <span className="text-lg font-medium">My Profile</span>
         </Link>
 
         <Link
           href="/settings"
-          className="flex items-center space-x-3 px-4 py-4 text-white hover:text-blue-200 hover:bg-white/10 rounded-xl transition-all duration-300 border border-transparent hover:border-white/20"
+          className="flex items-center space-x-3 px-4 py-4 text-white hover:text-blue-200 hover:bg-white/10 rounded-xl transition-all duration-300 border border-transparent hover:border-white/20 shadow-sm hover:shadow-md transform hover:scale-105"
           onClick={closeMobileMenu}
         >
           <Settings className="w-5 h-5" />
-          <span className="text-lg">Settings</span>
+          <span className="text-lg font-medium">Settings</span>
         </Link>
 
         <button
@@ -253,10 +263,10 @@ export default function Navbar() {
             closeMobileMenu();
             signOut();
           }}
-          className="flex items-center space-x-3 w-full px-4 py-4 text-red-300 hover:text-red-200 hover:bg-red-500/20 rounded-xl transition-all duration-300 border border-transparent hover:border-red-400/30"
+          className="flex items-center space-x-3 w-full px-4 py-4 text-red-300 hover:text-red-200 hover:bg-red-500/20 rounded-xl transition-all duration-300 border border-transparent hover:border-red-400/30 shadow-sm hover:shadow-md transform hover:scale-105"
         >
           <LogOut className="w-5 h-5" />
-          <span className="text-lg">Sign Out</span>
+          <span className="text-lg font-medium">Sign Out</span>
         </button>
       </div>
     ) : (
@@ -266,13 +276,13 @@ export default function Navbar() {
             closeMobileMenu();
             signIn();
           }}
-          className="block w-full px-6 py-4 text-center text-white hover:text-blue-100 border-2 border-white/30 rounded-xl hover:bg-white/10 font-medium transition-all duration-300 text-lg transform hover:scale-105 backdrop-blur-sm"
+          className="block w-full px-6 py-4 text-center text-white hover:text-blue-100 border-2 border-white/30 rounded-2xl hover:bg-white/10 font-bold transition-all duration-300 text-lg transform hover:scale-105 backdrop-blur-sm shadow-lg hover:shadow-xl"
         >
           Sign In
         </button>
         <Link
           href="/auth/signup"
-          className="block w-full px-6 py-4 text-center bg-white text-blue-600 rounded-xl hover:bg-blue-50 font-medium transition-all duration-300 text-lg shadow-lg hover:shadow-xl transform hover:scale-105"
+          className="block w-full px-6 py-4 text-center bg-white text-blue-600 rounded-2xl hover:bg-blue-50 font-bold transition-all duration-300 text-lg shadow-xl hover:shadow-2xl transform hover:scale-105"
           onClick={closeMobileMenu}
         >
           Sign Up
@@ -332,13 +342,13 @@ export default function Navbar() {
 
   return (
     <>
-      <nav className=" border-b border-gray-200 sticky top-0 z-50 shadow-sm backdrop-blur-md bg-white/95">
+      <nav className="border-b border-gray-200 sticky top-0 z-50 shadow-lg backdrop-blur-md bg-white/95">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            {/* Logo */}
-            <Link href="/" className="flex items-center space-x-2 group">
-              <div className="w-9 h-9 bg-blue-600 rounded-lg flex items-center justify-center shadow-sm group-hover:shadow-md transition-all duration-300 group-hover:scale-110">
-                <Heart className="w-5 h-5 text-white" />
+          <div className="flex justify-between items-center h-18">
+            {/* Enhanced Logo */}
+            <Link href="/" className="flex items-center space-x-3 group">
+              <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-110 transform">
+                <Heart className="w-6 h-6 text-white" />
               </div>
               <div className="text-2xl">
                 <span className="font-bold text-blue-600">Healthy</span>
@@ -356,11 +366,11 @@ export default function Navbar() {
             </div>
 
             {/* Mobile Menu Button */}
-            <div className="md:hidden flex items-center space-x-2">
+            <div className="md:hidden flex items-center space-x-3">
               {session && <NotificationBell mobile={false} />}
               <button
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
-                className="p-2 text-gray-600 hover:text-blue-600 transition-all duration-300 hover:bg-blue-50 rounded-lg"
+                className="p-2 text-gray-600 hover:text-blue-600 transition-all duration-300 hover:bg-blue-50 rounded-xl shadow-sm hover:shadow-md transform hover:scale-110"
               >
                 {isMenuOpen ? (
                   <X className="w-6 h-6" />
@@ -381,7 +391,7 @@ export default function Navbar() {
               <div className="flex-1 flex flex-col justify-center px-6 space-y-3">
                 <div className="mb-8 text-center">
                   <div className="inline-flex items-center space-x-3 group">
-                    <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center shadow-lg backdrop-blur-sm">
+                    <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center shadow-xl backdrop-blur-sm">
                       <Heart className="w-6 h-6 text-white" />
                     </div>
                     <div className="text-3xl">

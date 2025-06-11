@@ -30,6 +30,8 @@ import {
 import { GiLaserWarning } from "react-icons/gi";
 import { MdScience } from "react-icons/md";
 import { useGetJobsQuery } from "../../redux/api/jobApiSlice";
+import { getSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 // Constants
 const CATEGORIES = [
@@ -375,7 +377,12 @@ export default function JobSearchPage() {
   const [showFilters, setShowFilters] = useState(false);
   const [page, setPage] = useState(1);
   const limit = 10;
+  const router = useRouter();
 
+  // const { data: session } = getSession();
+  // if (!session) {
+  //   router.push("/login");
+  // }
   // Filter states
   const [selectedCategory, setSelectedCategory] = useState("");
   const [selectedType, setSelectedType] = useState("");
