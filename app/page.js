@@ -126,7 +126,8 @@ export default function Homepage() {
           </h1>
           <p className="text-xl text-blue-100 mb-10 leading-relaxed max-w-2xl">
             Connect with top healthcare facilities and discover opportunities
-            that match your passion for making a difference in people's lives.
+            that match your passion for making a difference in people&apos;s
+            lives.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
             <a href="#get-started" style={{ scrollBehavior: "smooth" }}>
@@ -211,8 +212,8 @@ export default function Homepage() {
                 <span className="text-blue-600"> HealthyConnect?</span>
               </h2>
               <p className="text-xl text-gray-600 mb-8">
-                We're more than just a job board - we're your partner in
-                building a fulfilling healthcare career.
+                We&apos;re more than just a job board - we&apos;re your partner
+                in building a fulfilling healthcare career.
               </p>
 
               <div className="space-y-6">

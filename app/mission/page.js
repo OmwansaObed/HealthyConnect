@@ -88,7 +88,7 @@ const Mission = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-gray-900 mb-4">
-              How We're Making It Happen
+              How We&apos;re Making It Happen
             </h2>
             <p className="text-xl text-gray-600">
               Our strategic approach to transforming healthcare recruitment
@@ -122,7 +122,7 @@ const Mission = () => {
               Our Impact So Far
             </h2>
             <p className="text-xl text-gray-600">
-              Measurable results in transforming Kenya's healthcare workforce
+              Measurable results in transforming Kenyavs healthcare workforce
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -150,9 +150,9 @@ const Mission = () => {
             Join Our Mission
           </h2>
           <p className="text-xl text-blue-100 mb-8 max-w-3xl mx-auto">
-            Whether you're a healthcare professional looking for your next
-            opportunity or a facility seeking qualified staff, you're part of
-            our mission to transform healthcare in Kenya.
+            Whether you&apos;re a healthcare professional looking for your next
+            opportunity or a facility seeking qualified staff, you&apos;re part
+            of our mission to transform healthcare in Kenya.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <button className="px-8 py-4 bg-white text-blue-600 rounded-xl hover:bg-gray-50 font-bold text-lg shadow-lg transition-all">

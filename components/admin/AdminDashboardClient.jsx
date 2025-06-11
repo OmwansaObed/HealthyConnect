@@ -92,7 +92,7 @@ const AdminDashboardClient = () => {
           <div className="bg-gradient-to-r from-blue-600 to-indigo-700 rounded-2xl p-6 text-white">
             <h2 className="text-2xl font-bold mb-2">Good morning, Admin! 👋</h2>
             <p className="text-blue-100 mb-4">
-              Here's what's happening with your platform today.
+              Here&apos;s what&apos;s happening with your platform today.
             </p>
             <div className="flex flex-wrap gap-4 text-sm">
               <div className="flex items-center space-x-2">

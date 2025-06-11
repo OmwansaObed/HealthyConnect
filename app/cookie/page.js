@@ -180,7 +180,7 @@ const CookiePolicy = () => {
                   <p className="text-sm text-gray-600">
                     Most browsers allow you to refuse or delete cookies. Methods
                     for doing so vary from browser to browser. Please visit your
-                    browser's help menu for instructions.
+                    browser&apos;s help menu for instructions.
                   </p>
                 </div>
 
@@ -190,7 +190,7 @@ const CookiePolicy = () => {
                   </h3>
                   <p className="text-sm text-gray-600">
                     You can opt out of third-party cookies by visiting the
-                    Digital Advertising Alliance's opt-out page or similar
+                    Digital Advertising Alliance&apos;s opt-out page or similar
                     industry opt-out mechanisms.
                   </p>
                 </div>

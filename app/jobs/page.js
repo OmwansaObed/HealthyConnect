@@ -446,7 +446,7 @@ export default function JobSearchPage() {
                 Find Your Perfect Healthcare Job
               </h1>
               <p className="text-gray-600 mt-1 text-sm sm:text-base">
-                Discover {filteredJobs.length} opportunities across Kenya's
+                Discover {filteredJobs.length} opportunities across Kenya&apos;s
                 healthcare sector
               </p>
             </div>

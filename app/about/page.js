@@ -75,9 +75,9 @@ const AboutUs = () => {
             About <span className="text-emerald-400">HealthyConnect</span>
           </h1>
           <p className="text-xl text-blue-100 max-w-3xl mx-auto leading-relaxed">
-            We're revolutionizing healthcare recruitment in Kenya by connecting
-            passionate healthcare professionals with facilities that need their
-            expertise.
+            We&apos;re revolutionizing healthcare recruitment in Kenya by
+            connecting passionate healthcare professionals with facilities that
+            need their expertise.
           </p>
         </div>
       </section>
@@ -93,9 +93,9 @@ const AboutUs = () => {
               <div className="space-y-6 text-lg text-gray-600 leading-relaxed">
                 <p>
                   Founded in 2023, HealthyConnect emerged from a simple
-                  observation: Kenya's healthcare system had incredible
-                  professionals and facilities, but they weren't finding each
-                  other efficiently.
+                  observation: Kenya&apos;s healthcare system had incredible
+                  professionals and facilities, but they weren&apos;t finding
+                  each other efficiently.
                 </p>
                 <p>
                   Our founders, having worked in both clinical and
@@ -105,9 +105,9 @@ const AboutUs = () => {
                   qualified staff.
                 </p>
                 <p>
-                  Today, we've facilitated over 10,000 successful connections
-                  between healthcare professionals and facilities across Kenya,
-                  contributing to better patient care nationwide.
+                  Today, we&apos;ve facilitated over 10,000 successful
+                  connections between healthcare professionals and facilities
+                  across Kenya, contributing to better patient care nationwide.
                 </p>
               </div>
             </div>

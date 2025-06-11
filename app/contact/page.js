@@ -57,8 +57,8 @@ const Contact = () => {
             Get In <span className="text-yellow-400">Touch</span>
           </h1>
           <p className="text-xl text-purple-100 max-w-3xl mx-auto">
-            Have questions? Need support? We're here to help you succeed in your
-            healthcare career journey.
+            Have questions? Need support? We&apos;re here to help you succeed in
+            your healthcare career journey.
           </p>
         </div>
       </section>
@@ -98,7 +98,7 @@ const Contact = () => {
               Send Us a Message
             </h2>
             <p className="text-xl text-gray-600">
-              Fill out the form below and we'll get back to you as soon as
+              Fill out the form below and we&apos;ll get back to you as soon as
               possible
             </p>
           </div>

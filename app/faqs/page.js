@@ -166,8 +166,8 @@ const HelpCenter = () => {
             Still Need Help?
           </h2>
           <p className="text-xl text-blue-100 mb-8">
-            Can't find what you're looking for? Our support team is here to
-            help.
+            Can&apos;t find what you&apos;re looking for? Our support team is
+            here to help.
           </p>
           <button className="px-8 py-4 bg-white text-blue-600 rounded-xl hover:bg-gray-50 font-bold text-lg shadow-lg transition-all">
             Contact Support
