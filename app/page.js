@@ -619,16 +619,15 @@ const CTASection = () => (
   </motion.section>
 );
 
-// Main Component
 export default function Homepage() {
   return (
-    <div className="min-h-screen bg-white">
+    <>
       <HeroSection />
       <StatsSection />
       <JobCategoriesSection />
       <FeaturesSection />
       <TestimonialsSection />
       <CTASection />
-    </div>
+    </>
   );
 }
