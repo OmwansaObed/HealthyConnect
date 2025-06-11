@@ -21,6 +21,7 @@ import {
   Zap,
   Activity,
 } from "lucide-react";
+import Link from "next/link";
 
 // Constants
 const ANIMATION_VARIANTS = {
@@ -410,8 +411,21 @@ const HeroSection = () => (
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, delay: 0.6 }}
       >
-        <ActionButton variant="primary">Get Started</ActionButton>
-        <ActionButton variant="secondary">Browse Jobs</ActionButton>
+        <ActionButton
+          variant="primary"
+          onClick={() => {
+            const element = document.getElementById("explore-opportunities");
+            if (element) {
+              element.scrollIntoView({ behavior: "smooth" });
+            }
+          }}
+        >
+          Get Started
+        </ActionButton>
+
+        <Link href="/jobs">
+          <ActionButton variant="secondary">Browse Jobs</ActionButton>
+        </Link>
       </motion.div>
     </div>
   </motion.section>
@@ -444,7 +458,10 @@ const JobCategoriesSection = () => (
     viewport={{ once: true, margin: "-50px" }}
     variants={ANIMATION_VARIANTS.staggerContainer}
   >
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div
+      id="explore-opportunities"
+      className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"
+    >
       <motion.div
         className="text-center mb-16"
         variants={ANIMATION_VARIANTS.fadeInUp}
