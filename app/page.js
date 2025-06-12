@@ -255,9 +255,7 @@ const JobCategoryCard = ({ category, index }) => {
         <h3 className="text-2xl font-bold text-gray-900 mb-2">
           {category.name}
         </h3>
-        <p className="text-green-500 mb-4">
-          {category.jobs} open positions available
-        </p>
+        <p className="text-green-500 mb-4">open positions available</p>
         <motion.div
           className="flex items-center text-blue-600 font-medium"
           whileHover={{ x: 5 }}
