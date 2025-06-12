@@ -234,7 +234,7 @@ const AdminSidebar = () => {
       {/* Mobile Backdrop */}
       {isOpen && (
         <div
-          className="fixed inset-0 backdrop-blur-sm bg-black bg-opacity-30 z-40 md:hidden"
+          className="fixed inset-0 backdrop-blur-sm  bg-opacity-30 z-40 md:hidden"
           onClick={handleBackdropClick}
           aria-hidden="true"
         />
