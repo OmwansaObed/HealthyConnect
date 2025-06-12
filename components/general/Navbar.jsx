@@ -11,6 +11,7 @@ import {
   Settings,
   LogOut,
   Bell,
+  Shield,
 } from "lucide-react";
 import Link from "next/link";
 import { useSession, signIn, signOut } from "next-auth/react";
@@ -115,19 +116,6 @@ export default function Navbar() {
   // Enhanced AuthButtons with consistent styling
   const AuthButtons = () => {
     if (session) {
-      // Check for admin
-      if (session.user?.role === true) {
-        return (
-          <Link
-            href="/admin/dashboard"
-            className="flex items-center space-x-3 px-6 py-3 bg-gradient-to-r from-emerald-600 to-emerald-700 text-white rounded-xl hover:from-emerald-700 hover:to-emerald-800 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 backdrop-blur-sm"
-          >
-            <Grid3X3 className="w-5 h-5 text-white" />
-            <span className="font-medium">Admin Dashboard</span>
-          </Link>
-        );
-      }
-      // Not admin: show notifications + profile
       return (
         <div className="flex items-center space-x-4">
           <NotificationBell />
@@ -162,6 +150,19 @@ export default function Navbar() {
                         {session.user?.email}
                       </p>
                     </div>
+
+                    {/* Admin Dashboard Link - Only show if user is admin */}
+                    {session.user?.role === true && (
+                      <Link
+                        href="/admin/dashboard"
+                        className="flex items-center space-x-3 px-4 py-3 text-emerald-700 hover:bg-emerald-50 hover:text-emerald-800 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-sm hover:shadow-md mb-2"
+                        onClick={handleProfileMenuClose}
+                      >
+                        <Shield className="w-5 h-5" />
+                        <span className="font-medium">Admin Dashboard</span>
+                      </Link>
+                    )}
+
                     <Link
                       href="/profile"
                       className="flex items-center space-x-3 px-4 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-700 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-sm hover:shadow-md"
@@ -239,6 +240,18 @@ export default function Navbar() {
             </span>
           )}
         </div>
+
+        {/* Admin Dashboard Link for Mobile - Only show if user is admin */}
+        {session.user?.role === true && (
+          <Link
+            href="/admin/dashboard"
+            className="flex items-center space-x-3 px-4 py-4 text-emerald-200 hover:text-emerald-100 hover:bg-emerald-500/20 rounded-xl transition-all duration-300 border border-transparent hover:border-emerald-400/30 shadow-sm hover:shadow-md transform hover:scale-105"
+            onClick={closeMobileMenu}
+          >
+            <Shield className="w-5 h-5" />
+            <span className="text-lg font-medium">Admin Dashboard</span>
+          </Link>
+        )}
 
         <Link
           href="/profile"

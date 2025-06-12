@@ -22,6 +22,7 @@ import {
   Activity,
 } from "lucide-react";
 import Link from "next/link";
+import { getSession, useSession } from "next-auth/react";
 
 // Constants
 const ANIMATION_VARIANTS = {
@@ -635,6 +636,8 @@ const CTASection = () => (
 );
 
 export default function Homepage() {
+  const { data: session } = useSession();
+  console.log("Session:", session?.user);
   return (
     <>
       <HeroSection />
