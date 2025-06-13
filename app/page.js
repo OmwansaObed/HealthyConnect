@@ -22,7 +22,9 @@ import {
   Activity,
 } from "lucide-react";
 import Link from "next/link";
-import { getSession, useSession } from "next-auth/react";
+
+import { useRouter } from "next/navigation";
+import { useGetJobsQuery } from "../redux/api/jobApiSlice";
 
 // Constants
 const ANIMATION_VARIANTS = {
@@ -256,7 +258,9 @@ const JobCategoryCard = ({ category, index }) => {
         <h3 className="text-2xl font-bold text-gray-900 mb-2">
           {category.name}
         </h3>
-        <p className="text-green-500 mb-4">open positions available</p>
+        <p className="text-green-500 mb-4">
+          {category.jobs}+ open positions available
+        </p>
         <motion.div
           className="flex items-center text-blue-600 font-medium"
           whileHover={{ x: 5 }}
@@ -430,13 +434,14 @@ const HeroSection = () => (
   </motion.section>
 );
 
-const StatsSection = () => (
+const StatsSection = ({ onClick }) => (
   <motion.section
     className="py-16 bg-gray-50"
     initial="hidden"
     whileInView="visible"
     viewport={{ once: true, margin: "-100px" }}
     variants={ANIMATION_VARIANTS.staggerContainer}
+    onClick={onClick}
   >
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
@@ -448,7 +453,7 @@ const StatsSection = () => (
   </motion.section>
 );
 
-const JobCategoriesSection = () => (
+const JobCategoriesSection = ({ onClick }) => (
   <motion.section
     id="get-started"
     className="py-20"
@@ -456,6 +461,7 @@ const JobCategoriesSection = () => (
     whileInView="visible"
     viewport={{ once: true, margin: "-50px" }}
     variants={ANIMATION_VARIANTS.staggerContainer}
+    onClick={onClick}
   >
     <div
       id="explore-opportunities"
@@ -487,7 +493,7 @@ const JobCategoriesSection = () => (
   </motion.section>
 );
 
-const FeaturesSection = () => (
+const FeaturesSection = ({ lastJob, isLoading }) => (
   <motion.section
     className="py-20 bg-gradient-to-r from-blue-50 to-indigo-50"
     initial="hidden"
@@ -522,7 +528,7 @@ const FeaturesSection = () => (
             <div className="mb-6">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-bold text-gray-900">
-                  Recent Job Match
+                  {isLoading ? "Loading..." : "Latest Job Match"}
                 </h3>
                 <motion.span
                   className="px-3 py-1 bg-emerald-100 text-emerald-700 rounded-full text-sm font-medium"
@@ -532,29 +538,82 @@ const FeaturesSection = () => (
                   98% Match
                 </motion.span>
               </div>
-              <div className="space-y-4">
-                <div className="flex items-center space-x-3">
-                  <motion.div
-                    className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center"
-                    whileHover={{ rotate: 5 }}
-                  >
-                    <Heart className="w-6 h-6 text-white" />
-                  </motion.div>
-                  <div>
-                    <h4 className="font-bold text-gray-900">
-                      Medical Officer - Emergency Department
-                    </h4>
-                    <p className="text-gray-600">Coptic General Hospital</p>
+
+              {isLoading ? (
+                <div className="space-y-4 animate-pulse">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-12 h-12 bg-gray-200 rounded-xl"></div>
+                    <div className="flex-1">
+                      <div className="h-4 bg-gray-200 rounded mb-2"></div>
+                      <div className="h-3 bg-gray-200 rounded w-2/3"></div>
+                    </div>
+                  </div>
+                  <div className="flex justify-between">
+                    <div className="h-3 bg-gray-200 rounded w-1/3"></div>
+                    <div className="h-3 bg-gray-200 rounded w-1/4"></div>
                   </div>
                 </div>
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-gray-600">📍 Nairobi, Upperhill</span>
-                  <span className="text-gray-600">💰 Ksh 100k+</span>
+              ) : lastJob ? (
+                <div className="space-y-4">
+                  <div className="flex items-center space-x-3">
+                    <motion.div
+                      className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center"
+                      whileHover={{ rotate: 5 }}
+                    >
+                      <Heart className="w-6 h-6 text-white" />
+                    </motion.div>
+                    <div>
+                      <h4 className="font-bold text-gray-900 line-clamp-1">
+                        {lastJob.title || "Healthcare Position"}
+                      </h4>
+                      <p className="text-gray-600 line-clamp-1">
+                        {lastJob.postedBy || "Healthcare Facility"}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-gray-600 flex items-center">
+                      <MapPin className="w-4 h-4 mr-1" />
+                      {lastJob?.location.county || "Nairobi, Kenya"}
+                    </span>
+                    <span className="text-gray-600 flex items-center">
+                      💰 {lastJob.salary || "Competitive"}
+                    </span>
+                  </div>
+                  <Link href={`/jobs`}>
+                    <ActionButton
+                      variant="primary"
+                      className="w-full py-3 bg-gray-100 rounded-md hover:bg-gray-200"
+                    >
+                      View Details
+                    </ActionButton>
+                  </Link>
                 </div>
-                <ActionButton variant="primary" className="w-full py-3">
-                  Apply Now
-                </ActionButton>
-              </div>
+              ) : (
+                <div className="space-y-4">
+                  <div className="flex items-center space-x-3">
+                    <motion.div
+                      className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center"
+                      whileHover={{ rotate: 5 }}
+                    >
+                      <Heart className="w-6 h-6 text-white" />
+                    </motion.div>
+                    <div>
+                      <h4 className="font-bold text-gray-900">
+                        Medical Officer - Emergency Department
+                      </h4>
+                      <p className="text-gray-600">Coptic General Hospital</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-gray-600">📍 Nairobi, Upperhill</span>
+                    <span className="text-gray-600">💰 Ksh 100k+</span>
+                  </div>
+                  <ActionButton variant="primary" className="w-full py-3">
+                    Browse Jobs
+                  </ActionButton>
+                </div>
+              )}
             </div>
           </motion.div>
         </motion.div>
@@ -628,22 +687,54 @@ const CTASection = () => (
         className="flex flex-col sm:flex-row gap-4 justify-center"
         variants={ANIMATION_VARIANTS.fadeInUp}
       >
-        <ActionButton variant="primary">Create Your Profile</ActionButton>
-        <ActionButton variant="success">Search Jobs</ActionButton>
+        <a
+          href="https://www.jobseeker.com/app/resumes/start"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <ActionButton variant="primary">CV Builder</ActionButton>
+        </a>
+
+        <Link href="/jobs">
+          <ActionButton variant="success">Search Jobs</ActionButton>
+        </Link>
       </motion.div>
     </div>
   </motion.section>
 );
 
 export default function Homepage() {
-  const { data: session } = useSession();
-  console.log("Session:", session?.user);
+  const router = useRouter();
+  const [page, setPage] = useState(1);
+  const limit = 1000; // Fetch all jobs to get accurate category counts
+
+  // Fetch all jobs from API
+  const { data, isLoading } = useGetJobsQuery({ page, limit });
+  const jobs = data?.jobs ?? [];
+
+  const lastJob = jobs[0];
+
   return (
     <>
       <HeroSection />
+      {/* disclaimer div */}
+      <div className="bg-white/80 backdrop-blur-sm border-t border-white/50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="text-center">
+            <h2 className="text-2xl bg-red-200 font-bold text-red-700 mb-4">
+              Disclaimer
+            </h2>
+            <p className="text-gray-600">
+              Apart from jobs with deadlines, all other jobs are usually
+              relevant on the day of posting, applying after a day renders lower
+              chances of getting the job.
+            </p>
+          </div>
+        </div>
+      </div>
       <StatsSection />
-      <JobCategoriesSection />
-      <FeaturesSection />
+      <JobCategoriesSection onClick={() => router.push("/categories")} />
+      <FeaturesSection lastJob={lastJob} isLoading={isLoading} />
       <TestimonialsSection />
       <CTASection />
     </>

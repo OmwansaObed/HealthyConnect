@@ -37,14 +37,20 @@ export default function Footer() {
                 <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
                   <Mail className="w-4 h-4 text-blue-600" />
                 </div>
-                <span>legal@healthyconnect.com</span>
+                <a href="mailto:legal@healthyconnect.com">
+                  legal@healthyconnect.com
+                </a>
               </div>
-              <div className="flex items-center space-x-3 text-gray-600 hover:text-blue-600 transition-colors cursor-pointer">
+              <a
+                href="tel:+254794909991"
+                className="flex items-center space-x-3 text-gray-600 hover:text-blue-600 transition-colors cursor-pointer"
+              >
                 <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
                   <Phone className="w-4 h-4 text-blue-600" />
                 </div>
                 <span>+254 794 909 991</span>
-              </div>
+              </a>
+
               <div className="flex items-center space-x-3 text-gray-600 hover:text-blue-600 transition-colors cursor-pointer">
                 <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
                   <MapPin className="w-4 h-4 text-blue-600" />
@@ -61,21 +67,24 @@ export default function Footer() {
             </h3>
             <ul className="space-y-3">
               {[
-                "Browse Jobs",
-                "Healthcare Careers",
-                "Salary Guide",
-                "Resume Builder",
-                "Interview Tips",
-                "Career Resources",
-              ].map((item) => (
-                <li key={item}>
+                { name: "Browse Jobs", href: "/jobs" },
+                { name: "Healthcare Careers", href: "/interview-tips" },
+                { name: "Salary Guide", href: "/interview-tips" },
+                {
+                  name: "Resume Builder",
+                  href: "https://www.jobseeker.com/app/resumes/start",
+                },
+                { name: "Interview Tips", href: "/interview-tips" },
+                { name: "Career Resources", href: "/interview-tips" },
+              ].map(({ name, href }) => (
+                <li key={name}>
                   <a
-                    href="#"
+                    href={href}
                     className="group flex items-center text-gray-600 hover:text-blue-600 transition-colors"
                   >
                     <ArrowRight className="w-4 h-4 mr-2 opacity-0 group-hover:opacity-100 transition-opacity" />
                     <span className="group-hover:translate-x-1 transition-transform">
-                      {item}
+                      {name}
                     </span>
                   </a>
                 </li>

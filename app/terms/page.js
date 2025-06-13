@@ -1,4 +1,12 @@
+"use client";
 import { Shield } from "lucide-react";
+import { motion } from "framer-motion";
+import {
+  staggerContainer,
+  textVariant,
+  fadeIn,
+  slideIn,
+} from "../../utils/motion";
 
 // Terms of Service Component
 const TermsOfService = () => {
@@ -58,80 +66,178 @@ const TermsOfService = () => {
   return (
     <div className="min-h-screen bg-white">
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-gray-800 via-gray-900 to-black py-20">
+      <motion.section
+        className="bg-gray-800 py-20"
+        initial="hidden"
+        animate="show"
+        variants={staggerContainer(0.1, 0.2)}
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-5xl font-bold text-white mb-6">
+          <motion.h1
+            className="text-5xl font-bold text-white mb-6"
+            variants={textVariant(0.1)}
+          >
             Terms of <span className="text-blue-400">Service</span>
-          </h1>
-          <p className="text-xl text-gray-300 max-w-3xl mx-auto">
+          </motion.h1>
+          <motion.p
+            className="text-xl text-gray-300 max-w-3xl mx-auto"
+            variants={textVariant(0.2)}
+          >
             Please read these terms carefully before using HealthyConnect
-          </p>
-          <div className="mt-8 text-gray-400">
+          </motion.p>
+          <motion.div
+            className="mt-8 text-gray-400"
+            variants={fadeIn("up", "tween", 0.3, 0.6)}
+          >
             <p>Last updated: January 15, 2025</p>
-          </div>
+          </motion.div>
         </div>
-      </section>
+      </motion.section>
 
       {/* Terms Content */}
-      <section className="py-20">
+      <motion.section
+        className="py-20"
+        initial="hidden"
+        whileInView="show"
+        viewport={{ once: true, amount: 0.25 }}
+        variants={staggerContainer(0.1, 0.2)}
+      >
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="prose prose-lg max-w-none">
-            <div className="bg-blue-50 border-l-4 border-blue-500 p-6 mb-12 rounded-r-xl">
+            <motion.div
+              className="bg-blue-50 border-l-4 border-blue-500 p-6 mb-12 rounded-r-xl"
+              variants={slideIn("left", "spring", 0.1, 0.75)}
+              whileHover={{ scale: 1.02, x: 5 }}
+            >
               <div className="flex items-start">
-                <Shield className="w-6 h-6 text-blue-500 mt-1 mr-3 flex-shrink-0" />
+                <motion.div
+                  initial={{ scale: 0, rotate: -180 }}
+                  animate={{ scale: 1, rotate: 0 }}
+                  transition={{
+                    delay: 0.3,
+                    type: "spring",
+                    stiffness: 260,
+                    damping: 20,
+                  }}
+                  whileHover={{ rotate: 10, scale: 1.1 }}
+                >
+                  <Shield className="w-6 h-6 text-blue-500 mt-1 mr-3 flex-shrink-0" />
+                </motion.div>
                 <div>
-                  <h3 className="text-lg font-semibold text-blue-900 mb-2">
+                  <motion.h3
+                    className="text-lg font-semibold text-blue-900 mb-2"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.4 }}
+                  >
                     Important Notice
-                  </h3>
-                  <p className="text-blue-800">
+                  </motion.h3>
+                  <motion.p
+                    className="text-blue-800"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.5 }}
+                  >
                     These Terms of Service constitute a legally binding
                     agreement between you and HealthyConnect. By using our
                     services, you acknowledge that you have read, understood,
                     and agree to these terms.
-                  </p>
+                  </motion.p>
                 </div>
               </div>
-            </div>
+            </motion.div>
 
-            <div className="space-y-8">
+            <motion.div
+              className="space-y-8"
+              variants={staggerContainer(0.1, 0)}
+            >
               {sections.map((section, index) => (
-                <div
+                <motion.div
                   key={index}
                   className="bg-white rounded-2xl p-8 shadow-lg border border-gray-100"
+                  variants={fadeIn("up", "spring", index * 0.1, 0.75)}
+                  whileHover={{
+                    scale: 1.01,
+                    y: -2,
+                    boxShadow:
+                      "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)",
+                    transition: { duration: 0.2 },
+                  }}
                 >
-                  <h2 className="text-2xl font-bold text-gray-900 mb-4">
+                  <motion.h2
+                    className="text-2xl font-bold text-gray-900 mb-4"
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: index * 0.1 + 0.3 }}
+                  >
                     {section.title}
-                  </h2>
-                  <p className="text-gray-600 leading-relaxed">
+                  </motion.h2>
+                  <motion.p
+                    className="text-gray-600 leading-relaxed"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: index * 0.1 + 0.4 }}
+                  >
                     {section.content}
-                  </p>
-                </div>
+                  </motion.p>
+                </motion.div>
               ))}
-            </div>
+            </motion.div>
 
-            <div className="mt-12 bg-gray-50 rounded-2xl p-8">
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">
+            <motion.div
+              className="mt-12 bg-gray-50 rounded-2xl p-8"
+              variants={fadeIn("up", "spring", 0.3, 0.6)}
+              whileHover={{
+                scale: 1.01,
+                transition: { duration: 0.2 },
+              }}
+            >
+              <motion.h2
+                className="text-2xl font-bold text-gray-900 mb-4"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5 }}
+              >
                 Contact Information
-              </h2>
-              <p className="text-gray-600 mb-4">
+              </motion.h2>
+              <motion.p
+                className="text-gray-600 mb-4"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.6 }}
+              >
                 If you have any questions about these Terms of Service, please
                 contact us:
-              </p>
-              <div className="space-y-2 text-gray-600">
-                <p>
+              </motion.p>
+              <motion.div
+                className="space-y-2 text-gray-600"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.7 }}
+              >
+                <motion.p
+                  whileHover={{ x: 5, color: "#3b82f6" }}
+                  transition={{ duration: 0.2 }}
+                >
                   <strong>Email:</strong> legal@healthyconnect.co.ke
-                </p>
-                <p>
+                </motion.p>
+                <motion.p
+                  whileHover={{ x: 5, color: "#3b82f6" }}
+                  transition={{ duration: 0.2 }}
+                >
                   <strong>Phone:</strong> +254 794 909 991
-                </p>
-                <p>
+                </motion.p>
+                <motion.p
+                  whileHover={{ x: 5, color: "#3b82f6" }}
+                  transition={{ duration: 0.2 }}
+                >
                   <strong>Address:</strong> Mradi, Embakasi, Nairobi, Kenya
-                </p>
-              </div>
-            </div>
+                </motion.p>
+              </motion.div>
+            </motion.div>
           </div>
         </div>
-      </section>
+      </motion.section>
     </div>
   );
 };

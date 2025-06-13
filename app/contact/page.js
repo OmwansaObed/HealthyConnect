@@ -1,6 +1,8 @@
 "use client";
 import { Clock, Mail, MapPin, Phone, Send } from "lucide-react";
 import { useState } from "react";
+import { motion } from "framer-motion";
+import { staggerContainer, fadeIn, textVariant } from "../../utils/motion";
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -23,54 +25,74 @@ const Contact = () => {
       title: "Call Us",
       details: "+254 700 123 456",
       description: "Mon-Fri, 8AM-6PM EAT",
-      color: "bg-blue-500",
+      color: "bg-blue-600",
     },
     {
       icon: Mail,
       title: "Email Us",
       details: "support@healthyconnect.co.ke",
       description: "We'll respond within 24 hours",
-      color: "bg-emerald-500",
+      color: "bg-emerald-600",
     },
     {
       icon: MapPin,
       title: "Visit Us",
       details: "Nairobi, Kenya",
       description: "Upper Hill, ABC Place",
-      color: "bg-purple-500",
+      color: "bg-purple-600",
     },
     {
       icon: Clock,
       title: "Business Hours",
       details: "Mon-Fri: 8AM-6PM",
       description: "Saturday: 9AM-2PM",
-      color: "bg-orange-500",
+      color: "bg-orange-600",
     },
   ];
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white overflow-hidden">
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-purple-600 via-purple-700 to-indigo-800 py-20">
+      <motion.section
+        initial="hidden"
+        whileInView="show"
+        viewport={{ once: true }}
+        variants={staggerContainer(0.1, 0.2)}
+        className="bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 py-20"
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-5xl font-bold text-white mb-6">
+          <motion.h1
+            variants={textVariant(0.2)}
+            className="text-5xl font-bold text-white mb-6"
+          >
             Get In <span className="text-yellow-400">Touch</span>
-          </h1>
-          <p className="text-xl text-purple-100 max-w-3xl mx-auto">
+          </motion.h1>
+          <motion.p
+            variants={textVariant(0.4)}
+            className="text-xl text-blue-100 max-w-3xl mx-auto"
+          >
             Have questions? Need support? We&apos;re here to help you succeed in
             your healthcare career journey.
-          </p>
+          </motion.p>
         </div>
-      </section>
+      </motion.section>
 
       {/* Contact Methods */}
-      <section className="py-20">
+      <motion.section
+        initial="hidden"
+        whileInView="show"
+        viewport={{ once: true }}
+        variants={staggerContainer()}
+        className="py-20"
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
             {contactMethods.map((method, index) => (
-              <div
+              <motion.div
                 key={index}
-                className="text-center p-8 bg-white rounded-2xl shadow-lg"
+                variants={fadeIn("up", "tween", index * 0.2 + 0.4, 1)}
+                whileHover={{ y: -10 }}
+                className="text-center p-8 bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all"
               >
                 <div
                   className={`w-16 h-16 ${method.color} rounded-2xl flex items-center justify-center mx-auto mb-6`}
@@ -84,16 +106,25 @@ const Contact = () => {
                   {method.details}
                 </p>
                 <p className="text-gray-600">{method.description}</p>
-              </div>
+              </motion.div>
             ))}
           </div>
         </div>
-      </section>
+      </motion.section>
 
       {/* Contact Form */}
-      <section className="py-20 bg-gray-50">
+      <motion.section
+        initial="hidden"
+        whileInView="show"
+        viewport={{ once: true }}
+        variants={staggerContainer()}
+        className="py-20 bg-gray-50"
+      >
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
+          <motion.div
+            variants={fadeIn("up", "tween", 0.2, 1)}
+            className="text-center mb-12"
+          >
             <h2 className="text-4xl font-bold text-gray-900 mb-4">
               Send Us a Message
             </h2>
@@ -101,48 +132,51 @@ const Contact = () => {
               Fill out the form below and we&apos;ll get back to you as soon as
               possible
             </p>
-          </div>
+          </motion.div>
 
-          <div className="bg-white rounded-3xl p-8 shadow-xl">
+          <motion.div
+            variants={fadeIn("up", "tween", 0.4, 1)}
+            className="bg-white rounded-3xl p-8 shadow-xl"
+          >
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
+                <motion.div variants={fadeIn("right", "tween", 0.4, 1)}>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Full Name *
                   </label>
                   <input
                     type="text"
                     required
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-600 focus:border-blue-600 transition-all"
                     value={formData.name}
                     onChange={(e) =>
                       setFormData({ ...formData, name: e.target.value })
                     }
                   />
-                </div>
-                <div>
+                </motion.div>
+                <motion.div variants={fadeIn("left", "tween", 0.4, 1)}>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Email Address *
                   </label>
                   <input
                     type="email"
                     required
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-600 focus:border-blue-600 transition-all"
                     value={formData.email}
                     onChange={(e) =>
                       setFormData({ ...formData, email: e.target.value })
                     }
                   />
-                </div>
+                </motion.div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
+                <motion.div variants={fadeIn("right", "tween", 0.6, 1)}>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     I am a...
                   </label>
                   <select
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-600 focus:border-blue-600 transition-all"
                     value={formData.userType}
                     onChange={(e) =>
                       setFormData({ ...formData, userType: e.target.value })
@@ -154,50 +188,53 @@ const Contact = () => {
                     <option value="facility">Healthcare Facility</option>
                     <option value="other">Other</option>
                   </select>
-                </div>
-                <div>
+                </motion.div>
+                <motion.div variants={fadeIn("left", "tween", 0.6, 1)}>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Subject *
                   </label>
                   <input
                     type="text"
                     required
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-600 focus:border-blue-600 transition-all"
                     value={formData.subject}
                     onChange={(e) =>
                       setFormData({ ...formData, subject: e.target.value })
                     }
                   />
-                </div>
+                </motion.div>
               </div>
 
-              <div>
+              <motion.div variants={fadeIn("up", "tween", 0.8, 1)}>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Message *
                 </label>
                 <textarea
                   required
                   rows={6}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-600 focus:border-blue-600 transition-all"
                   value={formData.message}
                   onChange={(e) =>
                     setFormData({ ...formData, message: e.target.value })
                   }
                   placeholder="Please describe how we can help you..."
                 />
-              </div>
+              </motion.div>
 
-              <button
+              <motion.button
+                variants={fadeIn("up", "tween", 1, 1)}
                 type="submit"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
                 className="w-full py-4 bg-blue-600 text-white rounded-xl hover:bg-blue-700 font-bold text-lg shadow-lg transition-all flex items-center justify-center"
               >
                 <Send className="w-5 h-5 mr-2" />
                 Send Message
-              </button>
+              </motion.button>
             </form>
-          </div>
+          </motion.div>
         </div>
-      </section>
+      </motion.section>
     </div>
   );
 };

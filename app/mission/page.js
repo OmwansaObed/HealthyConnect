@@ -1,4 +1,12 @@
+"use client";
 import { Heart, Users, Building, Target } from "lucide-react";
+import { motion } from "framer-motion";
+import {
+  staggerContainer,
+  textVariant,
+  fadeIn,
+  slideIn,
+} from "../../utils/motion";
 
 const Mission = () => {
   const goals = [
@@ -54,117 +62,253 @@ const Mission = () => {
   return (
     <div className="min-h-screen bg-white">
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-emerald-600 via-emerald-700 to-green-800 py-20">
+      <motion.section
+        className="bg-emerald-600 py-20"
+        initial="hidden"
+        animate="show"
+        variants={staggerContainer(0.1, 0.2)}
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-5xl font-bold text-white mb-6">
+          <motion.h1
+            className="text-5xl font-bold text-white mb-6"
+            variants={textVariant(0.1)}
+          >
             Our <span className="text-yellow-400">Mission</span>
-          </h1>
-          <p className="text-2xl text-emerald-100 max-w-4xl mx-auto leading-relaxed font-medium">
+          </motion.h1>
+          <motion.p
+            className="text-2xl text-emerald-100 max-w-4xl mx-auto leading-relaxed font-medium"
+            variants={textVariant(0.2)}
+          >
             To revolutionize healthcare in Kenya by ensuring the right
             healthcare professionals are in the right places, ultimately
             improving patient outcomes and saving lives.
-          </p>
+          </motion.p>
         </div>
-      </section>
+      </motion.section>
 
       {/* Vision Section */}
-      <section className="py-20">
+      <motion.section
+        className="py-20"
+        initial="hidden"
+        whileInView="show"
+        viewport={{ once: true, amount: 0.25 }}
+        variants={staggerContainer(0.1, 0.2)}
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-gray-900 mb-6">
+            <motion.h2
+              className="text-4xl font-bold text-gray-900 mb-6"
+              variants={textVariant(0.1)}
+            >
               Our Vision
-            </h2>
-            <p className="text-2xl text-gray-600 max-w-4xl mx-auto leading-relaxed">
+            </motion.h2>
+            <motion.p
+              className="text-2xl text-gray-600 max-w-4xl mx-auto leading-relaxed"
+              variants={textVariant(0.2)}
+            >
               A Kenya where every healthcare facility is fully staffed with
               qualified, passionate professionals, and every healthcare worker
               has access to meaningful career opportunities.
-            </p>
+            </motion.p>
           </div>
         </div>
-      </section>
+      </motion.section>
 
       {/* Goals Section */}
-      <section className="py-20 bg-gray-50">
+      <motion.section
+        className="py-20 bg-gray-50"
+        initial="hidden"
+        whileInView="show"
+        viewport={{ once: true, amount: 0.25 }}
+        variants={staggerContainer(0.1, 0.2)}
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">
+            <motion.h2
+              className="text-4xl font-bold text-gray-900 mb-4"
+              variants={textVariant(0.1)}
+            >
               How We&apos;re Making It Happen
-            </h2>
-            <p className="text-xl text-gray-600">
+            </motion.h2>
+            <motion.p
+              className="text-xl text-gray-600"
+              variants={textVariant(0.2)}
+            >
               Our strategic approach to transforming healthcare recruitment
-            </p>
+            </motion.p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <motion.div
+            className="grid grid-cols-1 md:grid-cols-2 gap-8"
+            variants={staggerContainer(0.1, 0)}
+          >
             {goals.map((goal, index) => (
-              <div key={index} className="bg-white rounded-2xl p-8 shadow-lg">
-                <div
+              <motion.div
+                key={index}
+                className="bg-white rounded-2xl p-8 shadow-lg"
+                variants={fadeIn("up", "spring", index * 0.1, 0.75)}
+                whileHover={{
+                  scale: 1.02,
+                  y: -5,
+                  transition: { duration: 0.2 },
+                }}
+              >
+                <motion.div
                   className={`w-16 h-16 ${goal.color} rounded-2xl flex items-center justify-center mb-6`}
+                  initial={{ scale: 0, rotate: -180 }}
+                  animate={{ scale: 1, rotate: 0 }}
+                  transition={{
+                    delay: index * 0.1 + 0.3,
+                    type: "spring",
+                    stiffness: 260,
+                    damping: 20,
+                  }}
+                  whileHover={{ rotate: 10, scale: 1.1 }}
                 >
                   <goal.icon className="w-8 h-8 text-white" />
-                </div>
-                <h3 className="text-2xl font-bold text-gray-900 mb-4">
+                </motion.div>
+                <motion.h3
+                  className="text-2xl font-bold text-gray-900 mb-4"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.1 + 0.4 }}
+                >
                   {goal.title}
-                </h3>
-                <p className="text-gray-600 text-lg leading-relaxed">
+                </motion.h3>
+                <motion.p
+                  className="text-gray-600 text-lg leading-relaxed"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: index * 0.1 + 0.5 }}
+                >
                   {goal.description}
-                </p>
-              </div>
+                </motion.p>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         </div>
-      </section>
+      </motion.section>
 
       {/* Impact Section */}
-      <section className="py-20">
+      <motion.section
+        className="py-20"
+        initial="hidden"
+        whileInView="show"
+        viewport={{ once: true, amount: 0.25 }}
+        variants={staggerContainer(0.1, 0.2)}
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">
+            <motion.h2
+              className="text-4xl font-bold text-gray-900 mb-4"
+              variants={textVariant(0.1)}
+            >
               Our Impact So Far
-            </h2>
-            <p className="text-xl text-gray-600">
-              Measurable results in transforming Kenyavs healthcare workforce
-            </p>
+            </motion.h2>
+            <motion.p
+              className="text-xl text-gray-600"
+              variants={textVariant(0.2)}
+            >
+              Measurable results in transforming Kenya's healthcare workforce
+            </motion.p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <motion.div
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8"
+            variants={staggerContainer(0.1, 0)}
+          >
             {impacts.map((impact, index) => (
-              <div
+              <motion.div
                 key={index}
-                className="text-center p-8 bg-gradient-to-br from-blue-50 to-emerald-50 rounded-2xl"
+                className="text-center p-8 bg-blue-50 rounded-2xl"
+                variants={fadeIn("up", "spring", index * 0.1, 0.75)}
+                whileHover={{
+                  scale: 1.05,
+                  y: -10,
+                  transition: { duration: 0.2 },
+                }}
               >
-                <div className="text-4xl font-bold text-blue-600 mb-4">
+                <motion.div
+                  className="text-4xl font-bold text-blue-600 mb-4"
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{
+                    delay: index * 0.1 + 0.3,
+                    type: "spring",
+                    stiffness: 300,
+                  }}
+                  whileHover={{ scale: 1.1 }}
+                >
                   {impact.metric}
-                </div>
-                <p className="text-gray-600 leading-relaxed">
+                </motion.div>
+                <motion.p
+                  className="text-gray-600 leading-relaxed"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.1 + 0.4 }}
+                >
                   {impact.description}
-                </p>
-              </div>
+                </motion.p>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         </div>
-      </section>
+      </motion.section>
 
       {/* Call to Action */}
-      <section className="py-20 bg-gradient-to-r from-blue-600 to-emerald-600">
+      <motion.section
+        className="py-20 bg-blue-600"
+        initial="hidden"
+        whileInView="show"
+        viewport={{ once: true, amount: 0.25 }}
+        variants={staggerContainer(0.1, 0.2)}
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-4xl font-bold text-white mb-6">
+          <motion.h2
+            className="text-4xl font-bold text-white mb-6"
+            variants={textVariant(0.1)}
+          >
             Join Our Mission
-          </h2>
-          <p className="text-xl text-blue-100 mb-8 max-w-3xl mx-auto">
+          </motion.h2>
+          <motion.p
+            className="text-xl text-blue-100 mb-8 max-w-3xl mx-auto"
+            variants={textVariant(0.2)}
+          >
             Whether you&apos;re a healthcare professional looking for your next
             opportunity or a facility seeking qualified staff, you&apos;re part
             of our mission to transform healthcare in Kenya.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button className="px-8 py-4 bg-white text-blue-600 rounded-xl hover:bg-gray-50 font-bold text-lg shadow-lg transition-all">
+          </motion.p>
+          <motion.div
+            className="flex flex-col sm:flex-row gap-4 justify-center"
+            variants={fadeIn("up", "spring", 0.3, 0.6)}
+          >
+            <motion.button
+              className="px-8 py-4 bg-white text-blue-600 rounded-xl hover:bg-gray-50 font-bold text-lg shadow-lg transition-all"
+              whileHover={{
+                scale: 1.05,
+                y: -3,
+                boxShadow:
+                  "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)",
+              }}
+              whileTap={{ scale: 0.95 }}
+            >
               Get Started Today
-            </button>
-            <button className="px-8 py-4 bg-emerald-500 text-white rounded-xl hover:bg-emerald-600 font-bold text-lg shadow-lg transition-all">
+            </motion.button>
+            <motion.button
+              className="px-8 py-4 bg-emerald-500 text-white rounded-xl hover:bg-emerald-600 font-bold text-lg shadow-lg transition-all"
+              whileHover={{
+                scale: 1.05,
+                y: -3,
+                boxShadow:
+                  "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)",
+              }}
+              whileTap={{ scale: 0.95 }}
+            >
               Learn More
-            </button>
-          </div>
+            </motion.button>
+          </motion.div>
         </div>
-      </section>
+      </motion.section>
     </div>
   );
 };
+
 export default Mission;

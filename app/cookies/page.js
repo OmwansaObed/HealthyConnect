@@ -1,5 +1,8 @@
 "use client";
 import { useState } from "react";
+import { motion } from "framer-motion";
+import { staggerContainer, fadeIn, textVariant } from "../../utils/motion";
+import { Cookie } from "lucide-react";
 
 const CookiePolicy = () => {
   const [preferences, setPreferences] = useState({
@@ -16,7 +19,7 @@ const CookiePolicy = () => {
         "These cookies are essential for the website to function properly. They enable basic functions like page navigation and access to secure areas.",
       examples: ["Authentication", "Security", "Session management"],
       required: true,
-      color: "bg-red-500",
+      color: "bg-red-600",
     },
     {
       type: "Analytics Cookies",
@@ -24,7 +27,7 @@ const CookiePolicy = () => {
         "These cookies help us understand how visitors interact with our website by collecting and reporting information anonymously.",
       examples: ["Google Analytics", "Page views", "User behavior"],
       required: false,
-      color: "bg-blue-500",
+      color: "bg-blue-600",
     },
     {
       type: "Marketing Cookies",
@@ -32,7 +35,7 @@ const CookiePolicy = () => {
         "These cookies are used to track visitors across websites to display relevant advertisements and measure campaign effectiveness.",
       examples: ["Ad targeting", "Conversion tracking", "Social media"],
       required: false,
-      color: "bg-purple-500",
+      color: "bg-purple-600",
     },
     {
       type: "Functional Cookies",
@@ -44,7 +47,7 @@ const CookiePolicy = () => {
         "Feature settings",
       ],
       required: false,
-      color: "bg-emerald-500",
+      color: "bg-emerald-600",
     },
   ];
 
@@ -55,35 +58,73 @@ const CookiePolicy = () => {
     }));
   };
 
+  const handleSavePreferences = () => {
+    // Save preferences logic
+    console.log("Preferences saved:", preferences);
+  };
+
+  const handleAcceptAll = () => {
+    setPreferences({
+      necessary: true,
+      analytics: true,
+      marketing: true,
+      functional: true,
+    });
+  };
+
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white overflow-hidden">
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-orange-600 via-red-600 to-pink-700 py-20">
+      <motion.section
+        initial="hidden"
+        whileInView="show"
+        viewport={{ once: true }}
+        variants={staggerContainer(0.1, 0.2)}
+        className="bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 py-20"
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-5xl font-bold text-white mb-6">
+          <motion.h1
+            variants={textVariant(0.2)}
+            className="text-5xl font-bold text-white mb-6"
+          >
             Cookie <span className="text-yellow-400">Policy</span>
-          </h1>
-          <p className="text-xl text-orange-100 max-w-3xl mx-auto">
+          </motion.h1>
+          <motion.p
+            variants={textVariant(0.4)}
+            className="text-xl text-blue-100 max-w-3xl mx-auto"
+          >
             Learn about how we use cookies to improve your experience on
             HealthyConnect
-          </p>
-          <div className="mt-8 text-orange-200">
+          </motion.p>
+          <motion.div
+            variants={textVariant(0.6)}
+            className="mt-8 text-blue-200"
+          >
             <p>Last updated: January 15, 2025</p>
-          </div>
+          </motion.div>
         </div>
-      </section>
+      </motion.section>
 
       {/* What are Cookies */}
-      <section className="py-20">
+      <motion.section
+        initial="hidden"
+        whileInView="show"
+        viewport={{ once: true }}
+        variants={fadeIn("up", "tween", 0.2, 1)}
+        className="py-20"
+      >
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-orange-50 border-l-4 border-orange-500 p-8 rounded-r-xl mb-12">
+          <motion.div
+            variants={fadeIn("up", "tween", 0.4, 1)}
+            className="bg-blue-50 border-l-4 border-blue-600 p-8 rounded-r-xl mb-12"
+          >
             <div className="flex items-start">
-              <Cookie className="w-8 h-8 text-orange-500 mt-1 mr-4 flex-shrink-0" />
+              <Cookie className="w-8 h-8 text-blue-600 mt-1 mr-4 flex-shrink-0" />
               <div>
-                <h2 className="text-2xl font-bold text-orange-900 mb-4">
+                <h2 className="text-2xl font-bold text-blue-900 mb-4">
                   What are Cookies?
                 </h2>
-                <p className="text-orange-800 leading-relaxed">
+                <p className="text-blue-800 leading-relaxed">
                   Cookies are small text files that are stored on your device
                   when you visit our website. They help us provide you with a
                   better experience by remembering your preferences, analyzing
@@ -91,13 +132,15 @@ const CookiePolicy = () => {
                 </p>
               </div>
             </div>
-          </div>
+          </motion.div>
 
-          <div className="space-y-8">
+          <motion.div variants={staggerContainer()} className="space-y-8">
             {cookieTypes.map((cookieType, index) => (
-              <div
+              <motion.div
                 key={index}
-                className="bg-white rounded-2xl p-8 shadow-lg border border-gray-100"
+                variants={fadeIn("up", "tween", index * 0.1 + 0.4, 1)}
+                whileHover={{ y: -5 }}
+                className="bg-white rounded-2xl p-8 shadow-lg border border-gray-100 hover:shadow-xl transition-all"
               >
                 <div className="flex items-start justify-between mb-6">
                   <div className="flex items-center">
@@ -146,21 +189,25 @@ const CookiePolicy = () => {
                   </h4>
                   <div className="flex flex-wrap gap-2">
                     {cookieType.examples.map((example, i) => (
-                      <span
+                      <motion.span
                         key={i}
+                        whileHover={{ scale: 1.05 }}
                         className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm"
                       >
                         {example}
-                      </span>
+                      </motion.span>
                     ))}
                   </div>
                 </div>
-              </div>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
 
           {/* Cookie Management */}
-          <div className="mt-12 bg-gray-50 rounded-2xl p-8">
+          <motion.div
+            variants={fadeIn("up", "tween", 0.8, 1)}
+            className="mt-12 bg-gray-50 rounded-2xl p-8"
+          >
             <h2 className="text-2xl font-bold text-gray-900 mb-6">
               Managing Your Cookie Preferences
             </h2>
@@ -173,7 +220,10 @@ const CookiePolicy = () => {
               </p>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-                <div className="bg-white rounded-xl p-6 shadow-sm">
+                <motion.div
+                  whileHover={{ y: -5 }}
+                  className="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-all"
+                >
                   <h3 className="font-semibold text-gray-900 mb-3">
                     Browser Settings
                   </h3>
@@ -182,9 +232,12 @@ const CookiePolicy = () => {
                     for doing so vary from browser to browser. Please visit your
                     browser&apos;s help menu for instructions.
                   </p>
-                </div>
+                </motion.div>
 
-                <div className="bg-white rounded-xl p-6 shadow-sm">
+                <motion.div
+                  whileHover={{ y: -5 }}
+                  className="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-all"
+                >
                   <h3 className="font-semibold text-gray-900 mb-3">
                     Third-Party Tools
                   </h3>
@@ -193,22 +246,35 @@ const CookiePolicy = () => {
                     Digital Advertising Alliance&apos;s opt-out page or similar
                     industry opt-out mechanisms.
                   </p>
-                </div>
+                </motion.div>
               </div>
             </div>
 
             <div className="mt-8 flex flex-col sm:flex-row gap-4">
-              <button className="px-6 py-3 bg-orange-600 text-white rounded-xl hover:bg-orange-700 font-medium transition-all">
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={handleSavePreferences}
+                className="px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 font-medium transition-all"
+              >
                 Save Preferences
-              </button>
-              <button className="px-6 py-3 bg-gray-200 text-gray-700 rounded-xl hover:bg-gray-300 font-medium transition-all">
+              </motion.button>
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={handleAcceptAll}
+                className="px-6 py-3 bg-gray-200 text-gray-700 rounded-xl hover:bg-gray-300 font-medium transition-all"
+              >
                 Accept All
-              </button>
+              </motion.button>
             </div>
-          </div>
+          </motion.div>
 
           {/* Contact Information */}
-          <div className="mt-12 bg-white rounded-2xl p-8 shadow-lg border border-gray-100">
+          <motion.div
+            variants={fadeIn("up", "tween", 1, 1)}
+            className="mt-12 bg-white rounded-2xl p-8 shadow-lg border border-gray-100"
+          >
             <h2 className="text-2xl font-bold text-gray-900 mb-4">
               Questions About Our Cookie Policy?
             </h2>
@@ -227,9 +293,9 @@ const CookiePolicy = () => {
                 <strong>Address:</strong> ABC Place, Upper Hill, Nairobi, Kenya
               </p>
             </div>
-          </div>
+          </motion.div>
         </div>
-      </section>
+      </motion.section>
     </div>
   );
 };
