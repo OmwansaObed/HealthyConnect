@@ -13,6 +13,12 @@ export async function POST(request) {
         { error: "All fields are required" },
         { status: 400 }
       );
+    // validate phone number 07 lor 011
+    if (!data.phone.startsWith("07") && !data.phone.startsWith("011"))
+      return NextResponse.json(
+        { error: "Invalid phone number" },
+        { status: 400 }
+      );
 
     const job = await Job.create(data);
 

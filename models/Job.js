@@ -51,11 +51,6 @@ const JobSchema = new mongoose.Schema(
     phone: {
       type: String,
       required: true,
-      validate: {
-        validator: (v) => /^(\+254|0)?[7-9]\d{8}$/.test(v),
-        message: (props) =>
-          `${props.value} is not a valid Kenyan phone number!`,
-      },
     },
     status: {
       type: String,
