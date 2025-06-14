@@ -16,7 +16,7 @@ import {
 import Link from "next/link";
 import { useSession, signIn, signOut } from "next-auth/react";
 import dynamic from "next/dynamic";
-import { getSocket } from "../../utils/socket";
+// import { getSocket } from "../../utils/socket";
 
 const Notifications = dynamic(() => import("./Notifications"), { ssr: false });
 
@@ -332,21 +332,21 @@ export default function Navbar() {
       }
     }
 
-    if (session) {
-      checkNotifications();
-      interval = setInterval(checkNotifications, 30000);
+    // if (session) {
+    //   checkNotifications();
+    //   interval = setInterval(checkNotifications, 30000);
 
-      // WebSocket: Listen for real-time job notifications
-      const socket = getSocket();
-      socket.on("job_posted", () => {
-        setUnread(true);
-      });
+    //   // WebSocket: Listen for real-time job notifications
+    //   const socket = getSocket();
+    //   socket.on("job_posted", () => {
+    //     setUnread(true);
+    //   });
 
-      return () => {
-        clearInterval(interval);
-        socket.off("job_posted");
-      };
-    }
+    //   return () => {
+    //     clearInterval(interval);
+    //     socket.off("job_posted");
+    //   };
+    // }
     // Clean up if session is falsy
     return () => {
       if (interval) clearInterval(interval);

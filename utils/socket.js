@@ -1,10 +1,10 @@
-import { io } from "socket.io-client";
+// import { io } from "socket.io-client";
 
-let socket;
+// let socket;
 
-export function getSocket() {
-  if (!socket) {
-    socket = io("http://localhost:4000"); // Connect to the websocket server port
-  }
-  return socket;
-}
+// export function getSocket() {
+//   if (!socket) {
+//     socket = io("http://localhost:4000"); // Connect to the websocket server port
+//   }
+//   return socket;
+// }

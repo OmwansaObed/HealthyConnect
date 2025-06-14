@@ -30,7 +30,7 @@ const MENU_ITEMS = [
     label: "Job Listings",
     icon: Briefcase,
     href: "/admin/jobs",
-    badge: "24",
+    // badge: "24",
   },
   {
     id: "users",
@@ -38,44 +38,44 @@ const MENU_ITEMS = [
     icon: Users,
     href: "/admin/users",
   },
-  {
-    id: "facilities",
-    label: "Facilities",
-    icon: Building,
-    href: "/admin/facilities",
-  },
-  {
-    id: "applications",
-    label: "Applications",
-    icon: Heart,
-    href: "/admin/applications",
-    badge: "12",
-  },
+  // {
+  //   id: "facilities",
+  //   label: "Facilities",
+  //   icon: Building,
+  //   href: "/admin/facilities",
+  // },
+  // {
+  //   id: "applications",
+  //   label: "Applications",
+  //   icon: Heart,
+  //   href: "/admin/applications",
+  //   badge: "12",
+  // },
   {
     id: "analytics",
     label: "Analytics",
     icon: BarChart3,
     href: "/admin/analytics",
   },
-  {
-    id: "calendar",
-    label: "Calendar",
-    icon: Calendar,
-    href: "/admin/calendar",
-  },
-  {
-    id: "messages",
-    label: "Messages",
-    icon: MessageSquare,
-    href: "/admin/messages",
-    badge: "5",
-  },
-  {
-    id: "settings",
-    label: "Settings",
-    icon: Settings,
-    href: "/admin/settings",
-  },
+  // {
+  //   id: "calendar",
+  //   label: "Calendar",
+  //   icon: Calendar,
+  //   href: "/admin/calendar",
+  // },
+  // {
+  //   id: "messages",
+  //   label: "Messages",
+  //   icon: MessageSquare,
+  //   href: "/admin/messages",
+  //   badge: "5",
+  // },
+  // {
+  //   id: "settings",
+  //   label: "Settings",
+  //   icon: Settings,
+  //   href: "/admin/settings",
+  // },
 ];
 
 // Mobile toggle button component
@@ -139,7 +139,7 @@ const NavItem = ({ item, isActive, onClick }) => {
         />
         <span className="font-medium">{item.label}</span>
       </div>
-      {item.badge && (
+      {/* {item.badge && (
         <span
           className={`
             px-2 py-1 text-xs rounded-full font-medium transition-colors duration-200
@@ -152,7 +152,7 @@ const NavItem = ({ item, isActive, onClick }) => {
         >
           {item.badge}
         </span>
-      )}
+      )} */}
     </Link>
   );
 };
@@ -163,9 +163,12 @@ const SidebarFooter = () => (
     <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-100">
       <h3 className="font-medium text-gray-900 mb-2">Need Help?</h3>
       <p className="text-sm text-gray-600 mb-3">Contact our support team</p>
-      <button className="w-full px-3 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 active:bg-blue-800 transition-all duration-200 shadow-sm hover:shadow-md">
+      <a
+        href="mailto:obed9to5@gmail.com?subject=Support%20Request&body=Hi%20Support%20Team%2C%0A%0AI%20need%20help%20with..."
+        className="w-full px-3 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 active:bg-blue-800 transition-all duration-200 shadow-sm hover:shadow-md"
+      >
         Get Support
-      </button>
+      </a>
     </div>
   </div>
 );

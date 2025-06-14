@@ -1,5 +1,6 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import Link from "next/link";
 
 import {
   BarChart3,
@@ -16,9 +17,10 @@ import {
   Users,
 } from "lucide-react";
 
-import AdminHeader from "./AdminHeader";
 import AdminStatsWidget from "./AdminStatsWidget";
-import AdminSidebar from "./AdminSidebar";
+
+import { useGetJobsQuery } from "../../redux/api/jobApiSlice";
+import { useSession } from "next-auth/react";
 
 const AdminDashboardClient = () => {
   const quickActions = [
@@ -28,6 +30,7 @@ const AdminDashboardClient = () => {
       icon: Plus,
       color: "bg-blue-500",
       bgColor: "bg-blue-50",
+      href: "/admin/jobs/create", // Add your route here
     },
     {
       title: "Add Facility",
@@ -35,6 +38,7 @@ const AdminDashboardClient = () => {
       icon: Building,
       color: "bg-emerald-500",
       bgColor: "bg-emerald-50",
+      href: "/admin/facilities/create", // Add your route here
     },
     {
       title: "View Reports",
@@ -42,6 +46,7 @@ const AdminDashboardClient = () => {
       icon: BarChart3,
       color: "bg-purple-500",
       bgColor: "bg-purple-50",
+      href: "/admin/reports", // Add your route here
     },
     {
       title: "Manage Users",
@@ -49,6 +54,7 @@ const AdminDashboardClient = () => {
       icon: Users,
       color: "bg-orange-500",
       bgColor: "bg-orange-50",
+      href: "/admin/users", // Add your route here
     },
   ];
 
@@ -85,12 +91,49 @@ const AdminDashboardClient = () => {
     },
   ];
 
+  const [page, setPage] = useState(1);
+  const limit = 10;
+
+  const { data, isLoading } = useGetJobsQuery({ page, limit });
+  const jobs = data?.jobs ?? [];
+  const totalPages = data?.totalPages || 1;
+  const totalCount = data?.totalCount || 0;
+
+  const lastThreeJobs = jobs.slice(-3);
+  const { data: session } = useSession();
+
+  function GreetingHeader() {
+    const [greeting, setGreeting] = useState("");
+
+    useEffect(() => {
+      const hour = new Date().getHours();
+
+      if (hour < 12) {
+        setGreeting("Good morning");
+      } else if (hour < 18) {
+        setGreeting("Good afternoon");
+      } else {
+        setGreeting("Good evening");
+      }
+    }, []);
+
+    if (session?.user) {
+      return (
+        <h2 className="text-2xl font-bold mb-2">
+          {greeting}, {session.user.name}! 👋
+        </h2>
+      );
+    }
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 flex">
       <div className="flex-1 flex flex-col min-w-0">
         <main className="flex-1 p-4 sm:p-6 space-y-6 overflow-auto">
           <div className="bg-gradient-to-r from-blue-600 to-indigo-700 rounded-2xl p-6 text-white">
-            <h2 className="text-2xl font-bold mb-2">Good morning, Admin! 👋</h2>
+            {/* conditionally render this based on the time */}
+            <GreetingHeader />
+
             <p className="text-blue-100 mb-4">
               Here&apos;s what&apos;s happening with your platform today.
             </p>
@@ -115,9 +158,10 @@ const AdminDashboardClient = () => {
             <div className="p-6">
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 {quickActions.map((action, index) => (
-                  <button
+                  <Link
                     key={index}
-                    className="p-4 rounded-xl border border-gray-200 hover:border-blue-300 hover:shadow-sm transition-all text-left group"
+                    href={action.href}
+                    className="p-4 rounded-xl border border-gray-200 hover:border-blue-300 hover:shadow-sm transition-all text-left group block"
                   >
                     <div
                       className={`w-10 h-10 ${action.bgColor} rounded-lg flex items-center justify-center mb-3 group-hover:scale-110 transition-transform`}
@@ -135,7 +179,7 @@ const AdminDashboardClient = () => {
                     <p className="text-sm text-gray-600">
                       {action.description}
                     </p>
-                  </button>
+                  </Link>
                 ))}
               </div>
             </div>
@@ -159,9 +203,9 @@ const AdminDashboardClient = () => {
             </div>
             <div className="overflow-x-auto">
               <div className="min-w-full">
-                {recentJobs.map((job) => (
+                {lastThreeJobs.map((job, index) => (
                   <div
-                    key={job.id}
+                    key={index}
                     className="p-6 border-b border-gray-50 hover:bg-gray-50 transition-colors"
                   >
                     <div className="flex items-start justify-between">
@@ -175,19 +219,24 @@ const AdminDashboardClient = () => {
                               {job.title}
                             </h4>
                             <p className="text-sm text-gray-600 mb-2">
-                              {job.facility}
+                              {job.postedBy}
                             </p>
                             <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500">
-                              <span>📍 {job.location}</span>
-                              <span>💰 {job.salary}</span>
-                              <span>👥 {job.applications} applications</span>
-                              <span>🕒 {job.posted}</span>
+                              <span>
+                                📍 {job.location.county || job.postedBy}
+                              </span>
+                              <span>💰 {job.salary || "Not Listed"}</span>
+                              <span>
+                                👥 {job.applications || "(Coming Soon)"}{" "}
+                                Applications{" "}
+                              </span>
+                              <span>🕒 {job.createdAt}</span>
                             </div>
                           </div>
                         </div>
                       </div>
                       <div className="flex items-center space-x-2 ml-4">
-                        <span
+                        {/* <span
                           className={`px-3 py-1 rounded-full text-xs font-medium ${
                             job.status === "active"
                               ? "bg-emerald-100 text-emerald-700"
@@ -195,8 +244,15 @@ const AdminDashboardClient = () => {
                           }`}
                         >
                           {job.status}
+                        </span> */}
+                        <span className="text-sm text-gray-500">
+                          Powerd By:{" "}
+                          <span className="font-bold text-blue-500">
+                            Healthy
+                          </span>
+                          Connect
                         </span>
-                        <div className="flex space-x-1">
+                        {/* <div className="flex space-x-1">
                           <button className="p-2 rounded-lg hover:bg-gray-100 transition-colors">
                             <Eye className="w-4 h-4 text-gray-600" />
                           </button>
@@ -206,7 +262,7 @@ const AdminDashboardClient = () => {
                           <button className="p-2 rounded-lg hover:bg-gray-100 transition-colors">
                             <MoreVertical className="w-4 h-4 text-gray-600" />
                           </button>
-                        </div>
+                        </div> */}
                       </div>
                     </div>
                   </div>

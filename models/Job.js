@@ -39,6 +39,9 @@ const JobSchema = new mongoose.Schema(
         "dental",
         "administration",
         "orthopedics",
+        "clinical officer",
+        "care giver",
+        "sale",
       ],
     },
     salary: {

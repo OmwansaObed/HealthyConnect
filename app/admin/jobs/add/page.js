@@ -46,6 +46,9 @@ const categoryOptions = [
   "medical engineer",
   "dental",
   "administration",
+  "clinical officer",
+  "care giver",
+  "sale",
 ];
 const statusOptions = ["open", "closed", "pending"];
 const languageOptions = [

@@ -1,5 +1,8 @@
 "use client";
 
+import { useState } from "react";
+import { useGetJobsQuery } from "../../redux/api/jobApiSlice";
+import { useGetUsersQuery } from "../../redux/api/usersApiSlice";
 import {
   Activity,
   Briefcase,
@@ -12,79 +15,112 @@ import {
 } from "lucide-react";
 
 const AdminStatsWidget = () => {
+  const [page, setPage] = useState(1);
+  const limit = 10;
+
+  const { data, isLoading, isError } = useGetJobsQuery({ page, limit });
+  const {
+    data: userData,
+    isLoading: userLoading,
+    isError: userError,
+  } = useGetUsersQuery();
+
+  const jobs = data?.jobs ?? [];
+  const totalPages = data?.page || 1;
+  const totalCount = data?.total || 0;
+
+  const totalUsers = userData?.length || 0;
+
+  // Calculate percentage change (mock for now - you'd need historical data for real calculation)
+  const jobsChangePercentage = 12; // This should be calculated based on previous period
+  const activeUsersChangePercentage = 8; // This should come from your users API
+
   const stats = [
     {
       title: "Total Jobs",
-      value: "2,847",
-      change: "+12%",
-      trend: "up",
+      value: totalCount.toLocaleString(),
+      change: `${jobsChangePercentage}%`,
+      trend: jobsChangePercentage >= 0 ? "up" : "down",
       icon: Briefcase,
       color: "bg-blue-500",
       bgColor: "bg-blue-50",
     },
     {
       title: "Active Users",
-      value: "18,923",
-      change: "+8%",
-      trend: "up",
+      value: totalUsers.toLocaleString(),
+      change: `${activeUsersChangePercentage}%`,
+      trend: activeUsersChangePercentage >= 0 ? "up" : "down",
       icon: Users,
       color: "bg-emerald-500",
       bgColor: "bg-emerald-50",
     },
     {
-      title: "Applications",
-      value: "4,621",
-      change: "+24%",
+      title: "New Jobs This Month",
+      value: jobs
+        .filter((job) => {
+          const jobDate = new Date(job.createdAt);
+          const currentDate = new Date();
+          return (
+            jobDate.getMonth() === currentDate.getMonth() &&
+            jobDate.getFullYear() === currentDate.getFullYear()
+          );
+        })
+        .length.toString(),
+      change: "+5%", // Replace with real calculation
       trend: "up",
-      icon: Heart,
+      icon: Activity,
       color: "bg-purple-500",
       bgColor: "bg-purple-50",
     },
     {
-      title: "Success Rate",
-      value: "94.5%",
-      change: "-2%",
-      trend: "down",
-      icon: Activity,
-      color: "bg-orange-500",
-      bgColor: "bg-orange-50",
+      title: "Applications (Coming Soon)",
+      value: jobs
+        .reduce((acc, job) => acc + (job.applications?.length || 0), 0)
+        .toString(),
+      change: "0%", // Replace with real calculation
+      trend: "up",
+      icon: Heart,
+      color: "bg-red-500",
+      bgColor: "bg-red-50",
     },
   ];
 
-  const recentActivities = [
-    {
-      id: 1,
-      type: "new_user",
-      message: "Dr. Sarah Johnson joined as Medical Officer",
-      time: "2 minutes ago",
-      icon: UserPlus,
-      color: "text-emerald-600",
-    },
-    {
-      id: 2,
-      type: "job_posted",
-      message: "New Nursing position posted at City Hospital",
-      time: "15 minutes ago",
-      icon: Briefcase,
-      color: "text-blue-600",
-    },
-    {
-      id: 3,
-      type: "application",
-      message: "5 new applications for Lab Technician role",
-      time: "1 hour ago",
-      icon: Heart,
-      color: "text-purple-600",
-    },
-    {
-      id: 4,
-      type: "facility",
-      message: "St. Mary Medical Center verified",
-      time: "2 hours ago",
-      icon: Shield,
-      color: "text-orange-600",
-    },
-  ];
+  // Generate recent activities from jobs data
+  const recentActivities = jobs.slice(0, 4).map((job, index) => ({
+    id: job._id || index,
+    type: "job_posted",
+    message: `New ${job.title} position posted at ${
+      job.postedBy || job.location?.county
+    }`,
+    time: formatTimeAgo(job.createdAt),
+    icon: Briefcase,
+    color: "text-blue-600",
+  }));
+
+  // Helper function to format time ago
+  function formatTimeAgo(dateString) {
+    const date = new Date(dateString);
+    const now = new Date();
+    const seconds = Math.floor((now - date) / 1000);
+
+    if (seconds < 60) return "just now";
+
+    const minutes = Math.floor(seconds / 60);
+    if (minutes < 60) return `${minutes} minute${minutes === 1 ? "" : "s"} ago`;
+
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return `${hours} hour${hours === 1 ? "" : "s"} ago`;
+
+    const days = Math.floor(hours / 24);
+    return `${days} day${days === 1 ? "" : "s"} ago`;
+  }
+
+  if (isLoading)
+    return <div className="text-center py-8">Loading stats...</div>;
+  if (isError)
+    return (
+      <div className="text-center py-8 text-red-500">Error loading stats</div>
+    );
 
   return (
     <div className="space-y-6">
@@ -135,19 +171,25 @@ const AdminStatsWidget = () => {
           </div>
         </div>
         <div className="p-6 space-y-4">
-          {recentActivities.map((activity) => (
-            <div key={activity.id} className="flex items-start space-x-4">
-              <div
-                className={`w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center`}
-              >
-                <activity.icon className={`w-5 h-5 ${activity.color}`} />
+          {recentActivities.length > 0 ? (
+            recentActivities.map((activity) => (
+              <div key={activity.id} className="flex items-start space-x-4">
+                <div
+                  className={`w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center`}
+                >
+                  <activity.icon className={`w-5 h-5 ${activity.color}`} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-gray-900 text-sm">{activity.message}</p>
+                  <p className="text-gray-500 text-xs mt-1">{activity.time}</p>
+                </div>
               </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-gray-900 text-sm">{activity.message}</p>
-                <p className="text-gray-500 text-xs mt-1">{activity.time}</p>
-              </div>
-            </div>
-          ))}
+            ))
+          ) : (
+            <p className="text-gray-500 text-center py-4">
+              No recent activities
+            </p>
+          )}
         </div>
       </div>
     </div>
