@@ -15,7 +15,118 @@ import {
   useDeleteJobMutation,
 } from "../../../redux/api/jobApiSlice";
 import { toast } from "sonner";
-import { Briefcase, Menu, Plus, Users, X } from "lucide-react";
+import {
+  Briefcase,
+  Menu,
+  Plus,
+  Users,
+  X,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
+
+// Pagination Component
+const Pagination = ({ page, totalPages, totalCount, limit, setPage }) => {
+  const startItem = (page - 1) * limit + 1;
+  const endItem = Math.min(page * limit, totalCount);
+
+  // Generate page numbers to show
+  const getPageNumbers = () => {
+    const delta = 2;
+    const range = [];
+    const rangeWithDots = [];
+
+    for (
+      let i = Math.max(2, page - delta);
+      i <= Math.min(totalPages - 1, page + delta);
+      i++
+    ) {
+      range.push(i);
+    }
+
+    if (page - delta > 2) {
+      rangeWithDots.push(1, "...");
+    } else {
+      rangeWithDots.push(1);
+    }
+
+    rangeWithDots.push(...range);
+
+    if (page + delta < totalPages - 1) {
+      rangeWithDots.push("...", totalPages);
+    } else if (totalPages > 1) {
+      rangeWithDots.push(totalPages);
+    }
+
+    return rangeWithDots;
+  };
+
+  if (totalPages <= 1) return null;
+
+  return (
+    <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/50 p-6 mt-6">
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+        {/* Results Info */}
+        <div className="text-sm text-gray-600">
+          Showing <span className="font-medium text-gray-900">{startItem}</span>{" "}
+          to <span className="font-medium text-gray-900">{endItem}</span> of{" "}
+          <span className="font-medium text-gray-900">{totalCount}</span> jobs
+        </div>
+
+        {/* Pagination Controls */}
+        <div className="flex items-center space-x-1">
+          {/* Previous Button */}
+          <button
+            onClick={() => setPage(page - 1)}
+            disabled={page === 1}
+            className={`flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
+              page === 1
+                ? "text-gray-400 cursor-not-allowed"
+                : "text-gray-700 hover:bg-gray-100"
+            }`}
+          >
+            <ChevronLeft className="w-4 h-4 mr-1" />
+            Previous
+          </button>
+
+          {/* Page Numbers */}
+          <div className="flex items-center space-x-1">
+            {getPageNumbers().map((pageNum, index) => (
+              <button
+                key={index}
+                onClick={() => typeof pageNum === "number" && setPage(pageNum)}
+                disabled={pageNum === "..."}
+                className={`min-w-[2.5rem] h-10 px-3 text-sm font-medium rounded-lg transition-colors ${
+                  pageNum === page
+                    ? "bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-lg"
+                    : pageNum === "..."
+                    ? "text-gray-400 cursor-default"
+                    : "text-gray-700 hover:bg-gray-100"
+                }`}
+              >
+                {pageNum}
+              </button>
+            ))}
+          </div>
+
+          {/* Next Button */}
+          <button
+            onClick={() => setPage(page + 1)}
+            disabled={page === totalPages}
+            className={`flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
+              page === totalPages
+                ? "text-gray-400 cursor-not-allowed"
+                : "text-gray-700 hover:bg-gray-100"
+            }`}
+          >
+            Next
+            <ChevronRight className="w-4 h-4 ml-1" />
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 export default function JobListingPage() {
   const router = useRouter();
@@ -28,9 +139,16 @@ export default function JobListingPage() {
   const [modalType, setModalType] = useState(""); // "view" | "edit" | "delete"
   const [selectedJob, setSelectedJob] = useState(null);
 
-  // Fetch jobs from API
-  const { data, isLoading, error, refetch } = useGetJobsQuery({ all: true });
+  // Pagination state
+  const [page, setPage] = useState(1);
+  const limit = 10; // Jobs per page
+
+  // Fetch jobs from API with pagination
+  const { data, isLoading, error, refetch } = useGetJobsQuery({ page, limit });
   const jobs = data?.jobs || [];
+  const totalPages = data?.totalPages || 1;
+  const totalCount = data?.totalCount || 0;
+
   const [deleteJob] = useDeleteJobMutation();
 
   // Sidebar toggle for mobile
@@ -127,10 +245,25 @@ export default function JobListingPage() {
     return colors[status?.toLowerCase()] || "border-l-slate-500 bg-slate-50";
   };
 
+  // Reset to first page when filters change
+  const handleSearchChange = (value) => {
+    setSearchTerm(value);
+    setPage(1);
+  };
+
+  const handleStatusFilterChange = (value) => {
+    setFilterStatus(value);
+    setPage(1);
+  };
+
+  const handleTypeFilterChange = (value) => {
+    setFilterType(value);
+    setPage(1);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br flex from-purple-50 via-blue-50 to-cyan-50">
       {/* Main Content */}
-
       <div className="flex-1 md:ml-64">
         {/* Mobile Header */}
         <div className="md:hidden bg-gradient-to-r from-purple-600 to-blue-600 shadow-lg p-4">
@@ -177,7 +310,7 @@ export default function JobListingPage() {
           </div>
 
           {/* Stats Cards */}
-          <JobStats jobs={jobs} />
+          <JobStats jobs={jobs} totalCount={totalCount} />
 
           {/* Mobile Add Button */}
           <div className="md:hidden mb-6">
@@ -193,11 +326,11 @@ export default function JobListingPage() {
           {/* Filters & Search */}
           <JobFilters
             searchTerm={searchTerm}
-            setSearchTerm={setSearchTerm}
+            setSearchTerm={handleSearchChange}
             filterStatus={filterStatus}
-            setFilterStatus={setFilterStatus}
+            setFilterStatus={handleStatusFilterChange}
             filterType={filterType}
-            setFilterType={setFilterType}
+            setFilterType={handleTypeFilterChange}
             uniqueStatuses={uniqueStatuses}
             uniqueTypes={uniqueTypes}
           />
@@ -266,13 +399,22 @@ export default function JobListingPage() {
             </>
           )}
 
+          {/* Pagination Component */}
+          <Pagination
+            page={page}
+            totalPages={totalPages}
+            totalCount={totalCount}
+            limit={limit}
+            setPage={setPage}
+          />
+
           {/* Results Summary */}
           {!isLoading && !error && filteredJobs.length > 0 && (
             <div className="mt-6 text-center">
               <div className="inline-flex items-center px-6 py-3 bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/50">
                 <Users className="w-4 h-4 text-purple-600 mr-2" />
                 <span className="text-sm font-medium text-gray-700">
-                  Showing {filteredJobs.length} of {jobs.length} jobs
+                  Page {page} of {totalPages} • {totalCount} total jobs
                 </span>
               </div>
             </div>

@@ -42,7 +42,7 @@ const JobSchema = new mongoose.Schema(
         "cna", // Certified Nursing Assistant
         "medical officer",
         "clinical officer",
-        "caregiver",
+        "care giver",
         "home-based caregiver",
         "public health officer",
         "community health worker",

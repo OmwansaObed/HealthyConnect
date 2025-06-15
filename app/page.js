@@ -28,6 +28,7 @@ import {
   Star,
   Quote,
   MapPin,
+  Skull,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -114,19 +115,14 @@ const JOB_CATEGORIES = [
   { name: "Radiography", color: "bg-red-500", icon: Zap },
   { name: "Nutritionist", color: "bg-lime-600", icon: Thermometer },
   { name: "Dental", color: "bg-blue-500", icon: Smile },
-  { name: "Pediatrics", color: "bg-rose-600", icon: Baby },
-  { name: "Gynecology", color: "bg-fuchsia-500", icon: Stethoscope },
-  { name: "Mental Health", olor: "bg-violet-600", icon: Brain },
+
+  { name: "Mental Health", color: "bg-violet-600", icon: Brain },
   { name: "Health Admin", color: "bg-sky-500", icon: Briefcase },
   { name: "Health Education", color: "bg-teal-600", icon: BookOpen },
-  { name: "Ambulance/EMT", olor: "bg-neutral-500", icon: Ambulance },
-  {
-    name: "Hospital Cleaner",
-    color: "bg-stone-500",
-    icon: UserCheck,
-  },
+  { name: "Ambulance/EMT", color: "bg-neutral-500", icon: Ambulance },
+  { name: "Health Records", color: "bg-slate-500", icon: Activity },
+  { name: "OrthoPaedics", color: "bg-zinc-600", icon: Skull },
 ];
-
 const FEATURES_DATA = [
   {
     icon: Shield,

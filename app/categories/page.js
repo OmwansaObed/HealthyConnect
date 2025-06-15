@@ -29,6 +29,7 @@ import {
 } from "lucide-react";
 import { useGetJobsQuery } from "../../redux/api/jobApiSlice";
 import Disclaimer from "../../components/general/Disclaimer";
+import { GiOpenBook } from "react-icons/gi";
 
 const calculateJobStatus = (createdAt) => {
   const now = new Date();
@@ -136,6 +137,15 @@ const CATEGORIES = [
     color: "from-teal-400 to-cyan-500",
     bgColor: "bg-teal-50",
     iconColor: "text-teal-600",
+  },
+  {
+    value: "health records",
+    label: "Health Records",
+    icon: GiOpenBook,
+    description: "Medical records and patient information management",
+    color: "from-green-400 to-emerald-500",
+    bgColor: "bg-green-50",
+    iconColor: "text-green-600",
   },
   {
     value: "care giver",
