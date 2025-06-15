@@ -614,7 +614,7 @@ const FeaturesSection = ({ lastJob, isLoading }) => (
                       {lastJob?.location.county || "Nairobi, Kenya"}
                     </span>
                     <span className="text-gray-600 flex items-center">
-                      💰 {lastJob.salary || "Competitive"}
+                      💰 {lastJob.salary || "Negotiable"}
                     </span>
                   </div>
                   <Link href={`/jobs`}>
