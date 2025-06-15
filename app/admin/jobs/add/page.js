@@ -18,6 +18,7 @@ import {
   AlertCircle,
 } from "lucide-react";
 import { useAddJobMutation } from "../../../../redux/api/jobApiSlice";
+import { GiMechanicalArm } from "react-icons/gi";
 
 // Form configuration
 const FORM_CONFIG = {
@@ -304,38 +305,21 @@ export default function AddJobPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="flex-1 md:ml-64">
-        {/* Mobile Header */}
-        <div className="md:hidden bg-white shadow-sm border-b border-gray-200 p-4">
-          <div className="flex items-center justify-between">
-            <h1 className="text-lg font-semibold text-gray-900">Add New Job</h1>
-            <button
-              onClick={toggleSidebar}
-              className="p-2 rounded-lg text-gray-600 hover:bg-gray-100 transition-colors"
-            >
-              {isSidebarOpen ? (
-                <X className="w-6 h-6" />
-              ) : (
-                <Plus className="w-6 h-6" />
-              )}
-            </button>
-          </div>
-        </div>
-
         {/* Main Content */}
         <div className="p-6">
           <div className="max-w-4xl mx-auto">
             {/* Header */}
-            <div className="hidden md:block mb-8">
-              <div className="flex items-center gap-3 mb-4">
+            <div className="mb-6 sm:mb-8">
+              <div className="flex items-start gap-3 mb-3 sm:mb-4">
                 <div className="p-2 bg-blue-100 rounded-lg">
-                  <Briefcase className="w-6 h-6 text-blue-600" />
+                  <GiMechanicalArm className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600" />
                 </div>
                 <div>
-                  <h1 className="text-3xl font-bold text-gray-900">
+                  <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
                     Add New Job
                   </h1>
-                  <p className="text-gray-600 mt-1">
-                    Create a new job posting. Only job title is required - you
+                  <p className="text-gray-600 text-sm sm:text-base leading-snug sm:leading-normal mt-1">
+                    Create a new job posting. Only job title is required – you
                     can add more details later.
                   </p>
                 </div>
