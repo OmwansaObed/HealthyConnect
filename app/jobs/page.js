@@ -32,6 +32,7 @@ import { MdScience } from "react-icons/md";
 import { useGetJobsQuery } from "../../redux/api/jobApiSlice";
 import { getSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import Disclaimer from "../../components/general/Disclaimer";
 
 // Constants
 const CATEGORIES = [
@@ -493,6 +494,7 @@ export default function JobSearchPage() {
             />
           </button>
         </div>
+        <Disclaimer />
 
         <div className="flex flex-col lg:flex-row gap-4 lg:gap-8">
           {/* Mobile Filters Dropdown */}
