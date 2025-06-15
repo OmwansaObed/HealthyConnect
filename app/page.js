@@ -3,23 +3,31 @@ import React, { useState, useEffect, useRef, useMemo } from "react";
 import { motion, useInView } from "framer-motion";
 import {
   Heart,
-  Search,
-  MapPin,
-  Users,
-  TrendingUp,
   Award,
-  ChevronRight,
-  Star,
-  Briefcase,
   Shield,
+  Activity,
+  Settings,
+  Users,
+  Briefcase,
+  CheckCircle,
+  Zap,
+  Stethoscope,
+  Microscope,
+  Syringe,
+  Smile,
+  Baby,
+  Brain,
+  BookOpen,
+  Hospital,
+  Thermometer,
+  Ambulance,
+  Globe,
+  UserCheck,
   Clock,
   ArrowRight,
-  CheckCircle,
-  Play,
+  Star,
   Quote,
-  Settings,
-  Zap,
-  Activity,
+  MapPin,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -70,24 +78,54 @@ const STATS_DATA = [
 
 const JOB_CATEGORIES = [
   { name: "Nursing", jobs: 1250, color: "bg-emerald-500", icon: Heart },
-  { name: "Medical Officer", jobs: 890, color: "bg-purple-500", icon: Award },
   {
-    name: "Clinical Officers",
-    jobs: 670,
-    color: "bg-orange-500",
-    icon: Shield,
+    name: "CNA (Certified Nursing Assistant)",
+    jobs: 210,
+    color: "bg-amber-600",
+    icon: UserCheck,
   },
-  { name: "Lab Technician", jobs: 420, color: "bg-yellow-500", icon: Activity },
+  { name: "Medical Officer", jobs: 890, color: "bg-purple-500", icon: Award },
+  { name: "Clinical Officer", jobs: 670, color: "bg-orange-500", icon: Shield },
   {
-    name: "Medical Technicians",
+    name: "Lab Technician",
     jobs: 420,
+    color: "bg-yellow-500",
+    icon: Microscope,
+  },
+  {
+    name: "Medical Technician",
+    jobs: 300,
     color: "bg-gray-500",
     icon: Settings,
   },
-  { name: "CoHo", jobs: 420, color: "bg-pink-500", icon: Users },
-  { name: "Managerial", jobs: 340, color: "bg-cyan-500", icon: Briefcase },
+  {
+    name: "Community Health Worker",
+    jobs: 380,
+    color: "bg-pink-500",
+    icon: Users,
+  },
+  {
+    name: "Public Health Officer",
+    jobs: 400,
+    color: "bg-cyan-500",
+    icon: Globe,
+  },
   { name: "Pharmacy", jobs: 280, color: "bg-indigo-500", icon: CheckCircle },
   { name: "Radiography", jobs: 280, color: "bg-red-500", icon: Zap },
+  { name: "Nutritionist", jobs: 190, color: "bg-lime-600", icon: Thermometer },
+  { name: "Dental", jobs: 160, color: "bg-blue-500", icon: Smile },
+  { name: "Pediatrics", jobs: 140, color: "bg-rose-600", icon: Baby },
+  { name: "Gynecology", jobs: 110, color: "bg-fuchsia-500", icon: Stethoscope },
+  { name: "Mental Health", jobs: 95, color: "bg-violet-600", icon: Brain },
+  { name: "Health Admin", jobs: 340, color: "bg-sky-500", icon: Briefcase },
+  { name: "Health Education", jobs: 120, color: "bg-teal-600", icon: BookOpen },
+  { name: "Ambulance/EMT", jobs: 90, color: "bg-neutral-500", icon: Ambulance },
+  {
+    name: "Hospital Cleaner",
+    jobs: 85,
+    color: "bg-stone-500",
+    icon: UserCheck,
+  },
 ];
 
 const FEATURES_DATA = [
@@ -259,9 +297,8 @@ const JobCategoryCard = ({ category, index }) => {
         <h3 className="text-2xl font-bold text-gray-900 mb-2">
           {category.name}
         </h3>
-        <p className="text-green-500 mb-4">
-          {category.jobs}+ open positions available
-        </p>
+        <p className="text-green-500 mb-4">open positions available</p>
+
         <motion.div
           className="flex items-center text-blue-600 font-medium"
           whileHover={{ x: 5 }}

@@ -23,6 +23,9 @@ import {
   ChevronRight,
   TrendingUp,
   Building2,
+  UserCheck,
+  ShieldCheck,
+  UserX,
 } from "lucide-react";
 import { useGetJobsQuery } from "../../redux/api/jobApiSlice";
 import Disclaimer from "../../components/general/Disclaimer";
@@ -63,6 +66,15 @@ const CATEGORIES = [
     iconColor: "text-red-600",
   },
   {
+    value: "cna",
+    label: "CNA",
+    icon: UserCheck,
+    description: "Certified Nursing Assistants providing basic patient care",
+    color: "from-emerald-400 to-green-500",
+    bgColor: "bg-emerald-50",
+    iconColor: "text-emerald-600",
+  },
+  {
     value: "medical Officer",
     label: "Medical Officer",
     icon: Award,
@@ -70,6 +82,15 @@ const CATEGORIES = [
     color: "from-blue-400 to-indigo-500",
     bgColor: "bg-blue-50",
     iconColor: "text-blue-600",
+  },
+  {
+    value: "clinical officer",
+    label: "Clinical Officer",
+    icon: Shield,
+    description: "General health diagnosis and treatment practitioners",
+    color: "from-orange-400 to-yellow-500",
+    bgColor: "bg-orange-50",
+    iconColor: "text-orange-600",
   },
   {
     value: "pharmacy",
@@ -110,11 +131,20 @@ const CATEGORIES = [
   {
     value: "dental",
     label: "Dental",
-    icon: Shield,
+    icon: ShieldCheck,
     description: "Oral health, dental care, and dental hygiene services",
     color: "from-teal-400 to-cyan-500",
     bgColor: "bg-teal-50",
     iconColor: "text-teal-600",
+  },
+  {
+    value: "care giver",
+    label: "Caregiver",
+    icon: UserX,
+    description: "Non-medical assistance in home or clinical settings",
+    color: "from-pink-400 to-rose-500",
+    bgColor: "bg-pink-50",
+    iconColor: "text-pink-600",
   },
   {
     value: "administration",
@@ -133,6 +163,15 @@ const CATEGORIES = [
     color: "from-indigo-400 to-purple-500",
     bgColor: "bg-indigo-50",
     iconColor: "text-indigo-600",
+  },
+  {
+    value: "sale",
+    label: "Medical Sales",
+    icon: DollarSign,
+    description: "Sales of medical equipment and pharmaceutical products",
+    color: "from-lime-400 to-green-500",
+    bgColor: "bg-lime-50",
+    iconColor: "text-lime-600",
   },
 ];
 

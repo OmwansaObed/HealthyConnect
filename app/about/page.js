@@ -13,33 +13,33 @@ import {
 const AboutUs = () => {
   const teamMembers = [
     {
-      name: "Dr. Sarah Kimani",
-      role: "CEO & Co-Founder",
-      bio: "Former Chief Medical Officer with 15+ years in healthcare administration",
-      avatar: "SK",
+      name: "Dr. Elegwa",
+      role: "Founder Health realted jobs",
+      bio: "Medical Officer with  years in healthcare expertise",
+      avatar: "E",
       color: "bg-blue-600",
     },
     {
-      name: "Michael Ochieng",
-      role: "CTO & Co-Founder",
-      bio: "Tech veteran with expertise in healthcare technology solutions",
-      avatar: "MO",
+      name: "Omwansa Obed",
+      role: "Web Developer",
+      bio: "Tech veteran with expertise in healthcare technology solutions, and a Nurse who is a passionate advocate for patient-centered care",
+      avatar: "OO",
       color: "bg-emerald-600",
     },
-    {
-      name: "Dr. Grace Wanjiku",
-      role: "Head of Medical Relations",
-      bio: "Specialist in healthcare recruitment and professional development",
-      avatar: "GW",
-      color: "bg-purple-600",
-    },
-    {
-      name: "James Mwangi",
-      role: "Head of Operations",
-      bio: "Operations expert focused on optimizing healthcare workforce solutions",
-      avatar: "JM",
-      color: "bg-orange-600",
-    },
+    // {
+    //   name: "Dr. Grace Wanjiku",
+    //   role: "Head of Medical Relations",
+    //   bio: "Specialist in healthcare recruitment and professional development",
+    //   avatar: "GW",
+    //   color: "bg-purple-600",
+    // },
+    // {
+    //   name: "James Mwangi",
+    //   role: "Head of Operations",
+    //   bio: "Operations expert focused on optimizing healthcare workforce solutions",
+    //   avatar: "JM",
+    //   color: "bg-orange-600",
+    // },
   ];
 
   const values = [
