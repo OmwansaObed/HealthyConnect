@@ -97,11 +97,24 @@ const getJobTypeColor = (type) => {
   return colors[type] || "bg-gray-100 text-gray-800 border-gray-200";
 };
 
+const calculateJobStatus = (createdAt) => {
+  const now = new Date();
+  const postDate = new Date(createdAt);
+  const daysDifference = Math.floor((now - postDate) / (1000 * 60 * 60 * 24));
+
+  if (daysDifference === 0) {
+    return "high";
+  } else if (daysDifference === 1) {
+    return "medium";
+  } else {
+    return "low";
+  }
+};
 const getStatusBadge = (status) => {
   const colors = {
-    open: "bg-green-100 text-green-800",
-    closed: "bg-red-100 text-red-800",
-    pending: "bg-yellow-100 text-yellow-800",
+    high: "bg-green-100 text-green-800",
+    medium: "bg-yellow-100 text-yellow-800",
+    low: "bg-red-100 text-red-800",
   };
   return colors[status] || "bg-gray-100 text-gray-800";
 };
@@ -178,14 +191,17 @@ const JobCard = ({ job }) => {
   const category = CATEGORIES.find((c) => c.value === job.category);
   const IconComponent = category?.icon || Briefcase;
 
+  // Calculate dynamic status based on posting date
+  const jobStatus = calculateJobStatus(job.createdAt);
+
   return (
     <div
       className={`bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border-l-4 ${
-        job.status === "open"
+        jobStatus === "high"
           ? "border-l-green-500"
-          : job.status === "closed"
-          ? "border-l-red-500"
-          : "border-l-gray-500"
+          : jobStatus === "medium"
+          ? "border-l-yellow-500"
+          : "border-l-red-500"
       } border border-white/50 p-6 hover:shadow-xl transition-all duration-200 hover:scale-105`}
     >
       <div className="flex justify-between items-start mb-4">
@@ -199,10 +215,10 @@ const JobCard = ({ job }) => {
         </div>
         <span
           className={`inline-flex px-3 py-1 text-xs font-medium rounded-full ${getStatusBadge(
-            job.status
+            jobStatus
           )}`}
         >
-          {job.status}
+          {jobStatus}
         </span>
       </div>
 
@@ -286,12 +302,6 @@ const JobCard = ({ job }) => {
       )}
 
       <div className="flex space-x-2">
-        {/* <button
-          className="flex-1 p-2 text-blue-600 hover:bg-blue-50 rounded-xl transition-colors border border-blue-200"
-          title="View Details"
-        >
-          <Eye className="w-4 h-4 mx-auto" />
-        </button> */}
         <button className="flex-2 flex items-center justify-center gap-2 px-4 py-2 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-colors font-semibold text-sm whitespace-nowrap shadow">
           <Phone className="w-4 h-4" />
           <span>{job.phone}</span>

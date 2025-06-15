@@ -6,15 +6,15 @@ import { toast } from "sonner";
 export default function EditJobForm({ job, closeModal, refetchJobs }) {
   const [formData, setFormData] = useState({
     title: job.title || "",
-    company: job.company || "",
+    company: job.postedBy || "",
     description: job.description || "",
     type: job.type || "",
     category: job.category || "",
     location: {
-      state: job.location?.state || "",
+      state: job.location?.state || "Not Provided",
       county: job.location?.county || "",
     },
-    status: job.status || "active",
+    status: job.status || "medium",
   });
 
   const [updateJob] = useUpdateJobMutation();
@@ -124,6 +124,7 @@ export default function EditJobForm({ job, closeModal, refetchJobs }) {
               onChange={handleChange}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
               required
+              disabled
             >
               <option value="active">Active</option>
               <option value="inactive">Inactive</option>

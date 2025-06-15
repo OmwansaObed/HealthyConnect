@@ -8,8 +8,14 @@ const JobSchema = new mongoose.Schema(
       trim: true,
     },
     location: {
-      state: { type: String },
-      county: { type: String },
+      state: {
+        type: String,
+        default: "",
+      },
+      county: {
+        type: String,
+        default: "",
+      },
     },
     type: {
       type: String,
@@ -20,12 +26,14 @@ const JobSchema = new mongoose.Schema(
         "contract",
         "temporary",
         "internship",
+        "", // Allow empty string for no selection
       ],
+      default: "",
     },
     experience: {
       type: String,
-      enum: ["entry-level", "1+", "2+", "3+", "4+", "5+"],
-      default: "not-listed",
+      enum: ["entry-level", "1+", "2+", "3+", "4+", "5+", ""],
+      default: "",
     },
     category: {
       type: String,
@@ -42,21 +50,24 @@ const JobSchema = new mongoose.Schema(
         "clinical officer",
         "care giver",
         "sale",
+        "", // Allow empty string for no selection
       ],
+      default: "",
     },
     salary: {
       type: String,
-      default: "not-listed",
+      default: "",
     },
     phone: {
       type: String,
-      required: true,
+      required: false, // Changed from required: true
+      default: "",
     },
-    status: {
-      type: String,
-      enum: ["open", "closed", "pending"],
-      default: "open",
-    },
+    // status: {
+    //   type: String,
+    //   enum: ["open", "closed", "pending"],
+    //   default: "open",
+    // },
     preferredCommunicationLanguage: {
       type: String,
       enum: [
@@ -77,14 +88,16 @@ const JobSchema = new mongoose.Schema(
     },
     description: {
       type: String,
+      default: "",
     },
     postedBy: {
       type: String,
+      default: "Anonymous",
     },
     preference: {
       gender: {
         type: String,
-        enum: ["male", "female", "any"], // "any" was already here - this is correct
+        enum: ["male", "female", "any"],
         default: "any",
       },
       age: {

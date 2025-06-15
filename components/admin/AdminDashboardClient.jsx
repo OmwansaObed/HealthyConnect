@@ -21,6 +21,7 @@ import AdminStatsWidget from "./AdminStatsWidget";
 
 import { useGetJobsQuery } from "../../redux/api/jobApiSlice";
 import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 const AdminDashboardClient = () => {
   const quickActions = [
@@ -30,15 +31,15 @@ const AdminDashboardClient = () => {
       icon: Plus,
       color: "bg-blue-500",
       bgColor: "bg-blue-50",
-      href: "/admin/jobs/create", // Add your route here
+      href: "jobs/add", // Add your route here
     },
     {
-      title: "Add Facility",
+      title: "Add Facility(Coming Soon)",
       description: "Register new healthcare facility",
       icon: Building,
       color: "bg-emerald-500",
       bgColor: "bg-emerald-50",
-      href: "/admin/facilities/create", // Add your route here
+      href: "#", // Add your route here
     },
     {
       title: "View Reports",
@@ -46,7 +47,7 @@ const AdminDashboardClient = () => {
       icon: BarChart3,
       color: "bg-purple-500",
       bgColor: "bg-purple-50",
-      href: "/admin/reports", // Add your route here
+      href: "analytics", // Add your route here
     },
     {
       title: "Manage Users",
@@ -54,50 +55,17 @@ const AdminDashboardClient = () => {
       icon: Users,
       color: "bg-orange-500",
       bgColor: "bg-orange-50",
-      href: "/admin/users", // Add your route here
-    },
-  ];
-
-  const recentJobs = [
-    {
-      id: 1,
-      title: "Senior Nurse - ICU",
-      facility: "City General Hospital",
-      location: "Nairobi, Upperhill",
-      salary: "KSh 80,000",
-      applications: 12,
-      status: "active",
-      posted: "2 days ago",
-    },
-    {
-      id: 2,
-      title: "Medical Officer - Emergency",
-      facility: "St. Mary Medical Center",
-      location: "Nairobi, Westlands",
-      salary: "KSh 120,000",
-      applications: 8,
-      status: "active",
-      posted: "1 day ago",
-    },
-    {
-      id: 3,
-      title: "Lab Technician",
-      facility: "Kenyatta Hospital",
-      location: "Nairobi, CBD",
-      salary: "KSh 45,000",
-      applications: 24,
-      status: "closed",
-      posted: "5 days ago",
+      href: "users", // Add your route here
     },
   ];
 
   const [page, setPage] = useState(1);
   const limit = 10;
 
-  const { data, isLoading } = useGetJobsQuery({ page, limit });
+  const { data } = useGetJobsQuery({ page, limit });
   const jobs = data?.jobs ?? [];
-  const totalPages = data?.totalPages || 1;
-  const totalCount = data?.totalCount || 0;
+
+  const router = useRouter();
 
   const lastThreeJobs = jobs.slice(-3);
   const { data: session } = useSession();
@@ -270,7 +238,10 @@ const AdminDashboardClient = () => {
               </div>
             </div>
             <div className="p-6">
-              <button className="w-full py-3 border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 transition-colors font-medium">
+              <button
+                onClick={() => router.push("/admin/jobs")}
+                className="w-full py-3 border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 transition-colors font-medium"
+              >
                 View All Jobs
               </button>
             </div>

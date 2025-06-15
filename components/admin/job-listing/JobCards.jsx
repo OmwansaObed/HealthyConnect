@@ -27,8 +27,7 @@ import {
   Globe,
   Eye,
 } from "lucide-react";
-import { GiLaserWarning } from "react-icons/gi";
-import { MdScience } from "react-icons/md";
+import { useGetJobsQuery } from "../../../redux/api/jobApiSlice";
 
 // Mock data for demonstration
 const mockJobs = [
@@ -54,7 +53,7 @@ const mockJobs = [
       certificate: "degree",
       completedRecently: false,
     },
-    createdAt: "2024-06-08T10:00:00Z",
+    createdAt: "2024-06-14T10:00:00Z",
   },
   {
     _id: "2",
@@ -78,17 +77,89 @@ const mockJobs = [
       certificate: "degree",
       completedRecently: true,
     },
-    createdAt: "2024-06-07T15:30:00Z",
+    createdAt: "2024-06-13T15:30:00Z",
+  },
+  {
+    _id: "3",
+    title: "Clinical Pharmacist",
+    location: { state: "Kisumu", county: "Kisumu" },
+    type: "full-time",
+    experience: "1+",
+    category: "pharmacy",
+    salary: "KES 60,000 - 90,000",
+    phone: "+254734567890",
+    status: "open",
+    preferredCommunicationLanguage: "english",
+    description:
+      "Join our pharmacy team to provide clinical pharmacy services and medication management.",
+    postedBy: "Jaramogi Oginga Odinga Teaching Hospital",
+    preference: {
+      gender: "female",
+      age: "23-30",
+      contactType: "calls-only",
+      time: "day",
+      certificate: "degree",
+      completedRecently: true,
+    },
+    createdAt: "2024-06-10T09:15:00Z",
+  },
+  {
+    _id: "4",
+    title: "Laboratory Technologist",
+    location: { state: "Nakuru", county: "Nakuru" },
+    type: "contract",
+    experience: "2+",
+    category: "laboratory",
+    salary: "KES 45,000 - 65,000",
+    phone: "+254745678901",
+    status: "open",
+    preferredCommunicationLanguage: "english",
+    description:
+      "Experienced lab technologist needed for hematology and clinical chemistry departments.",
+    postedBy: "Nakuru Level 5 Hospital",
+    preference: {
+      gender: "any",
+      age: "25-40",
+      contactType: "text-only",
+      time: "any",
+      certificate: "diploma",
+      completedRecently: false,
+    },
+    createdAt: "2024-06-08T14:20:00Z",
   },
 ];
+
+const calculateJobStatus = (createdAt) => {
+  const now = new Date();
+  const postDate = new Date(createdAt);
+  const daysDifference = Math.floor((now - postDate) / (1000 * 60 * 60 * 24));
+
+  if (daysDifference === 0) {
+    return "high";
+  } else if (daysDifference <= 2) {
+    return "medium";
+  } else {
+    return "low";
+  }
+};
+
+// Get status badge colors
+const getStatusBadge = (status) => {
+  const colors = {
+    high: "bg-green-100 text-green-800",
+    medium: "bg-yellow-100 text-yellow-800",
+    low: "bg-red-100 text-red-800",
+  };
+  return colors[status] || "bg-gray-100 text-gray-800";
+};
 
 // Constants
 const CATEGORIES = [
   { value: "nursing", label: "Nursing", icon: Heart },
   { value: "medical Officer", label: "Medical Officer", icon: Award },
   { value: "pharmacy", label: "Pharmacy", icon: CheckCircle },
-  { value: "laboratory", label: "Laboratory", icon: MdScience },
-  { value: "radiology", label: "Radiology", icon: GiLaserWarning },
+  { value: "laboratory", label: "Laboratory", icon: Settings },
+  { value: "radiology", label: "Radiology", icon: Eye },
   { value: "medical engineer", label: "Medical Engineer", icon: Settings },
   { value: "dental", label: "Dental", icon: Shield },
   { value: "administration", label: "Administration", icon: Briefcase },
@@ -144,15 +215,6 @@ const getJobTypeColor = (type) => {
     locum: "bg-indigo-100 text-indigo-800 border-indigo-200",
   };
   return colors[type] || "bg-gray-100 text-gray-800 border-gray-200";
-};
-
-const getStatusBadge = (status) => {
-  const colors = {
-    open: "bg-green-100 text-green-800",
-    closed: "bg-red-100 text-red-800",
-    pending: "bg-yellow-100 text-yellow-800",
-  };
-  return colors[status] || "bg-gray-100 text-gray-800";
 };
 
 const formatExperience = (experience) => {
@@ -260,10 +322,10 @@ const JobDetailModal = ({ job, isOpen, onClose }) => {
           <div className="flex flex-wrap gap-3">
             <span
               className={`inline-flex px-3 py-1 text-sm font-medium rounded-full ${getStatusBadge(
-                job.status
+                calculateJobStatus(job.createdAt)
               )}`}
             >
-              {job.status.toUpperCase()}
+              {calculateJobStatus(job.createdAt).toUpperCase()}
             </span>
             <span
               className={`px-3 py-1 rounded-full text-sm font-semibold ${getJobTypeColor(
@@ -396,16 +458,22 @@ const JobDetailModal = ({ job, isOpen, onClose }) => {
           )}
 
           {/* Action Buttons */}
-          <div className="flex space-x-3 pt-4 border-t border-gray-200">
-            <button className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-colors font-semibold shadow-lg">
+          {/* <div className="flex space-x-3 pt-4 border-t border-gray-200">
+            <a
+              href={`tel:${job.phone}`}
+              className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-colors font-semibold shadow-lg"
+            >
               <Phone className="w-5 h-5" />
-              <span>Call {job.phone}</span>
-            </button>
-            <button className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors font-semibold shadow-lg">
+              <span>Call</span>
+            </a>
+            <a
+              href={`sms:${job.phone}`}
+              className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors font-semibold shadow-lg"
+            >
               <MessageCircle className="w-5 h-5" />
               <span>Message</span>
-            </button>
-          </div>
+            </a>
+          </div> */}
         </div>
       </div>
     </div>
@@ -416,14 +484,17 @@ const JobCard = ({ job, onViewDetails }) => {
   const category = CATEGORIES.find((c) => c.value === job.category);
   const IconComponent = category?.icon || Briefcase;
 
+  // Calculate dynamic status based on posting date
+  const jobStatus = calculateJobStatus(job.createdAt);
+
   return (
     <div
       className={`bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border-l-4 ${
-        job.status === "open"
+        jobStatus === "high"
           ? "border-l-green-500"
-          : job.status === "closed"
-          ? "border-l-red-500"
-          : "border-l-gray-500"
+          : jobStatus === "medium"
+          ? "border-l-yellow-500"
+          : "border-l-red-500"
       } border border-white/50 p-6 hover:shadow-xl transition-all duration-200 hover:scale-105`}
     >
       <div className="flex justify-between items-start mb-4">
@@ -437,10 +508,10 @@ const JobCard = ({ job, onViewDetails }) => {
         </div>
         <span
           className={`inline-flex px-3 py-1 text-xs font-medium rounded-full ${getStatusBadge(
-            job.status
+            jobStatus
           )}`}
         >
-          {job.status}
+          {jobStatus}
         </span>
       </div>
 
@@ -454,7 +525,7 @@ const JobCard = ({ job, onViewDetails }) => {
               job.type
             )} border`}
           >
-            {job.type.replace("-", " ").toUpperCase()}
+            {job.type?.replace("-", " ").toUpperCase() || "N/A"}
           </span>
           <span className="mx-2">•</span>
           <span className="capitalize">{job.category}</span>
@@ -465,8 +536,9 @@ const JobCard = ({ job, onViewDetails }) => {
             <MapPin className="w-3 h-3 text-green-600" />
           </div>
           <span>
-            {job.location?.state}
-            {job.location?.county && `, ${job.location.county}`}
+            {(job.location?.state || "Kenya") +
+              ", " +
+              (job.location?.county || "")}
           </span>
         </div>
 
@@ -531,10 +603,13 @@ const JobCard = ({ job, onViewDetails }) => {
         >
           <Eye className="w-4 h-4 mx-auto" />
         </button>
-        <button className="flex-2 flex items-center justify-center gap-2 px-4 py-2 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-colors font-semibold text-sm whitespace-nowrap shadow">
+        <a
+          href={`tel:${job.phone}`}
+          className="flex-2 flex items-center justify-center gap-2 px-4 py-2 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-colors font-semibold text-sm whitespace-nowrap shadow"
+        >
           <Phone className="w-4 h-4" />
-          <span>{job.phone}</span>
-        </button>
+          <span>{job.phone || "Contact"}</span>
+        </a>
       </div>
     </div>
   );
@@ -559,7 +634,6 @@ const NoResults = ({ clearAllFilters }) => (
     </button>
   </div>
 );
-
 // Main Component
 export default function JobSearchPage() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -573,8 +647,10 @@ export default function JobSearchPage() {
   const [selectedExperience, setSelectedExperience] = useState("");
   const [selectedLocation, setSelectedLocation] = useState("");
 
+  const { data } = useGetJobsQuery({ all: true });
+  const jobs = data?.jobs || [];
   // Using mock data for demonstration
-  const jobs = mockJobs;
+  // const jobs = mockJobs;
   const isLoading = false;
 
   // Filter jobs based on search and filters
@@ -603,14 +679,6 @@ export default function JobSearchPage() {
     // Experience filter
     if (matches && selectedExperience) {
       matches = job.experience === selectedExperience;
-    }
-
-    // Location filter
-    if (matches && selectedLocation) {
-      const locationLower = selectedLocation.toLowerCase();
-      matches =
-        job.location.state.toLowerCase().includes(locationLower) ||
-        job.location.county?.toLowerCase().includes(locationLower);
     }
 
     return matches;

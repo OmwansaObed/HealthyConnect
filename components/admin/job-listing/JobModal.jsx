@@ -49,9 +49,9 @@ export default function JobModal({
                       <h3 className="text-2xl font-bold text-gray-900 mb-2">
                         {selectedJob.title}
                       </h3>
-                      {selectedJob.company && (
+                      {selectedJob.postedBy && (
                         <p className="text-gray-600 text-lg">
-                          {selectedJob.company}
+                          {selectedJob.postedBy}
                         </p>
                       )}
                     </div>

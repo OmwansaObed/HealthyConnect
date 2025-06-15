@@ -26,6 +26,29 @@ import {
 } from "lucide-react";
 import { useGetJobsQuery } from "../../redux/api/jobApiSlice";
 
+const calculateJobStatus = (createdAt) => {
+  const now = new Date();
+  const postDate = new Date(createdAt);
+  const daysDifference = Math.floor((now - postDate) / (1000 * 60 * 60 * 24));
+
+  if (daysDifference === 0) {
+    return "high";
+  } else if (daysDifference === 1) {
+    return "medium";
+  } else {
+    return "low";
+  }
+};
+
+// Get status badge colors
+const getStatusBadge = (status) => {
+  const colors = {
+    high: "bg-green-100 text-green-800",
+    medium: "bg-yellow-100 text-yellow-800",
+    low: "bg-red-100 text-red-800",
+  };
+  return colors[status] || "bg-gray-100 text-gray-800";
+};
 // Constants
 const CATEGORIES = [
   {
@@ -155,6 +178,9 @@ const JobCard = ({ job }) => {
   const category = CATEGORIES.find((c) => c.value === job.category);
   const IconComponent = category?.icon || Briefcase;
 
+  // Calculate dynamic status based on posting date
+  const jobStatus = calculateJobStatus(job.createdAt);
+
   const getJobTypeColor = (type) => {
     const colors = {
       "full-time": "bg-green-100 text-green-800 border-green-200",
@@ -178,7 +204,15 @@ const JobCard = ({ job }) => {
   };
 
   return (
-    <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border-l-4 border-l-green-500 border border-white/50 p-6 hover:shadow-xl transition-all duration-200 hover:scale-105">
+    <div
+      className={`bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border-l-4 ${
+        jobStatus === "high"
+          ? "border-l-green-500"
+          : jobStatus === "medium"
+          ? "border-l-yellow-500"
+          : "border-l-red-500"
+      } border border-white/50 p-6 hover:shadow-xl transition-all duration-200 hover:scale-105`}
+    >
       <div className="flex justify-between items-start mb-4">
         <div className="flex-1">
           <h3 className="font-bold text-gray-900 text-lg mb-1 line-clamp-2">
@@ -188,8 +222,12 @@ const JobCard = ({ job }) => {
             <p className="text-gray-500 text-xs">by {job.postedBy}</p>
           )}
         </div>
-        <span className="inline-flex px-3 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">
-          {job.status}
+        <span
+          className={`inline-flex px-3 py-1 text-xs font-medium rounded-full ${getStatusBadge(
+            jobStatus
+          )}`}
+        >
+          {jobStatus}
         </span>
       </div>
 
@@ -214,8 +252,9 @@ const JobCard = ({ job }) => {
             <MapPin className="w-3 h-3 text-green-600" />
           </div>
           <span>
-            {job.location?.state || job.location},{" "}
-            {job.location?.county || "Kenya"}
+            {(job.location?.state || "Kenya") +
+              ", " +
+              (job.location?.county || "")}
           </span>
         </div>
 

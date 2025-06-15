@@ -8,12 +8,7 @@ export default function JobTable({
   handleDeleteJob,
   getStatusBadge,
 }) {
-  console.log(
-    "JobTable getStatusBadge:",
-    getStatusBadge,
-    typeof getStatusBadge
-  );
-  console.log("JobTable jobs:", jobs);
+  console.log("getStatusBadge", getStatusBadge);
   return (
     <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/50 overflow-hidden">
       <div className="overflow-x-auto">
@@ -49,8 +44,8 @@ export default function JobTable({
                 <td className="px-6 py-4">
                   <div className="flex flex-col">
                     <h3 className="font-medium text-gray-900">{job.title}</h3>
-                    {job.company && (
-                      <p className="text-sm text-gray-500">{job.company}</p>
+                    {job.postedBy && (
+                      <p className="text-sm text-gray-500">{job.postedBy}</p>
                     )}
                   </div>
                 </td>

@@ -8,29 +8,76 @@ export async function POST(request) {
   try {
     const data = await request.json();
 
-    if (!data.title || !data.description)
+    // Only require title - most essential field
+    if (!data.title || data.title.trim() === "") {
       return NextResponse.json(
-        { error: "All fields are required" },
+        { error: "Job title is required" },
         { status: 400 }
       );
-    // validate phone number 07 lor 011
-    if (!data.phone.startsWith("07") && !data.phone.startsWith("011"))
-      return NextResponse.json(
-        { error: "Invalid phone number" },
-        { status: 400 }
-      );
+    }
 
-    const job = await Job.create(data);
+    // Validate phone number only if it's provided and not empty
+    if (data.phone && data.phone.trim() !== "") {
+      if (!data.phone.startsWith("07") && !data.phone.startsWith("011")) {
+        return NextResponse.json(
+          { error: "Phone number must start with 07 or 011" },
+          { status: 400 }
+        );
+      }
+    }
+
+    // Clean up the data - the model defaults will handle missing fields
+    const cleanedData = {
+      ...data,
+      title: data.title.trim(),
+      // Only include fields that have actual values
+      ...(data.description && { description: data.description.trim() }),
+      ...(data.phone && { phone: data.phone.trim() }),
+      ...(data.postedBy && { postedBy: data.postedBy.trim() }),
+      ...(data.salary && { salary: data.salary.trim() }),
+      ...(data.type && { type: data.type }),
+      ...(data.experience && { experience: data.experience }),
+      ...(data.category && { category: data.category }),
+      // Handle location
+      location: {
+        state: data.location?.state?.trim() || "",
+        county: data.location?.county?.trim() || "",
+      },
+      // Handle preferences - use defaults from model if not provided
+      preference: {
+        gender: data.preference?.gender || "any",
+        age: data.preference?.age || "any",
+        contactType: data.preference?.contactType || "any",
+        time: data.preference?.time || "any",
+        certificate: data.preference?.certificate || "any",
+        completedRecently: data.preference?.completedRecently || false,
+      },
+    };
+
+    const job = await Job.create(cleanedData);
 
     // Create a notification for the new job
     await Notification.create({
       type: "job_posted",
-      message: `${job.title} was posted by ${job.postedBy}.`,
+      message: `${job.title} was posted by ${job.postedBy || "Anonymous"}.`,
       jobId: job._id,
     });
 
     return NextResponse.json({ job }, { status: 201 });
   } catch (error) {
+    console.error("Job creation error:", error);
+
+    // Handle validation errors specifically
+    if (error.name === "ValidationError") {
+      const validationErrors = Object.values(error.errors).map(
+        (err) => err.message
+      );
+      return NextResponse.json(
+        { error: `Validation failed: ${validationErrors.join(", ")}` },
+        { status: 400 }
+      );
+    }
+
     return NextResponse.json(
       { error: error.message || "Failed to create job" },
       { status: 500 }
@@ -66,29 +113,59 @@ export async function PATCH(request) {
   try {
     await connectDB();
     const { id, ...updateData } = await request.json();
+
     if (!id) {
       return NextResponse.json(
         { error: "Job ID is required" },
         { status: 400 }
       );
     }
-    // Allow updating any subset of fields (even just one)
+
+    // Allow updating any subset of fields
     if (Object.keys(updateData).length === 0) {
       return NextResponse.json(
         { error: "At least one field to update is required" },
         { status: 400 }
       );
     }
+
+    // Validate phone if it's being updated
+    if (updateData.phone && updateData.phone.trim() !== "") {
+      if (
+        !updateData.phone.startsWith("07") &&
+        !updateData.phone.startsWith("011")
+      ) {
+        return NextResponse.json(
+          { error: "Phone number must start with 07 or 011" },
+          { status: 400 }
+        );
+      }
+    }
+
     const updatedJob = await Job.findByIdAndUpdate(
       id,
       { $set: updateData },
       { new: true, runValidators: true }
     );
+
     if (!updatedJob) {
       return NextResponse.json({ error: "Job not found" }, { status: 404 });
     }
+
     return NextResponse.json({ job: updatedJob }, { status: 200 });
   } catch (error) {
+    console.error("Job update error:", error);
+
+    if (error.name === "ValidationError") {
+      const validationErrors = Object.values(error.errors).map(
+        (err) => err.message
+      );
+      return NextResponse.json(
+        { error: `Validation failed: ${validationErrors.join(", ")}` },
+        { status: 400 }
+      );
+    }
+
     return NextResponse.json(
       { error: error.message || "Failed to update job" },
       { status: 500 }
@@ -101,21 +178,26 @@ export async function DELETE(request) {
   try {
     await connectDB();
     const { id } = await request.json();
+
     if (!id) {
       return NextResponse.json(
         { error: "Job ID is required" },
         { status: 400 }
       );
     }
+
     const deletedJob = await Job.findByIdAndDelete(id);
+
     if (!deletedJob) {
       return NextResponse.json({ error: "Job not found" }, { status: 404 });
     }
+
     return NextResponse.json(
       { message: "Job deleted successfully" },
       { status: 200 }
     );
   } catch (error) {
+    console.error("Job deletion error:", error);
     return NextResponse.json(
       { error: error.message || "Failed to delete job" },
       { status: 500 }
