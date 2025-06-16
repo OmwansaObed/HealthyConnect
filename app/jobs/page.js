@@ -167,10 +167,13 @@ const JobCard = ({ job }) => {
       )}
 
       <div className="flex space-x-2">
-        <button className="flex-2 flex items-center justify-center gap-2 px-4 py-2 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-colors font-semibold text-sm whitespace-nowrap shadow">
+        <a
+          href={`tel:${job.phone}`}
+          className="flex-2 flex items-center justify-center gap-2 px-4 py-2 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-colors font-semibold text-sm whitespace-nowrap shadow"
+        >
           <Phone className="w-4 h-4" />
           <span>{job.phone}</span>
-        </button>
+        </a>
       </div>
     </div>
   );
@@ -254,10 +257,6 @@ export default function JobSearchPage() {
   const limit = 10;
   const router = useRouter();
 
-  // const { data: session } = getSession();
-  // if (!session) {
-  //   router.push("/login");
-  // }
   // Filter states
   const [selectedCategory, setSelectedCategory] = useState("");
   const [selectedType, setSelectedType] = useState("");
