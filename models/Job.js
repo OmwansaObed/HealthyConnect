@@ -39,7 +39,8 @@ const JobSchema = new mongoose.Schema(
       type: String,
       enum: [
         "nursing",
-        "cna", // Certified Nursing Assistant
+        "cna",
+        "adminisration",
         "medical officer",
         "clinical officer",
         "care giver",

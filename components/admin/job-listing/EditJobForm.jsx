@@ -150,8 +150,9 @@ export default function EditJobForm({ job, closeModal, refetchJobs }) {
   };
 
   return (
-    <div className="bg-white">
-      <div className="max-h-[75vh] overflow-y-auto px-6 py-4">
+    <div className="bg-white flex flex-col h-full">
+      {/* Scrollable Content Area */}
+      <div className="flex-1 overflow-y-auto px-6 py-4">
         <form onSubmit={handleSubmit} className="space-y-8">
           {/* Basic Information Section */}
           <div>
@@ -444,7 +445,7 @@ export default function EditJobForm({ job, closeModal, refetchJobs }) {
       </div>
 
       {/* Fixed Footer with Action Buttons */}
-      <div className="border-t border-gray-200 bg-gray-50 px-6 py-4">
+      <div className="border-t border-gray-200 bg-gray-50 px-6 py-4 flex-shrink-0">
         <div className="flex justify-end space-x-3">
           <button
             type="button"

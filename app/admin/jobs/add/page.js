@@ -44,6 +44,13 @@ const FORM_CONFIG = {
     "clinical-officer",
     "care-giver",
     "sale",
+    "nutritionist",
+    "optometry",
+    "physiotherapy",
+    "health-records",
+    "midwifery",
+    "hiv/aids-counselling",
+    "motuary-attendant",
   ],
   statusOptions: ["open", "closed", "pending"],
   languages: [
