@@ -33,160 +33,24 @@ import { useGetJobsQuery } from "../../redux/api/jobApiSlice";
 import { getSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Disclaimer from "../../components/general/Disclaimer";
+import {
+  calculateJobStatus,
+  formatDate,
+  getJobTypeColor,
+  getStatusBadge,
+  formatExperience,
+  formatPreference,
+  formatLanguage,
+} from "../../utils/cardContent.js";
 
-// Constants
-const CATEGORIES = [
-  { value: "nursing", label: "Nursing", icon: Heart },
-  { value: "medical Officer", label: "Medical Officer", icon: Award },
-  { value: "pharmacy", label: "Pharmacy", icon: CheckCircle },
-  { value: "laboratory", label: "Laboratory", icon: MdScience },
-  { value: "radiology", label: "Radiology", icon: GiLaserWarning },
-  { value: "medical engineer", label: "Medical Engineer", icon: Settings },
-  { value: "dental", label: "Dental", icon: Shield },
-  { value: "administration", label: "Administration", icon: Briefcase },
-  { value: "orthopedics", label: "Orthopedics", icon: Users },
-];
+import {
+  CATEGORIES,
+  JOB_TYPES,
+  EXPERIENCE_LEVELS,
+  LOCATIONS,
+} from "../../utils/constants";
 
-const JOB_TYPES = [
-  { value: "locum", label: "Locum" },
-  { value: "full-time", label: "Full Time" },
-  { value: "part-time", label: "Part Time" },
-  { value: "contract", label: "Contract" },
-  { value: "temporary", label: "Temporary" },
-  { value: "internship", label: "Internship" },
-];
-
-const EXPERIENCE_LEVELS = [
-  { value: "entry-level", label: "Entry Level" },
-  { value: "1+", label: "1+ Years" },
-  { value: "2+", label: "2+ Years" },
-  { value: "3+", label: "3+ Years" },
-  { value: "4+", label: "4+ Years" },
-  { value: "5+", label: "5+ Years" },
-];
-
-const LOCATIONS = [
-  { value: "nairobi", label: "Nairobi" },
-  { value: "mombasa", label: "Mombasa" },
-  { value: "kisumu", label: "Kisumu" },
-  { value: "nakuru", label: "Nakuru" },
-  { value: "eldoret", label: "Eldoret" },
-];
-
-// Utility functions
-const formatDate = (dateString) => {
-  const date = new Date(dateString);
-  const now = new Date();
-  const diffTime = Math.abs(now - date);
-  const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-
-  if (diffDays === 0) return "Today";
-  if (diffDays === 1) return "Yesterday";
-  if (diffDays < 7) return `${diffDays} days ago`;
-  return date.toLocaleDateString();
-};
-
-const getJobTypeColor = (type) => {
-  const colors = {
-    "full-time": "bg-green-100 text-green-800 border-green-200",
-    "part-time": "bg-blue-100 text-blue-800 border-blue-200",
-    contract: "bg-purple-100 text-purple-800 border-purple-200",
-    temporary: "bg-orange-100 text-orange-800 border-orange-200",
-    internship: "bg-pink-100 text-pink-800 border-pink-200",
-    locum: "bg-indigo-100 text-indigo-800 border-indigo-200",
-  };
-  return colors[type] || "bg-gray-100 text-gray-800 border-gray-200";
-};
-
-const calculateJobStatus = (createdAt) => {
-  const now = new Date();
-  const postDate = new Date(createdAt);
-  const daysDifference = Math.floor((now - postDate) / (1000 * 60 * 60 * 24));
-
-  if (daysDifference === 0) {
-    return "high";
-  } else if (daysDifference === 1) {
-    return "medium";
-  } else {
-    return "low";
-  }
-};
-const getStatusBadge = (status) => {
-  const colors = {
-    high: "bg-green-100 text-green-800",
-    medium: "bg-yellow-100 text-yellow-800",
-    low: "bg-red-100 text-red-800",
-  };
-  return colors[status] || "bg-gray-100 text-gray-800";
-};
-
-const formatExperience = (experience) => {
-  if (!experience || experience === "not-listed") return null;
-  return experience === "entry-level"
-    ? "Entry Level"
-    : `${experience} experience`;
-};
-
-const formatPreference = (preference) => {
-  if (!preference) return null;
-
-  const prefs = [];
-  if (preference.gender && preference.gender !== "any") {
-    prefs.push(`Gender: ${preference.gender}`);
-  }
-  if (preference.age && preference.age !== "any") {
-    prefs.push(`Age: ${preference.age}`);
-  }
-  if (preference.certificate && preference.certificate !== "any") {
-    prefs.push(`Education: ${preference.certificate}`);
-  }
-  if (preference.time && preference.time !== "any") {
-    prefs.push(`Shift: ${preference.time}`);
-  }
-  if (preference.completedRecently) {
-    prefs.push("Recent graduates preferred");
-  }
-  return prefs.length > 0 ? prefs.join(" • ") : null;
-};
-
-const formatLanguage = (language) => {
-  if (!language || language === "english") return null;
-  return language.charAt(0).toUpperCase() + language.slice(1);
-};
-
-// Components
-const SearchBar = ({ value, onChange }) => (
-  <div className="relative w-full">
-    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-    <input
-      type="text"
-      placeholder="Search jobs, hospitals..."
-      value={value}
-      onChange={onChange}
-      className="w-full pl-10 pr-4 py-3 text-sm border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white/80 backdrop-blur-sm"
-    />
-  </div>
-);
-
-const FilterSelect = ({ label, value, options, onChange }) => (
-  <div>
-    <label className="block text-sm font-medium text-gray-700 mb-2">
-      {label}
-    </label>
-    <select
-      value={value}
-      onChange={onChange}
-      className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white/80"
-    >
-      <option value="">All {label}s</option>
-      {options.map((option) => (
-        <option key={option.value} value={option.value}>
-          {option.label}
-        </option>
-      ))}
-    </select>
-  </div>
-);
+import { FilterSelect, SearchBar } from "../../components/general/CardContent";
 
 const JobCard = ({ job }) => {
   const category = CATEGORIES.find((c) => c.value === job.category);

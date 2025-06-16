@@ -3,6 +3,8 @@ import { Clock, Mail, MapPin, Phone, Send } from "lucide-react";
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { staggerContainer, fadeIn, textVariant } from "../../utils/motion";
+import { toast } from "sonner";
+import axios from "axios";
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -15,17 +17,46 @@ const Contact = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Handle form submission
-    console.log("Form submitted:", formData);
+
+    if (
+      !formData.name ||
+      !formData.email ||
+      !formData.subject ||
+      !formData.message
+    ) {
+      toast.error("Please fill in all fields");
+      return;
+    }
+
+    try {
+      const response = axios.post("/api/contact", formData);
+      toast.success("Form submitted successfully");
+      setFormData({
+        name: "",
+        email: "",
+        subject: "",
+        message: "",
+        userType: "professional",
+      });
+
+      if (response.status === 200) {
+        toast.success("Form submitted successfully");
+      }
+    } catch (error) {
+      console.error("Error submitting form:", error);
+      toast.error("Failed to submit form");
+    }
   };
 
   const contactMethods = [
     {
       icon: Phone,
       title: "Call Us",
-      details: "+254 700 123 456",
+      details: "+254 794 909 991",
       description: "Mon-Fri, 8AM-6PM EAT",
       color: "bg-blue-600",
+      href: "tel:+254794909991",
+      isClickable: true,
     },
     {
       icon: Mail,
@@ -33,13 +64,17 @@ const Contact = () => {
       details: "support@healthyconnect.co.ke",
       description: "We'll respond within 24 hours",
       color: "bg-emerald-600",
+      href: "mailto:support@healthyconnect.co.ke",
+      isClickable: true,
     },
     {
       icon: MapPin,
       title: "Visit Us",
       details: "Nairobi, Kenya",
-      description: "Upper Hill, ABC Place",
+      description: "Virtual Office",
       color: "bg-purple-600",
+      href: "https://maps.google.com/?q=Nairobi,Kenya",
+      isClickable: true,
     },
     {
       icon: Clock,
@@ -47,6 +82,8 @@ const Contact = () => {
       details: "Mon-Fri: 8AM-6PM",
       description: "Saturday: 9AM-2PM",
       color: "bg-orange-600",
+      href: null,
+      isClickable: false,
     },
   ];
 
@@ -87,27 +124,56 @@ const Contact = () => {
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
-            {contactMethods.map((method, index) => (
-              <motion.div
-                key={index}
-                variants={fadeIn("up", "tween", index * 0.2 + 0.4, 1)}
-                whileHover={{ y: -10 }}
-                className="text-center p-8 bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all"
-              >
-                <div
-                  className={`w-16 h-16 ${method.color} rounded-2xl flex items-center justify-center mx-auto mb-6`}
+            {contactMethods.map((method, index) => {
+              const ContactElement = method.isClickable ? "a" : "div";
+              const contactProps = method.isClickable
+                ? {
+                    href: method.href,
+                    target: method.href?.startsWith("http")
+                      ? "_blank"
+                      : "_self",
+                    rel: method.href?.startsWith("http")
+                      ? "noopener noreferrer"
+                      : undefined,
+                  }
+                : {};
+
+              return (
+                <motion.div
+                  key={index}
+                  variants={fadeIn("up", "tween", index * 0.2 + 0.4, 1)}
+                  whileHover={{ y: -10 }}
+                  className="relative"
                 >
-                  <method.icon className="w-8 h-8 text-white" />
-                </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-2">
-                  {method.title}
-                </h3>
-                <p className="text-lg font-medium text-gray-800 mb-2">
-                  {method.details}
-                </p>
-                <p className="text-gray-600">{method.description}</p>
-              </motion.div>
-            ))}
+                  <ContactElement
+                    {...contactProps}
+                    className={`block text-center p-8 bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all ${
+                      method.isClickable
+                        ? "cursor-pointer hover:bg-gray-50 transform hover:scale-105"
+                        : ""
+                    }`}
+                  >
+                    <div
+                      className={`w-16 h-16 ${method.color} rounded-2xl flex items-center justify-center mx-auto mb-6`}
+                    >
+                      <method.icon className="w-8 h-8 text-white" />
+                    </div>
+                    <h3 className="text-xl font-bold text-gray-900 mb-2">
+                      {method.title}
+                    </h3>
+                    <p className="text-lg font-medium text-gray-800 mb-2">
+                      {method.details}
+                    </p>
+                    <p className="text-gray-600">{method.description}</p>
+                    {method.isClickable && (
+                      <div className="mt-3 text-sm text-blue-600 font-medium">
+                        Tap to {method.title.toLowerCase()}
+                      </div>
+                    )}
+                  </ContactElement>
+                </motion.div>
+              );
+            })}
           </div>
         </div>
       </motion.section>

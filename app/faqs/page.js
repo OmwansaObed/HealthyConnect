@@ -1,11 +1,14 @@
 "use client";
 import {
-  Building,
-  FileText,
-  HelpCircle,
+  ChevronDown,
+  ChevronUp,
   Search,
-  Star,
-  Users,
+  User,
+  Briefcase,
+  Building,
+  CreditCard,
+  Shield,
+  MessageCircle,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -24,98 +27,185 @@ const MotionDiv = motion.div;
 const MotionH1 = motion.h1;
 const MotionP = motion.p;
 const MotionButton = motion.button;
-const MotionH3 = motion.h3;
 
-const ArrowRight = ({ className }) => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="20"
-    height="20"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    className={className}
-  >
-    <line x1="5" y1="12" x2="19" y2="12"></line>
-    <polyline points="12 5 19 12 12 19"></polyline>
-  </svg>
-);
-
-const HelpCenter = () => {
+const FAQ = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
+  const [openFAQ, setOpenFAQ] = useState(null);
 
   const categories = [
-    { id: "all", name: "All Topics", icon: HelpCircle },
-    { id: "getting-started", name: "Getting Started", icon: Star },
-    { id: "job-search", name: "Job Search", icon: Search },
-    { id: "applications", name: "Applications", icon: FileText },
-    { id: "account", name: "Account", icon: Users },
+    { id: "all", name: "All Questions", icon: MessageCircle },
+    { id: "account", name: "Account & Profile", icon: User },
+    { id: "job-search", name: "Job Search", icon: Briefcase },
     { id: "facilities", name: "For Facilities", icon: Building },
+    { id: "payments", name: "Payments & Billing", icon: CreditCard },
+    { id: "privacy", name: "Privacy & Security", icon: Shield },
   ];
 
-  const helpArticles = [
+  const faqData = [
+    // Account & Profile
     {
       id: 1,
-      title: "How to create your HealthyConnect profile",
-      category: "getting-started",
-      views: 1250,
-      helpful: 45,
-      preview: "Step-by-step guide to setting up your professional profile...",
+      category: "account",
+      question: "How do I create a HealthyConnect account?",
+      answer:
+        "To create an account, click the 'Sign Up' button on our homepage. You'll need to provide your email, create a password, and verify your email address. For healthcare professionals, you'll also need to upload your professional credentials for verification.",
     },
     {
       id: 2,
-      title: "Tips for writing an effective healthcare CV",
-      category: "getting-started",
-      views: 980,
-      helpful: 38,
-      preview: "Best practices for showcasing your healthcare experience...",
+      category: "account",
+      question: "How do I update my profile information?",
+      answer:
+        "Go to your dashboard and click on 'Profile Settings'. You can update your personal information, professional credentials, work experience, and preferences. Remember to save your changes before leaving the page.",
     },
     {
       id: 3,
-      title: "How to search and filter job opportunities",
-      category: "job-search",
-      views: 2100,
-      helpful: 67,
-      preview: "Use our advanced search features to find your perfect role...",
+      category: "account",
+      question: "What if I forget my password?",
+      answer:
+        "Click on 'Forgot Password' on the login page. Enter your email address, and we'll send you a password reset link. Follow the instructions in the email to create a new password.",
     },
     {
       id: 4,
-      title: "Understanding the application process",
-      category: "applications",
-      views: 1450,
-      helpful: 52,
-      preview: "What happens after you submit your application...",
+      category: "account",
+      question: "How do I verify my professional credentials?",
+      answer:
+        "Upload clear photos or scans of your professional licenses, certificates, and relevant qualifications in the 'Credentials' section of your profile. Our verification team reviews documents within 2-3 business days.",
     },
+
+    // Job Search
     {
       id: 5,
-      title: "Managing your account settings",
-      category: "account",
-      views: 875,
-      helpful: 31,
-      preview: "How to update your profile, preferences, and notifications...",
+      category: "job-search",
+      question: "How do I search for jobs on HealthyConnect?",
+      answer:
+        "Use the search bar on the jobs page to find opportunities by keyword, location, or job type. You can filter results by specialty, experience level, salary range, and work schedule to find positions that match your preferences.",
     },
     {
       id: 6,
-      title: "How to post job openings (For Facilities)",
+      category: "job-search",
+      question: "What types of healthcare jobs are available?",
+      answer:
+        "We offer opportunities across all healthcare sectors including nursing, medical officers, clinical officers, caregivers, pharmacy, laboratory, radiology, and many specialized fields. Both permanent and locum positions are available.",
+    },
+    {
+      id: 7,
+      category: "job-search",
+      question: "How do I apply for a job?",
+      answer:
+        "Click on a job listing to view full details, then click 'Apply Now'. You'll need to submit your application with your updated profile information. Some employers may request additional documents or a cover letter.",
+    },
+    {
+      id: 8,
+      category: "job-search",
+      question: "Can I save jobs to apply later?",
+      answer:
+        "Yes! Click the heart icon on any job listing to save it to your 'Saved Jobs' list. You can access saved jobs from your dashboard at any time.",
+    },
+    {
+      id: 9,
+      category: "job-search",
+      question: "How do I track my job applications?",
+      answer:
+        "Go to your dashboard and click on 'My Applications' to see all jobs you've applied for, their status (pending, reviewed, shortlisted, etc.), and any messages from employers.",
+    },
+
+    // For Facilities
+    {
+      id: 10,
       category: "facilities",
-      views: 650,
-      helpful: 28,
-      preview: "Guide for healthcare facilities to post job opportunities...",
+      question: "How can my healthcare facility post job openings?",
+      answer:
+        "Create a facility account and complete your organization's verification process. Once verified, you can post unlimited job openings, manage applications, and communicate directly with candidates through our platform.",
+    },
+    {
+      id: 11,
+      category: "facilities",
+      question: "What information should I include in a job posting?",
+      answer:
+        "Include detailed job descriptions, required qualifications, experience level, salary range, work schedule, location, and any special requirements. The more detailed your posting, the better quality candidates you'll attract.",
+    },
+    {
+      id: 12,
+      category: "facilities",
+      question: "How do I manage applications from candidates?",
+      answer:
+        "Access your facility dashboard to view all applications for your job postings. You can filter candidates, review profiles, schedule interviews, and communicate directly through our messaging system.",
+    },
+    {
+      id: 13,
+      category: "facilities",
+      question: "Is there a limit to how many jobs I can post?",
+      answer:
+        "No, verified healthcare facilities can post unlimited job openings. However, we recommend keeping job postings current and removing filled positions to maintain an accurate listing.",
+    },
+
+    // Payments & Billing
+    {
+      id: 14,
+      category: "payments",
+      question: "Is HealthyConnect free to use?",
+      answer:
+        "Yes, creating an account and searching for jobs is completely free for healthcare professionals. Some premium features like profile boosting may have associated costs, which will be clearly communicated.",
+    },
+    {
+      id: 15,
+      category: "payments",
+      question: "Are there fees for healthcare facilities?",
+      answer:
+        "Basic job posting is free for verified healthcare facilities. We may offer premium services like featured job listings or advanced recruitment tools for a fee, but basic functionality remains free.",
+    },
+    {
+      id: 16,
+      category: "payments",
+      question: "How do I handle payments for locum work?",
+      answer:
+        "HealthyConnect facilitates connections between healthcare professionals and facilities. Payment arrangements are made directly between you and the hiring facility. We recommend discussing payment terms before accepting any position.",
+    },
+
+    // Privacy & Security
+    {
+      id: 17,
+      category: "privacy",
+      question: "How is my personal information protected?",
+      answer:
+        "We use industry-standard encryption and security measures to protect your data. Your personal information is never shared without your consent, and you control what information is visible to potential employers.",
+    },
+    {
+      id: 18,
+      category: "privacy",
+      question: "Who can see my profile information?",
+      answer:
+        "Only verified healthcare facilities can view your professional profile when you apply for their positions. You can adjust your privacy settings to control what information is publicly visible.",
+    },
+    {
+      id: 19,
+      category: "privacy",
+      question: "Can I delete my account?",
+      answer:
+        "Yes, you can delete your account at any time from your account settings. This will permanently remove your profile and all associated data from our platform.",
+    },
+    {
+      id: 20,
+      category: "privacy",
+      question: "How do you verify healthcare facilities?",
+      answer:
+        "We verify all healthcare facilities by checking their business registration, licenses, and legitimacy. Only verified facilities can post jobs and contact candidates, ensuring a safe environment for job seekers.",
     },
   ];
 
-  const filteredArticles = helpArticles.filter((article) => {
+  const filteredFAQs = faqData.filter((faq) => {
     const matchesCategory =
-      selectedCategory === "all" || article.category === selectedCategory;
+      selectedCategory === "all" || faq.category === selectedCategory;
     const matchesSearch =
-      article.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      article.preview.toLowerCase().includes(searchQuery.toLowerCase());
+      faq.question.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      faq.answer.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesCategory && matchesSearch;
   });
+
+  const toggleFAQ = (faqId) => {
+    setOpenFAQ(openFAQ === faqId ? null : faqId);
+  };
 
   return (
     <div className="min-h-screen bg-white">
@@ -132,24 +222,23 @@ const HelpCenter = () => {
             variants={textVariant(0.5)}
             className="text-5xl font-bold text-white mb-6"
           >
-            Help <span className="text-yellow-400">Center</span>
+            Frequently Asked <span className="text-yellow-400">Questions</span>
           </MotionH1>
           <MotionP
             variants={textVariant(0.7)}
-            className="text-xl text-green-100 mb-8 max-w-3xl mx-auto"
+            className="text-xl text-blue-100 mb-8 max-w-3xl mx-auto"
           >
-            Find answers to common questions and learn how to make the most of
-            HealthyConnect
+            Find quick answers to common questions about using HealthyConnect
           </MotionP>
 
           {/* Search Bar */}
           <MotionDiv variants={fadeIn("up", "tween", 1, 1)}>
             <div className="max-w-2xl mx-auto relative">
-              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text w-5 h-5" />
+              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
               <input
                 type="text"
-                placeholder="Search for help articles..."
-                className="w-full pl-12 pr-4 py-4 text-lg rounded-2xl border-0 shadow-lg focus:ring-2 focus:ring-yellow-400"
+                placeholder="Search FAQ..."
+                className="w-full pl-12 pr-4 py-4 text-lg rounded-2xl border-0 shadow-lg focus:ring-2 focus:ring-yellow-400 focus:outline-none"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
@@ -168,20 +257,15 @@ const HelpCenter = () => {
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-wrap gap-4 justify-center">
-            {categories.map((category) => (
+            {categories.map((category, index) => (
               <MotionButton
                 key={category.id}
-                variants={fadeIn(
-                  "up",
-                  "spring",
-                  0.2 * (categories.indexOf(category) + 1),
-                  1
-                )}
+                variants={fadeIn("up", "spring", 0.2 * (index + 1), 1)}
                 onClick={() => setSelectedCategory(category.id)}
-                className={`flex items-center px-6 py-3 rounded-xl font-medium transition-all ${
+                className={`flex items-center px-6 py-3 rounded-xl font-medium transition-all duration-200 ${
                   selectedCategory === category.id
-                    ? "bg-blue-600 text-white shadow-lg"
-                    : "bg-white text-gray-700 hover:bg-blue-50 shadow-sm"
+                    ? "bg-blue-600 text-white shadow-lg transform scale-105"
+                    : "bg-white text-gray-700 hover:bg-blue-50 shadow-sm hover:shadow-md"
                 }`}
               >
                 <category.icon className="w-5 h-5 mr-2" />
@@ -192,7 +276,7 @@ const HelpCenter = () => {
         </div>
       </MotionSection>
 
-      {/* Help Articles */}
+      {/* FAQ Items */}
       <MotionSection
         initial="hidden"
         whileInView="show"
@@ -200,65 +284,54 @@ const HelpCenter = () => {
         variants={staggerContainer(0.1, 0.3)}
         className="py-20"
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <MotionDiv variants={fadeIn("up", "tween", 0.4, 1)}>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {filteredArticles.map((article) => (
-                <MotionDiv
-                  key={article.id}
-                  variants={fadeIn(
-                    "up",
-                    "spring",
-                    0.2 * (filteredArticles.indexOf(article) + 1),
-                    1
-                  )}
-                  className="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all cursor-pointer"
-                >
-                  <MotionH3
-                    variants={textVariant(0.3)}
-                    className="text-xl font-bold text-gray-900 mb-3"
+            <div className="space-y-4">
+              {filteredFAQs.length === 0 ? (
+                <div className="text-center py-12">
+                  <p className="text-gray-500 text-lg">
+                    No FAQs found matching your search.
+                  </p>
+                </div>
+              ) : (
+                filteredFAQs.map((faq, index) => (
+                  <MotionDiv
+                    key={faq.id}
+                    variants={fadeIn("up", "spring", 0.1 * (index + 1), 1)}
+                    className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden"
                   >
-                    {article.title}
-                  </MotionH3>
-                  <p className="text-gray-600 mb-4">{article.preview}</p>
-                  <div className="flex items-center justify-between text-sm text-gray-500">
-                    <span>{article.views} views</span>
-                    <span>{article.helpful} found helpful</span>
-                  </div>
-                  <div className="mt-4 flex items-center text-blue-600 font-medium">
-                    <span>Read More</span>
-                    <ArrowRight className="w-4 h-4 ml-2" />
-                  </div>
-                </MotionDiv>
-              ))}
+                    <button
+                      onClick={() => toggleFAQ(faq.id)}
+                      className="w-full px-6 py-6 text-left flex items-center justify-between hover:bg-gray-50 transition-colors duration-200"
+                    >
+                      <h3 className="text-lg font-semibold text-gray-900 pr-4">
+                        {faq.question}
+                      </h3>
+                      {openFAQ === faq.id ? (
+                        <ChevronUp className="w-5 h-5 text-blue-600 flex-shrink-0" />
+                      ) : (
+                        <ChevronDown className="w-5 h-5 text-gray-400 flex-shrink-0" />
+                      )}
+                    </button>
+
+                    {openFAQ === faq.id && (
+                      <div className="px-6 pb-6">
+                        <div className="border-t border-gray-100 pt-4">
+                          <p className="text-gray-700 leading-relaxed">
+                            {faq.answer}
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                  </MotionDiv>
+                ))
+              )}
             </div>
           </MotionDiv>
-        </div>
-      </MotionSection>
-
-      {/* Contact Support */}
-      <MotionSection
-        initial="hidden"
-        whileInView="show"
-        viewport={{ once: true }}
-        variants={slideIn("up", "tween", 0.5, 1)}
-        className="py-20 bg-gradient-to-r from-blue-600 to-green-600"
-      >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-4xl font-bold text-white mb-6">
-            Still Need Help?
-          </h2>
-          <p className="text-xl text-blue-100 mb-8">
-            Can&apos;t find what you&apos;re looking for? Our support team is
-            here to help.
-          </p>
-          <button className="px-8 py-4 bg-white text-blue-600 rounded-xl hover:bg-gray-50 font-bold text-lg shadow-lg transition-all">
-            Contact Support
-          </button>
         </div>
       </MotionSection>
     </div>
   );
 };
 
-export default HelpCenter;
+export default FAQ;
