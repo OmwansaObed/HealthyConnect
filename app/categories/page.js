@@ -31,6 +31,9 @@ import { useGetJobsQuery } from "../../redux/api/jobApiSlice";
 import Disclaimer from "../../components/general/Disclaimer";
 import { GiOpenBook } from "react-icons/gi";
 
+import { useRouter } from "next/navigation";
+import { useSelector } from "react-redux";
+
 const calculateJobStatus = (createdAt) => {
   const now = new Date();
   const postDate = new Date(createdAt);
@@ -225,8 +228,16 @@ const CategoryCard = ({ category, jobCount, onSelect }) => {
 };
 
 const JobCard = ({ job }) => {
+  const router = useRouter();
   const category = CATEGORIES.find((c) => c.value === job.category);
   const IconComponent = category?.icon || Briefcase;
+
+  const user = useSelector((state) => state.user?.user);
+  useEffect(() => {
+    if (!user) {
+      router.push("/auth/login");
+    }
+  }, [router, user]);
 
   // Calculate dynamic status based on posting date
   const jobStatus = calculateJobStatus(job.createdAt);
@@ -343,7 +354,7 @@ export default function CategoriesPage() {
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [page, setPage] = useState(1);
-  const limit = 1000; // Fetch all jobs to get accurate category counts
+  const limit = 1000;
 
   // Fetch all jobs from API
   const { data, isLoading, error } = useGetJobsQuery({ page, limit });

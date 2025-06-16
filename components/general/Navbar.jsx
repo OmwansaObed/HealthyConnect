@@ -16,7 +16,8 @@ import {
 import Link from "next/link";
 import { useSession, signIn, signOut } from "next-auth/react";
 import dynamic from "next/dynamic";
-// import { getSocket } from "../../utils/socket";
+import { clearUser } from "../../redux/api/userSlice";
+import { useDispatch } from "react-redux";
 
 const Notifications = dynamic(() => import("./Notifications"), { ssr: false });
 
@@ -26,6 +27,7 @@ export default function Navbar() {
   const [showNotifications, setShowNotifications] = useState(false);
   const [unread, setUnread] = useState(false);
   const { data: session } = useSession();
+  const dispatch = useDispatch();
 
   const navLinks = [
     { name: "Find Jobs", href: "/jobs", icon: Briefcase },
@@ -35,6 +37,22 @@ export default function Navbar() {
   const handleProfileMenuToggle = () => setProfileMenuOpen((prev) => !prev);
   const handleProfileMenuClose = () => setProfileMenuOpen(false);
   const closeMobileMenu = () => setIsMenuOpen(false);
+
+  const handleLogout = async () => {
+    try {
+      // Close any open menus
+      handleProfileMenuClose();
+      closeMobileMenu();
+
+      // Clear Redux state
+      dispatch(clearUser());
+
+      // Sign out from NextAuth
+      await signOut({ callbackUrl: "/auth/login" });
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
+  };
 
   const NavLinks = ({ mobile = false }) =>
     navLinks.map((link) => {
@@ -68,7 +86,6 @@ export default function Navbar() {
     }
   };
 
-  // Enhanced Notification Bell Component
   const NotificationBell = ({ mobile = false }) => (
     <div className="relative">
       <button
@@ -113,7 +130,6 @@ export default function Navbar() {
     </div>
   );
 
-  // Enhanced AuthButtons with consistent styling
   const AuthButtons = () => {
     if (session) {
       return (
@@ -151,7 +167,6 @@ export default function Navbar() {
                       </p>
                     </div>
 
-                    {/* Admin Dashboard Link - Only show if user is admin */}
                     {session.user?.role === true && (
                       <Link
                         href="/admin/dashboard"
@@ -180,10 +195,7 @@ export default function Navbar() {
                       <span className="font-medium">Settings</span>
                     </Link>
                     <button
-                      onClick={() => {
-                        handleProfileMenuClose();
-                        signOut();
-                      }}
+                      onClick={handleLogout}
                       className="flex items-center space-x-3 w-full px-4 py-3 text-red-600 hover:bg-red-50 rounded-xl transition-all duration-300 mt-2 transform hover:scale-105 shadow-sm hover:shadow-md"
                     >
                       <LogOut className="w-5 h-5" />
@@ -197,7 +209,6 @@ export default function Navbar() {
         </div>
       );
     }
-    // Not signed in - Enhanced styling
     return (
       <div className="flex items-center space-x-4 z-10">
         <button
@@ -241,7 +252,6 @@ export default function Navbar() {
           )}
         </div>
 
-        {/* Admin Dashboard Link for Mobile - Only show if user is admin */}
         {session.user?.role === true && (
           <Link
             href="/admin/dashboard"
@@ -272,10 +282,7 @@ export default function Navbar() {
         </Link>
 
         <button
-          onClick={() => {
-            closeMobileMenu();
-            signOut();
-          }}
+          onClick={handleLogout}
           className="flex items-center space-x-3 w-full px-4 py-4 text-red-300 hover:text-red-200 hover:bg-red-500/20 rounded-xl transition-all duration-300 border border-transparent hover:border-red-400/30 shadow-sm hover:shadow-md transform hover:scale-105"
         >
           <LogOut className="w-5 h-5" />
@@ -303,14 +310,12 @@ export default function Navbar() {
       </div>
     );
 
-  // Poll for new notifications every 30 seconds
   useEffect(() => {
     let interval;
     async function checkNotifications() {
       try {
         const res = await fetch("/api/notifications");
         const data = await res.json();
-        // Only set unread to true if there is a notification newer than the last time the user opened notifications
         const lastRead = localStorage.getItem("lastNotificationRead");
         let hasNew = false;
         if (
@@ -332,22 +337,6 @@ export default function Navbar() {
       }
     }
 
-    // if (session) {
-    //   checkNotifications();
-    //   interval = setInterval(checkNotifications, 30000);
-
-    //   // WebSocket: Listen for real-time job notifications
-    //   const socket = getSocket();
-    //   socket.on("job_posted", () => {
-    //     setUnread(true);
-    //   });
-
-    //   return () => {
-    //     clearInterval(interval);
-    //     socket.off("job_posted");
-    //   };
-    // }
-    // Clean up if session is falsy
     return () => {
       if (interval) clearInterval(interval);
     };
@@ -358,7 +347,6 @@ export default function Navbar() {
       <nav className="border-b border-gray-200 sticky top-0 z-50 shadow-lg backdrop-blur-md bg-white/95">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-18">
-            {/* Enhanced Logo */}
             <Link href="/" className="flex items-center space-x-3 group">
               <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-110 transform">
                 <Heart className="w-6 h-6 text-white" />
@@ -369,7 +357,6 @@ export default function Navbar() {
               </div>
             </Link>
 
-            {/* Desktop Navigation */}
             <div className="hidden md:flex items-center space-x-2">
               <NavLinks />
             </div>
@@ -378,7 +365,6 @@ export default function Navbar() {
               <AuthButtons />
             </div>
 
-            {/* Mobile Menu Button */}
             <div className="md:hidden flex items-center space-x-3">
               {session && <NotificationBell mobile={false} />}
               <button
@@ -396,7 +382,6 @@ export default function Navbar() {
         </div>
       </nav>
 
-      {/* Mobile Navigation Overlay */}
       {isMenuOpen && (
         <div className="md:hidden fixed inset-0 z-40 animate-in fade-in duration-300">
           <div className="absolute inset-0 bg-gradient-to-br from-blue-600 via-blue-700 to-blue-800">

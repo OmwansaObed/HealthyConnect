@@ -5,6 +5,8 @@ import Footer from "../components/general/Footer";
 import { Toaster } from "sonner";
 import Providers from "../components/general/Providers";
 import { Analytics } from "@vercel/analytics/next";
+import ScrollToTop from "../components/general/ScrollToTop";
+import SessionSyncClient from "../components/general/SessoinClient";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -33,6 +35,8 @@ export default function RootLayout({ children }) {
         className={`${geistSans.variable} ${geistMono.variable} ${outfit.variable} antialiased`}
       >
         <Providers>
+          <ScrollToTop />
+          <SessionSyncClient />
           <Navbar />
           <Analytics />
           {children}

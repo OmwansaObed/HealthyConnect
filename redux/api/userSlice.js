@@ -1,10 +1,8 @@
+// redux/api/userSlice.js
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
-  user: null, // { id, name, email, image, role, ... }
-  isAuthenticated: false,
-  loading: false,
-  error: null,
+  user: null,
 };
 
 const userSlice = createSlice({
@@ -13,19 +11,16 @@ const userSlice = createSlice({
   reducers: {
     setUser: (state, action) => {
       state.user = action.payload;
-      state.isAuthenticated = !!action.payload;
-      state.error = null;
     },
     clearUser: (state) => {
       state.user = null;
-      state.isAuthenticated = false;
-      state.error = null;
     },
-    setUserError: (state, action) => {
-      state.error = action.payload;
+    logout: (state) => {
+      state.user = null;
     },
   },
 });
 
-export const { setUser, clearUser, setUserError } = userSlice.actions;
+export const { setUser, clearUser } = userSlice.actions;
+
 export default userSlice.reducer;

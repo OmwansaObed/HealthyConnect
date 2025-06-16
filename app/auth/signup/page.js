@@ -74,7 +74,7 @@ const Register = () => {
     <div className="bg-gradient-to-t from-blue-100 to-white min-h-screen flex items-center justify-center px-4">
       <div className="w-full max-w-md space-y-8">
         <div className="text-center">
-          <h1 className="text-3xl font-bold text-[#0A2647]">Create Account</h1>
+          <h1 className="text-3xl font-bold text-[#0A2647]">Join us today</h1>
           <p className="text-[#144272] mt-2">Sign up to get started</p>
         </div>
 
@@ -113,7 +113,7 @@ const Register = () => {
               </svg>
             )}
             <span className="text-[#0A2647] font-medium">
-              {googleLoading ? "Signing up..." : "Sign up with Google"}
+              {googleLoading ? "Signing up..." : "Continue with Google"}
             </span>
           </button>
 

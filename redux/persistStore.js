@@ -1,6 +1,6 @@
-// This file exports the store and persistor for redux-persist integration
 import { configureStore, combineReducers } from "@reduxjs/toolkit";
 import jobReducer from "./api/jobSlice";
+import userReducer from "./api/userSlice";
 import { apiSlice } from "./api/apiSlice";
 import { usersApiSlice } from "./api/usersApiSlice";
 import {
@@ -24,7 +24,7 @@ const persistConfig = {
 const rootReducer = combineReducers({
   [apiSlice.reducerPath]: apiSlice.reducer,
   job: jobReducer,
-  user: usersApiSlice.reducer,
+  user: userReducer,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

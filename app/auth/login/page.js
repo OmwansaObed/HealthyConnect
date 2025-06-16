@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { Mail, Lock, Eye, EyeOff, Loader2 } from "lucide-react";
 import { getSession, signIn } from "next-auth/react";
-import { redirect, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import Link from "next/link";
 import { useDispatch } from "react-redux";
@@ -31,7 +31,7 @@ const Login = () => {
 
   const handleEmailLogin = async (e) => {
     e.preventDefault();
-    // Basic validation
+
     if (!email || !password) {
       toast.error("Please fill in all fields");
       return;
@@ -41,38 +41,37 @@ const Login = () => {
     setError(null);
 
     try {
-      // Handle email login logic here
       const response = await signIn("credentials", {
         email,
         password,
         redirect: false,
       });
 
-      console.log("signIn response:", response);
+      if (!response?.ok) {
+        const errorMessage =
+          response?.error || "Login failed. Please try again.";
+        console.error("Login error:", errorMessage);
+        setError(errorMessage);
+        toast.error(errorMessage);
+        return;
+      }
 
-      if (response.status !== 200) {
-        console.error("Login error:", response.error);
-        toast.error(response.error);
-        setError(response?.error);
-      } else if (response?.ok === true) {
-        const session = await getSession();
+      const session = await getSession();
 
-        if (session?.user) {
-          dispatch(setUser(session.user));
-        }
-
+      if (session?.user) {
+        dispatch(setUser(session.user));
         toast.success("Login successful!");
         router.push("/");
         setEmail("");
         setPassword("");
         setError(null);
       } else {
-        toast.error("Login failed. Please try again.");
+        toast.error("Session not found after login.");
       }
-    } catch (error) {
-      console.error("Login error:", error);
-      toast.error("An error occurred during login");
-      setError("An error occurred during login");
+    } catch (err) {
+      console.error("Unexpected login error:", err);
+      toast.error("An unexpected error occurred.");
+      setError("An unexpected error occurred.");
     } finally {
       setLoading(false);
     }
@@ -82,7 +81,7 @@ const Login = () => {
     <div className="bg-gradient-to-t from-blue-100 to-white min-h-screen flex items-center justify-center px-4">
       <div className="w-full max-w-md space-y-8">
         <div className="text-center">
-          <h1 className="text-3xl font-bold text-[#0A2647]">Login</h1>
+          <h1 className="text-3xl font-bold text-[#0A2647]">Welcome Back</h1>
           <p className="text-[#144272] mt-2">Sign in to your account</p>
         </div>
 
@@ -96,7 +95,7 @@ const Login = () => {
                 ? "opacity-70 cursor-not-allowed bg-gray-50"
                 : "hover:bg-blue-50"
             }`}
-            aria-label="Sign in with Google"
+            aria-label="Continue with Google"
           >
             {googleLoading ? (
               <Loader2 className="w-5 h-5 animate-spin text-blue-500" />
@@ -121,7 +120,7 @@ const Login = () => {
               </svg>
             )}
             <span className="text-[#0A2647] font-medium">
-              {googleLoading ? "Signing in..." : "Sign in with Google"}
+              {googleLoading ? "Signing in..." : "Continue with Google"}
             </span>
           </button>
 

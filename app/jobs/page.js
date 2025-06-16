@@ -30,7 +30,7 @@ import {
 import { GiLaserWarning } from "react-icons/gi";
 import { MdScience } from "react-icons/md";
 import { useGetJobsQuery } from "../../redux/api/jobApiSlice";
-import { getSession } from "next-auth/react";
+import { getSession, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Disclaimer from "../../components/general/Disclaimer";
 import {
@@ -53,11 +53,47 @@ import {
 import { FilterSelect, SearchBar } from "../../components/general/CardContent";
 
 const JobCard = ({ job }) => {
+  const router = useRouter();
   const category = CATEGORIES.find((c) => c.value === job.category);
   const IconComponent = category?.icon || Briefcase;
+  const { data: session } = useSession();
+
+  // ✅ Move redirect logic to useEffect
+  useEffect(() => {
+    if (!session) {
+      router.push("/auth/login");
+    }
+  }, [session, router]);
 
   // Calculate dynamic status based on posting date
   const jobStatus = calculateJobStatus(job.createdAt);
+
+  const getJobTypeColor = (type) => {
+    const colors = {
+      "full-time": "bg-green-100 text-green-800 border-green-200",
+      "part-time": "bg-blue-100 text-blue-800 border-blue-200",
+      contract: "bg-purple-100 text-purple-800 border-purple-200",
+      locum: "bg-indigo-100 text-indigo-800 border-indigo-200",
+    };
+    return colors[type] || "bg-gray-100 text-gray-800 border-gray-200";
+  };
+
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffTime = Math.abs(now - date);
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+    if (diffDays === 0) return "Today";
+    if (diffDays === 1) return "Yesterday";
+    if (diffDays < 7) return `${diffDays} days ago`;
+    return date.toLocaleDateString();
+  };
+
+  // Don't render anything while session is loading
+  if (!session) {
+    return null; // or a loading spinner
+  }
 
   return (
     <div
@@ -69,6 +105,7 @@ const JobCard = ({ job }) => {
           : "border-l-red-500"
       } border border-white/50 p-6 hover:shadow-xl transition-all duration-200 hover:scale-105`}
     >
+      {/* Rest of your component remains the same */}
       <div className="flex justify-between items-start mb-4">
         <div className="flex-1">
           <h3 className="font-bold text-gray-900 text-lg mb-1 line-clamp-2">
@@ -97,7 +134,7 @@ const JobCard = ({ job }) => {
               job.type
             )} border`}
           >
-            {job.type.replace("-", " ").toUpperCase()}
+            {job.type?.replace("-", " ").toUpperCase() || "N/A"}
           </span>
           <span className="mx-2">•</span>
           <span className="capitalize">{job.category}</span>
@@ -108,47 +145,18 @@ const JobCard = ({ job }) => {
             <MapPin className="w-3 h-3 text-green-600" />
           </div>
           <span>
-            {job.location?.state}
-            {job.location?.county && `, ${job.location.county}`}
+            {(job.location?.state || "Kenya") +
+              ", " +
+              (job.location?.county || "")}
           </span>
         </div>
 
-        {job.salary && job.salary !== "not-listed" && (
+        {job.salary && (
           <div className="flex items-center text-sm text-gray-600">
             <div className="p-1 bg-emerald-100 rounded-lg mr-2">
               <DollarSign className="w-3 h-3 text-emerald-600" />
             </div>
             <span>{job.salary}</span>
-          </div>
-        )}
-
-        {formatExperience(job.experience) && (
-          <div className="flex items-center text-sm text-gray-600">
-            <div className="p-1 bg-orange-100 rounded-lg mr-2">
-              <GraduationCap className="w-3 h-3 text-orange-600" />
-            </div>
-            <span>{formatExperience(job.experience)}</span>
-          </div>
-        )}
-
-        {formatLanguage(job.preferredCommunicationLanguage) && (
-          <div className="flex items-center text-sm text-gray-600">
-            <div className="p-1 bg-indigo-100 rounded-lg mr-2">
-              <Globe className="w-3 h-3 text-indigo-600" />
-            </div>
-            <span>
-              {formatLanguage(job.preferredCommunicationLanguage)} preferred
-            </span>
-          </div>
-        )}
-
-        {formatPreference(job.preference) && (
-          <div className="text-xs text-gray-500 bg-gray-50 rounded-lg p-2">
-            <div className="flex items-center mb-1">
-              <User className="w-3 h-3 mr-1" />
-              <span className="font-medium">Preferences:</span>
-            </div>
-            <span>{formatPreference(job.preference)}</span>
           </div>
         )}
 
@@ -166,68 +174,130 @@ const JobCard = ({ job }) => {
         </p>
       )}
 
-      <div className="flex space-x-2">
-        <a
-          href={`tel:${job.phone}`}
-          className="flex-2 flex items-center justify-center gap-2 px-4 py-2 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-colors font-semibold text-sm whitespace-nowrap shadow"
-        >
-          <Phone className="w-4 h-4" />
-          <span>{job.phone}</span>
-        </a>
-      </div>
+      <button className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-colors font-semibold text-sm shadow">
+        <Phone className="w-4 h-4" />
+        <span>{job.phone || "Contact for details"}</span>
+      </button>
     </div>
   );
 };
 
-const Pagination = ({ page, totalPages, totalCount, limit, setPage }) => (
-  <div className="mt-8 flex items-center justify-between">
-    <div className="text-sm text-gray-600">
-      Showing <span className="font-medium">{(page - 1) * limit + 1}</span> to{" "}
-      <span className="font-medium">{Math.min(page * limit, totalCount)}</span>{" "}
-      of <span className="font-medium">{totalCount}</span> results
-    </div>
+const Pagination = ({ page, totalPages, totalCount, limit, setPage }) => {
+  // Function to generate page numbers to display
+  const getVisiblePages = () => {
+    const delta = 2; // Number of pages to show on each side of current page
+    const range = [];
 
-    <div className="flex space-x-2">
-      <button
-        onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
-        disabled={page === 1}
-        className={`px-3 py-1.5 rounded-lg border ${
-          page === 1
-            ? "bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed"
-            : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
-        }`}
-      >
-        Previous
-      </button>
+    // If total pages is small (7 or less), show all pages
+    if (totalPages <= 7) {
+      for (let i = 1; i <= totalPages; i++) {
+        range.push(i);
+      }
+      return range;
+    }
 
-      {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
+    // Always include first page
+    range.push(1);
+
+    // Calculate start and end of middle range around current page
+    const start = Math.max(2, page - delta);
+    const end = Math.min(totalPages - 1, page + delta);
+
+    // Add ellipsis after first page if there's a gap
+    if (start > 2) {
+      range.push("...");
+    }
+
+    // Add middle range (pages around current page)
+    for (let i = start; i <= end; i++) {
+      if (i !== 1 && i !== totalPages) {
+        // Don't duplicate first/last page
+        range.push(i);
+      }
+    }
+
+    // Add ellipsis before last page if there's a gap
+    if (end < totalPages - 1) {
+      range.push("...");
+    }
+
+    // Always include last page (if more than 1 page total)
+    if (totalPages > 1) {
+      range.push(totalPages);
+    }
+
+    return range;
+  };
+
+  const visiblePages = getVisiblePages();
+
+  return (
+    <div className="mt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div className="text-sm text-gray-600 order-2 sm:order-1">
+        Showing <span className="font-medium">{(page - 1) * limit + 1}</span> to{" "}
+        <span className="font-medium">
+          {Math.min(page * limit, totalCount)}
+        </span>{" "}
+        of <span className="font-medium">{totalCount}</span> results
+      </div>
+
+      <div className="flex items-center space-x-1 order-1 sm:order-2">
         <button
-          key={pageNum}
-          onClick={() => setPage(pageNum)}
+          onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
+          disabled={page === 1}
           className={`px-3 py-1.5 rounded-lg border ${
-            page === pageNum
-              ? "bg-blue-600 text-white border-blue-600"
+            page === 1
+              ? "bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed"
               : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
           }`}
         >
-          {pageNum}
+          Previous
         </button>
-      ))}
 
-      <button
-        onClick={() => setPage((prev) => Math.min(prev + 1, totalPages))}
-        disabled={page === totalPages}
-        className={`px-3 py-1.5 rounded-lg border ${
-          page === totalPages
-            ? "bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed"
-            : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
-        }`}
-      >
-        Next
-      </button>
+        {visiblePages.map((pageNum, index) => {
+          // Handle ellipsis
+          if (pageNum === "...") {
+            return (
+              <span
+                key={`ellipsis-${index}`}
+                className="px-2 py-1.5 text-gray-500"
+              >
+                ...
+              </span>
+            );
+          }
+
+          // Handle page numbers
+          return (
+            <button
+              key={pageNum}
+              onClick={() => setPage(pageNum)}
+              className={`px-3 py-1.5 rounded-lg border ${
+                page === pageNum
+                  ? "bg-blue-600 text-white border-blue-600"
+                  : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
+              }`}
+            >
+              {pageNum}
+            </button>
+          );
+        })}
+
+        <button
+          onClick={() => setPage((prev) => Math.min(prev + 1, totalPages))}
+          disabled={page === totalPages}
+          className={`px-3 py-1.5 rounded-lg border ${
+            page === totalPages
+              ? "bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed"
+              : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
+          }`}
+        >
+          Next
+        </button>
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 const NoResults = ({ clearAllFilters }) => (
   <div className="col-span-full text-center py-12 px-4">
@@ -257,6 +327,15 @@ export default function JobSearchPage() {
   const limit = 10;
   const router = useRouter();
 
+  const { data: session, status } = useSession();
+
+  // Handle authentication redirect in useEffect
+  useEffect(() => {
+    if (status === "unauthenticated") {
+      router.push("/auth/login");
+    }
+  }, [status, router]);
+
   // Filter states
   const [selectedCategory, setSelectedCategory] = useState("");
   const [selectedType, setSelectedType] = useState("");
@@ -268,6 +347,20 @@ export default function JobSearchPage() {
   const jobs = data?.jobs ?? [];
   const totalPages = data?.totalPages || 1;
   const totalCount = data?.totalCount || 0;
+
+  // Show loading while checking authentication
+  if (status === "loading") {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+      </div>
+    );
+  }
+
+  // Don't render anything if user is not authenticated (redirect will happen in useEffect)
+  if (status === "unauthenticated") {
+    return null;
+  }
 
   // Filter jobs based on search and filters
   const filteredJobs = jobs.filter((job) => {
