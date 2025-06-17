@@ -49,6 +49,7 @@ import {
   FilterSelect,
   SearchBar,
 } from "../../../components/general/CardContent";
+import Disclaimer from "../../../components/general/Disclaimer";
 
 // Job Detail Modal Component
 const JobDetailModal = ({ job, isOpen, onClose }) => {
@@ -461,6 +462,7 @@ export default function JobSearchPage() {
                 healthcare sector
               </p>
             </div>
+            <Disclaimer />
             <SearchBar
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}

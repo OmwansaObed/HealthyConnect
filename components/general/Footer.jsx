@@ -37,8 +37,8 @@ export default function Footer() {
                 <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
                   <Mail className="w-4 h-4 text-blue-600" />
                 </div>
-                <a href="mailto:legal@healthyconnect.com">
-                  legal@healthyconnect.com
+                <a href="mailto:healthyconnect010@gmail.com">
+                  healthyconnect010@gmail.com
                 </a>
               </div>
               <a

@@ -6,7 +6,7 @@ import axios from "axios";
 import Link from "next/link";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
-
+// import { sendWelcomeEmail } from "../../../utils/sendWelcomeEmail";
 const Register = () => {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
@@ -47,7 +47,7 @@ const Register = () => {
         email,
         password,
       });
-
+      // await sendWelcomeEmail(user.email, user.name || user.email.split("@")[0]);
       if (res.status === 201) {
         setSuccess("Registration successful!");
         toast.success("Redirecting to login...");

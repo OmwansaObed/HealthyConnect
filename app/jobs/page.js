@@ -242,7 +242,7 @@ export default function JobListingPage() {
         {/* Page Content */}
         <div className="px-4 py-6 md:px-6 lg:px-8 max-w-7xl mx-auto">
           {/* Desktop Header */}
-          <Disclaimer />
+
           {/* Jobs Display */}
           {isLoading ? (
             <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/50 p-12 text-center">

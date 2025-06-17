@@ -219,7 +219,7 @@ const TermsOfService = () => {
                   whileHover={{ x: 5, color: "#3b82f6" }}
                   transition={{ duration: 0.2 }}
                 >
-                  <strong>Email:</strong> legal@healthyconnect.co.ke
+                  <strong>Email:</strong>healthyconnect010@gmail.com
                 </motion.p>
                 <motion.p
                   whileHover={{ x: 5, color: "#3b82f6" }}
