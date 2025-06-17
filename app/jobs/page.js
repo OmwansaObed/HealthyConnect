@@ -1,187 +1,17 @@
 "use client";
-import React, { useState, useEffect } from "react";
-import {
-  Search,
-  MapPin,
-  Filter,
-  Clock,
-  DollarSign,
-  Users,
-  Heart,
-  Award,
-  Shield,
-  Settings,
-  Briefcase,
-  CheckCircle,
-  ChevronDown,
-  X,
-  Star,
-  Calendar,
-  Building,
-  ArrowRight,
-  Loader2,
-  Phone,
-  GraduationCap,
-  User,
-  MessageCircle,
-  Globe,
-  Eye,
-} from "lucide-react";
-import { GiLaserWarning } from "react-icons/gi";
-import { MdScience } from "react-icons/md";
-import { useGetJobsQuery } from "../../redux/api/jobApiSlice";
-import { getSession, useSession } from "next-auth/react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
+
+import JobCards from "../../components/admin/job-listing/JobCards";
+import JobModal from "../../components/admin/job-listing/JobModal";
+
+// Import your jobs API hook (adjust path as needed)
+import { useGetJobsQuery } from "../../redux/api/jobApiSlice";
+import { toast } from "sonner";
+import { Briefcase, Users, X } from "lucide-react";
 import Disclaimer from "../../components/general/Disclaimer";
-import {
-  calculateJobStatus,
-  formatDate,
-  getJobTypeColor,
-  getStatusBadge,
-  formatExperience,
-  formatPreference,
-  formatLanguage,
-} from "../../utils/cardContent.js";
 
-import {
-  CATEGORIES,
-  JOB_TYPES,
-  EXPERIENCE_LEVELS,
-  LOCATIONS,
-} from "../../utils/constants";
-
-import { FilterSelect, SearchBar } from "../../components/general/CardContent";
-
-const JobCard = ({ job }) => {
-  const router = useRouter();
-  const category = CATEGORIES.find((c) => c.value === job.category);
-  const IconComponent = category?.icon || Briefcase;
-  const { data: session } = useSession();
-
-  // ✅ Move redirect logic to useEffect
-  useEffect(() => {
-    if (!session) {
-      router.push("/auth/login");
-    }
-  }, [session, router]);
-
-  // Calculate dynamic status based on posting date
-  const jobStatus = calculateJobStatus(job.createdAt);
-
-  const getJobTypeColor = (type) => {
-    const colors = {
-      "full-time": "bg-green-100 text-green-800 border-green-200",
-      "part-time": "bg-blue-100 text-blue-800 border-blue-200",
-      contract: "bg-purple-100 text-purple-800 border-purple-200",
-      locum: "bg-indigo-100 text-indigo-800 border-indigo-200",
-    };
-    return colors[type] || "bg-gray-100 text-gray-800 border-gray-200";
-  };
-
-  const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffTime = Math.abs(now - date);
-    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-
-    if (diffDays === 0) return "Today";
-    if (diffDays === 1) return "Yesterday";
-    if (diffDays < 7) return `${diffDays} days ago`;
-    return date.toLocaleDateString();
-  };
-
-  // Don't render anything while session is loading
-  if (!session) {
-    return null; // or a loading spinner
-  }
-
-  return (
-    <div
-      className={`bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border-l-4 ${
-        jobStatus === "high"
-          ? "border-l-green-500"
-          : jobStatus === "medium"
-          ? "border-l-yellow-500"
-          : "border-l-red-500"
-      } border border-white/50 p-6 hover:shadow-xl transition-all duration-200 hover:scale-105`}
-    >
-      {/* Rest of your component remains the same */}
-      <div className="flex justify-between items-start mb-4">
-        <div className="flex-1">
-          <h3 className="font-bold text-gray-900 text-lg mb-1 line-clamp-2">
-            {job.title}
-          </h3>
-          {job.postedBy && (
-            <p className="text-gray-500 text-xs">by {job.postedBy}</p>
-          )}
-        </div>
-        <span
-          className={`inline-flex px-3 py-1 text-xs font-medium rounded-full ${getStatusBadge(
-            jobStatus
-          )}`}
-        >
-          {jobStatus}
-        </span>
-      </div>
-
-      <div className="space-y-3 mb-6">
-        <div className="flex items-center text-sm text-gray-600">
-          <div className="p-1 bg-blue-100 rounded-lg mr-2">
-            <IconComponent className="w-3 h-3 text-blue-600" />
-          </div>
-          <span
-            className={`px-2 py-1 rounded-full text-xs font-semibold ${getJobTypeColor(
-              job.type
-            )} border`}
-          >
-            {job.type?.replace("-", " ").toUpperCase() || "N/A"}
-          </span>
-          <span className="mx-2">•</span>
-          <span className="capitalize">{job.category}</span>
-        </div>
-
-        <div className="flex items-center text-sm text-gray-600">
-          <div className="p-1 bg-green-100 rounded-lg mr-2">
-            <MapPin className="w-3 h-3 text-green-600" />
-          </div>
-          <span>
-            {(job.location?.state || "Kenya") +
-              ", " +
-              (job.location?.county || "")}
-          </span>
-        </div>
-
-        {job.salary && (
-          <div className="flex items-center text-sm text-gray-600">
-            <div className="p-1 bg-emerald-100 rounded-lg mr-2">
-              <DollarSign className="w-3 h-3 text-emerald-600" />
-            </div>
-            <span>{job.salary}</span>
-          </div>
-        )}
-
-        <div className="flex items-center text-sm text-gray-600">
-          <div className="p-1 bg-purple-100 rounded-lg mr-2">
-            <Calendar className="w-3 h-3 text-purple-600" />
-          </div>
-          <span>{formatDate(job.createdAt)}</span>
-        </div>
-      </div>
-
-      {job.description && (
-        <p className="text-sm text-gray-700 mb-4 line-clamp-2">
-          {job.description}
-        </p>
-      )}
-
-      <button className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-colors font-semibold text-sm shadow">
-        <Phone className="w-4 h-4" />
-        <span>{job.phone || "Contact for details"}</span>
-      </button>
-    </div>
-  );
-};
-
+// Pagination Component
 const Pagination = ({ page, totalPages, totalCount, limit, setPage }) => {
   // Function to generate page numbers to display
   const getVisiblePages = () => {
@@ -299,268 +129,204 @@ const Pagination = ({ page, totalPages, totalCount, limit, setPage }) => {
   );
 };
 
-const NoResults = ({ clearAllFilters }) => (
-  <div className="col-span-full text-center py-12 px-4">
-    <div className="w-20 h-20 sm:w-24 sm:h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-      <Search className="w-10 h-10 sm:w-12 sm:h-12 text-gray-400" />
-    </div>
-    <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-2">
-      No jobs found
-    </h3>
-    <p className="text-sm sm:text-base text-gray-600 mb-6 max-w-md mx-auto">
-      Try adjusting your search criteria or filters to find more opportunities.
-    </p>
-    <button
-      onClick={clearAllFilters}
-      className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium text-sm sm:text-base"
-    >
-      Clear All Filters
-    </button>
-  </div>
-);
-
-// Main Component
-export default function JobSearchPage() {
+export default function JobListingPage() {
   const [searchTerm, setSearchTerm] = useState("");
-  const [showFilters, setShowFilters] = useState(false);
+  const [filterStatus, setFilterStatus] = useState("all");
+  const [filterType, setFilterType] = useState("all");
+  const [viewMode, setViewMode] = useState("cards"); // cards or table
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalType, setModalType] = useState(""); // "view" | "edit" | "delete"
+  const [selectedJob, setSelectedJob] = useState(null);
+
+  // Pagination state
   const [page, setPage] = useState(1);
-  const limit = 10;
-  const router = useRouter();
+  const limit = 10; // Jobs per page
 
-  const { data: session, status } = useSession();
-
-  // Handle authentication redirect in useEffect
-  useEffect(() => {
-    if (status === "unauthenticated") {
-      router.push("/auth/login");
-    }
-  }, [status, router]);
-
-  // Filter states
-  const [selectedCategory, setSelectedCategory] = useState("");
-  const [selectedType, setSelectedType] = useState("");
-  const [selectedExperience, setSelectedExperience] = useState("");
-  const [selectedLocation, setSelectedLocation] = useState("");
-
-  // API call for jobs
-  const { data, isLoading } = useGetJobsQuery({ page, limit });
-  const jobs = data?.jobs ?? [];
+  // Fetch jobs from API with pagination
+  const { data, isLoading, error, refetch } = useGetJobsQuery({ page, limit });
+  const jobs = data?.jobs || [];
   const totalPages = data?.totalPages || 1;
   const totalCount = data?.totalCount || 0;
 
-  // Show loading while checking authentication
-  if (status === "loading") {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
-      </div>
-    );
-  }
-
-  // Don't render anything if user is not authenticated (redirect will happen in useEffect)
-  if (status === "unauthenticated") {
-    return null;
-  }
-
   // Filter jobs based on search and filters
   const filteredJobs = jobs.filter((job) => {
-    let matches = true;
-
-    // Search term filter
-    if (searchTerm) {
-      const searchLower = searchTerm.toLowerCase();
-      matches =
-        job.title.toLowerCase().includes(searchLower) ||
-        job.description?.toLowerCase().includes(searchLower) ||
-        job.postedBy?.toLowerCase().includes(searchLower);
-    }
-
-    // Category filter
-    if (matches && selectedCategory) {
-      matches = job.category === selectedCategory;
-    }
-
-    // Job type filter
-    if (matches && selectedType) {
-      matches = job.type === selectedType;
-    }
-
-    // Experience filter
-    if (matches && selectedExperience) {
-      matches = job.experience === selectedExperience;
-    }
-
-    // Location filter
-    if (matches && selectedLocation) {
-      const locationLower = selectedLocation.toLowerCase();
-      matches =
-        job.location.state.toLowerCase().includes(locationLower) ||
-        job.location.county?.toLowerCase().includes(locationLower);
-    }
-
-    return matches;
+    const matchesSearch =
+      job.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      job.category?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      job.location?.state?.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesStatus = filterStatus === "all" || job.status === filterStatus;
+    const matchesType = filterType === "all" || job.type === filterType;
+    return matchesSearch && matchesStatus && matchesType;
   });
 
-  const clearAllFilters = () => {
-    setSelectedCategory("");
-    setSelectedType("");
-    setSelectedExperience("");
-    setSelectedLocation("");
-    setSearchTerm("");
+  // Open modal with job details
+  const openModal = (type, job) => {
+    setModalType(type);
+    setSelectedJob(job);
+    setModalOpen(true);
+  };
+
+  // Close modal
+  const closeModal = () => {
+    setModalOpen(false);
+    setSelectedJob(null);
+    setModalType("");
+  };
+
+  // Handle job deletion
+  const handleDeleteJob = async (jobId, jobTitle) => {
+    const job = jobs.find((j) => j._id === jobId);
+    openModal("delete", job);
+  };
+
+  // Confirm deletion
+  const confirmDelete = async () => {
+    if (!selectedJob) return;
+    try {
+      await deleteJob(selectedJob._id).unwrap();
+      toast.success(`Job "${selectedJob.title}" deleted successfully`);
+      closeModal();
+      refetch();
+    } catch (error) {
+      toast.error("Failed to delete job");
+      console.error("Delete error:", error);
+    }
+  };
+
+  // Handle job actions
+  const handleViewJob = (jobId) => {
+    const job = jobs.find((j) => j._id === jobId);
+    openModal("view", job);
+  };
+
+  const handleEditJob = (jobId) => {
+    const job = jobs.find((j) => j._id === jobId);
+    openModal("edit", job);
+  };
+
+  // Get status badge color
+  const getStatusBadge = (status) => {
+    const statusColors = {
+      active:
+        "bg-gradient-to-r from-emerald-100 to-green-100 text-emerald-800 border border-emerald-200",
+      inactive:
+        "bg-gradient-to-r from-slate-100 to-gray-100 text-slate-800 border border-slate-200",
+      closed:
+        "bg-gradient-to-r from-rose-100 to-red-100 text-rose-800 border border-rose-200",
+      draft:
+        "bg-gradient-to-r from-amber-100 to-yellow-100 text-amber-800 border border-amber-200",
+    };
+    return (
+      statusColors[status?.toLowerCase()] ||
+      "bg-gradient-to-r from-slate-100 to-gray-100 text-slate-800 border border-slate-200"
+    );
+  };
+
+  // Get status color for mobile cards
+  const getStatusColor = (status) => {
+    const colors = {
+      active: "border-l-emerald-500 bg-emerald-50",
+      inactive: "border-l-slate-500 bg-slate-50",
+      closed: "border-l-rose-500 bg-rose-50",
+      draft: "border-l-amber-500 bg-amber-50",
+    };
+    return colors[status?.toLowerCase()] || "border-l-slate-500 bg-slate-50";
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50">
-      {/* Header */}
-      <div className="bg-white/80 backdrop-blur-sm shadow-sm border-b border-white/50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
-          <div className="flex flex-col gap-4">
-            <div className="text-center sm:text-left">
-              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 leading-tight">
-                Find Your Perfect Healthcare Job
-              </h1>
-              <p className="text-gray-600 mt-1 text-sm sm:text-base">
-                Discover {filteredJobs.length} opportunities across Kenya&apos;s
-                healthcare sector
+    <div className="min-h-screen bg-gradient-to-br flex from-purple-50 via-blue-50 to-cyan-50">
+      {/* Main Content */}
+      <div className="flex-1 md:ml-64">
+        {/* Mobile Header */}
+
+        {/* Page Content */}
+        <div className="px-4 py-6 md:px-6 lg:px-8 max-w-7xl mx-auto">
+          {/* Desktop Header */}
+          <Disclaimer />
+          {/* Jobs Display */}
+          {isLoading ? (
+            <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/50 p-12 text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+              <p className="text-gray-500">Loading jobs...</p>
+            </div>
+          ) : error ? (
+            <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/50 p-12 text-center">
+              <div className="text-red-500 mb-4">
+                <X className="w-12 h-12 mx-auto mb-2" />
+                <p className="font-medium">Failed to load jobs</p>
+                <p className="text-sm text-gray-500 mt-1">
+                  Please try refreshing the page
+                </p>
+              </div>
+              <button
+                onClick={() => refetch()}
+                className="px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-xl hover:from-purple-700 hover:to-blue-700 transition-all"
+              >
+                Retry
+              </button>
+            </div>
+          ) : filteredJobs.length === 0 ? (
+            <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/50 p-12 text-center">
+              <Briefcase className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+              <p className="text-gray-500 font-medium">
+                {searchTerm || filterStatus !== "all" || filterType !== "all"
+                  ? "No jobs match your filters"
+                  : "No jobs found"}
+              </p>
+              <p className="text-sm text-gray-400 mt-1">
+                {searchTerm || filterStatus !== "all" || filterType !== "all"
+                  ? "Try adjusting your search or filters"
+                  : "Create your first job posting to get started"}
               </p>
             </div>
-            <SearchBar
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </div>
-        </div>
-      </div>
+          ) : (
+            <>
+              {viewMode === "cards" && (
+                <JobCards
+                  jobs={filteredJobs}
+                  handleViewJob={handleViewJob}
+                  handleEditJob={handleEditJob}
+                  handleDeleteJob={handleDeleteJob}
+                  getStatusColor={getStatusColor}
+                  getStatusBadge={getStatusBadge}
+                />
+              )}
+            </>
+          )}
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
-        {/* Mobile Filter Toggle */}
-        <div className="lg:hidden mb-4">
-          <button
-            onClick={() => setShowFilters(!showFilters)}
-            className="w-full flex items-center justify-between px-4 py-3 bg-white/80 backdrop-blur-sm rounded-xl shadow-sm border border-white/50 font-medium text-gray-700"
-          >
-            <div className="flex items-center gap-2">
-              <Filter className="w-5 h-5" />
-              <span>Filters</span>
-            </div>
-            <ChevronDown
-              className={`w-5 h-5 transform transition-transform ${
-                showFilters ? "rotate-180" : ""
-              }`}
-            />
-          </button>
-        </div>
-        <Disclaimer />
+          {/* Pagination Component */}
+          <Pagination
+            page={page}
+            totalPages={totalPages}
+            totalCount={totalCount}
+            limit={limit}
+            setPage={setPage}
+          />
 
-        <div className="flex flex-col lg:flex-row gap-4 lg:gap-8">
-          {/* Mobile Filters Dropdown */}
-          {showFilters && (
-            <div className="lg:hidden bg-white/80 backdrop-blur-sm rounded-xl shadow-sm border border-white/50 p-4 mb-4">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-bold text-gray-900">Filters</h2>
-                <button
-                  onClick={clearAllFilters}
-                  className="text-sm text-blue-600 hover:text-blue-700 font-medium"
-                >
-                  Clear All
-                </button>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <FilterSelect
-                  label="Category"
-                  value={selectedCategory}
-                  options={CATEGORIES}
-                  onChange={(e) => setSelectedCategory(e.target.value)}
-                />
-                <FilterSelect
-                  label="Job Type"
-                  value={selectedType}
-                  options={JOB_TYPES}
-                  onChange={(e) => setSelectedType(e.target.value)}
-                />
-                <FilterSelect
-                  label="Experience"
-                  value={selectedExperience}
-                  options={EXPERIENCE_LEVELS}
-                  onChange={(e) => setSelectedExperience(e.target.value)}
-                />
-                <FilterSelect
-                  label="Location"
-                  value={selectedLocation}
-                  options={LOCATIONS}
-                  onChange={(e) => setSelectedLocation(e.target.value)}
-                />
+          {/* Results Summary */}
+          {!isLoading && !error && filteredJobs.length > 0 && (
+            <div className="mt-6 text-center">
+              <div className="inline-flex items-center px-6 py-3 bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/50">
+                <Users className="w-4 h-4 text-purple-600 mr-2" />
+                <span className="text-sm font-medium text-gray-700">
+                  Page {page} of {totalPages} • {totalCount} total jobs
+                </span>
               </div>
             </div>
           )}
-
-          {/* Desktop Filters Sidebar */}
-          <div className="hidden lg:block lg:w-1/4">
-            <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-sm border border-white/50 p-6 sticky top-6">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-xl font-bold text-gray-900">Filters</h2>
-                <button
-                  onClick={clearAllFilters}
-                  className="text-sm text-blue-600 hover:text-blue-700 font-medium"
-                >
-                  Clear All
-                </button>
-              </div>
-              <div className="space-y-6">
-                <FilterSelect
-                  label="Category"
-                  value={selectedCategory}
-                  options={CATEGORIES}
-                  onChange={(e) => setSelectedCategory(e.target.value)}
-                />
-                <FilterSelect
-                  label="Job Type"
-                  value={selectedType}
-                  options={JOB_TYPES}
-                  onChange={(e) => setSelectedType(e.target.value)}
-                />
-                <FilterSelect
-                  label="Experience"
-                  value={selectedExperience}
-                  options={EXPERIENCE_LEVELS}
-                  onChange={(e) => setSelectedExperience(e.target.value)}
-                />
-                <FilterSelect
-                  label="Location"
-                  value={selectedLocation}
-                  options={LOCATIONS}
-                  onChange={(e) => setSelectedLocation(e.target.value)}
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Jobs List */}
-          <div className="w-full lg:w-3/4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-              {isLoading ? (
-                <div className="col-span-full flex justify-center py-12">
-                  <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
-                </div>
-              ) : filteredJobs.length > 0 ? (
-                filteredJobs.map((job) => <JobCard key={job._id} job={job} />)
-              ) : (
-                <NoResults clearAllFilters={clearAllFilters} />
-              )}
-            </div>
-
-            {!isLoading && filteredJobs.length > 0 && (
-              <Pagination
-                page={page}
-                totalPages={totalPages}
-                totalCount={totalCount}
-                limit={limit}
-                setPage={setPage}
-              />
-            )}
-          </div>
         </div>
       </div>
+
+      {/* Modal Component */}
+      <JobModal
+        modalOpen={modalOpen}
+        modalType={modalType}
+        selectedJob={selectedJob}
+        closeModal={closeModal}
+        confirmDelete={confirmDelete}
+        getStatusBadge={getStatusBadge}
+        refetch={refetch}
+      />
     </div>
   );
 }

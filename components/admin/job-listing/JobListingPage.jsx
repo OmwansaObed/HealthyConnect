@@ -27,102 +27,117 @@ import {
 
 // Pagination Component
 const Pagination = ({ page, totalPages, totalCount, limit, setPage }) => {
-  const startItem = (page - 1) * limit + 1;
-  const endItem = Math.min(page * limit, totalCount);
-
-  // Generate page numbers to show
-  const getPageNumbers = () => {
-    const delta = 2;
+  // Function to generate page numbers to display
+  const getVisiblePages = () => {
+    const delta = 2; // Number of pages to show on each side of current page
     const range = [];
-    const rangeWithDots = [];
 
-    for (
-      let i = Math.max(2, page - delta);
-      i <= Math.min(totalPages - 1, page + delta);
-      i++
-    ) {
-      range.push(i);
+    // If total pages is small (7 or less), show all pages
+    if (totalPages <= 7) {
+      for (let i = 1; i <= totalPages; i++) {
+        range.push(i);
+      }
+      return range;
     }
 
-    if (page - delta > 2) {
-      rangeWithDots.push(1, "...");
-    } else {
-      rangeWithDots.push(1);
+    // Always include first page
+    range.push(1);
+
+    // Calculate start and end of middle range around current page
+    const start = Math.max(2, page - delta);
+    const end = Math.min(totalPages - 1, page + delta);
+
+    // Add ellipsis after first page if there's a gap
+    if (start > 2) {
+      range.push("...");
     }
 
-    rangeWithDots.push(...range);
-
-    if (page + delta < totalPages - 1) {
-      rangeWithDots.push("...", totalPages);
-    } else if (totalPages > 1) {
-      rangeWithDots.push(totalPages);
+    // Add middle range (pages around current page)
+    for (let i = start; i <= end; i++) {
+      if (i !== 1 && i !== totalPages) {
+        // Don't duplicate first/last page
+        range.push(i);
+      }
     }
 
-    return rangeWithDots;
+    // Add ellipsis before last page if there's a gap
+    if (end < totalPages - 1) {
+      range.push("...");
+    }
+
+    // Always include last page (if more than 1 page total)
+    if (totalPages > 1) {
+      range.push(totalPages);
+    }
+
+    return range;
   };
 
-  if (totalPages <= 1) return null;
+  const visiblePages = getVisiblePages();
 
   return (
-    <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/50 p-6 mt-6">
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-        {/* Results Info */}
-        <div className="text-sm text-gray-600">
-          Showing <span className="font-medium text-gray-900">{startItem}</span>{" "}
-          to <span className="font-medium text-gray-900">{endItem}</span> of{" "}
-          <span className="font-medium text-gray-900">{totalCount}</span> jobs
-        </div>
+    <div className="mt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div className="text-sm text-gray-600 order-2 sm:order-1">
+        Showing <span className="font-medium">{(page - 1) * limit + 1}</span> to{" "}
+        <span className="font-medium">
+          {Math.min(page * limit, totalCount)}
+        </span>{" "}
+        of <span className="font-medium">{totalCount}</span> results
+      </div>
 
-        {/* Pagination Controls */}
-        <div className="flex items-center space-x-1">
-          {/* Previous Button */}
-          <button
-            onClick={() => setPage(page - 1)}
-            disabled={page === 1}
-            className={`flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
-              page === 1
-                ? "text-gray-400 cursor-not-allowed"
-                : "text-gray-700 hover:bg-gray-100"
-            }`}
-          >
-            <ChevronLeft className="w-4 h-4 mr-1" />
-            Previous
-          </button>
+      <div className="flex items-center space-x-1 order-1 sm:order-2">
+        <button
+          onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
+          disabled={page === 1}
+          className={`px-3 py-1.5 rounded-lg border ${
+            page === 1
+              ? "bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed"
+              : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
+          }`}
+        >
+          Previous
+        </button>
 
-          {/* Page Numbers */}
-          <div className="flex items-center space-x-1">
-            {getPageNumbers().map((pageNum, index) => (
-              <button
-                key={index}
-                onClick={() => typeof pageNum === "number" && setPage(pageNum)}
-                disabled={pageNum === "..."}
-                className={`min-w-[2.5rem] h-10 px-3 text-sm font-medium rounded-lg transition-colors ${
-                  pageNum === page
-                    ? "bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-lg"
-                    : pageNum === "..."
-                    ? "text-gray-400 cursor-default"
-                    : "text-gray-700 hover:bg-gray-100"
-                }`}
+        {visiblePages.map((pageNum, index) => {
+          // Handle ellipsis
+          if (pageNum === "...") {
+            return (
+              <span
+                key={`ellipsis-${index}`}
+                className="px-2 py-1.5 text-gray-500"
               >
-                {pageNum}
-              </button>
-            ))}
-          </div>
+                ...
+              </span>
+            );
+          }
 
-          {/* Next Button */}
-          <button
-            onClick={() => setPage(page + 1)}
-            disabled={page === totalPages}
-            className={`flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
-              page === totalPages
-                ? "text-gray-400 cursor-not-allowed"
-                : "text-gray-700 hover:bg-gray-100"
-            }`}
-          >
-            Next
-            <ChevronRight className="w-4 h-4 ml-1" />
-          </button>
-        </div>
+          // Handle page numbers
+          return (
+            <button
+              key={pageNum}
+              onClick={() => setPage(pageNum)}
+              className={`px-3 py-1.5 rounded-lg border ${
+                page === pageNum
+                  ? "bg-blue-600 text-white border-blue-600"
+                  : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
+              }`}
+            >
+              {pageNum}
+            </button>
+          );
+        })}
+
+        <button
+          onClick={() => setPage((prev) => Math.min(prev + 1, totalPages))}
+          disabled={page === totalPages}
+          className={`px-3 py-1.5 rounded-lg border ${
+            page === totalPages
+              ? "bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed"
+              : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
+          }`}
+        >
+          Next
+        </button>
       </div>
     </div>
   );
