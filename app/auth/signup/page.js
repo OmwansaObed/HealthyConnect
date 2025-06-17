@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import axios from "axios";
 import Link from "next/link";
 import { signIn } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 const Register = () => {
   const [username, setUsername] = useState("");
@@ -15,6 +16,8 @@ const Register = () => {
   const [googleLoading, setGoogleLoading] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
+
+  const router = useRouter();
 
   const handleGoogleSignup = () => {
     try {
@@ -48,9 +51,7 @@ const Register = () => {
       if (res.status === 201) {
         setSuccess("Registration successful!");
         toast.success("Redirecting to login...");
-        setTimeout(() => {
-          window.location.href = "/auth/login";
-        }, 1500);
+        router.push("/auth/login");
       } else if (res.status === 409) {
         const msg = "Username or email already exists";
         setError(msg);

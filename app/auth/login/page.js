@@ -15,6 +15,7 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(null);
 
   const router = useRouter();
   const dispatch = useDispatch();
@@ -36,9 +37,9 @@ const Login = () => {
       toast.error("Please fill in all fields");
       return;
     }
-
     setLoading(true);
     setError(null);
+    setSuccess(null);
 
     try {
       const response = await signIn("credentials", {
@@ -53,6 +54,7 @@ const Login = () => {
         console.error("Login error:", errorMessage);
         setError(errorMessage);
         toast.error(errorMessage);
+        setSuccess(null);
         return;
       }
 
@@ -65,6 +67,7 @@ const Login = () => {
         setEmail("");
         setPassword("");
         setError(null);
+        setSuccess("Login successful!");
       } else {
         toast.error("Session not found after login.");
       }
@@ -72,6 +75,7 @@ const Login = () => {
       console.error("Unexpected login error:", err);
       toast.error("An unexpected error occurred.");
       setError("An unexpected error occurred.");
+      setSuccess(null);
     } finally {
       setLoading(false);
     }
@@ -239,6 +243,11 @@ const Login = () => {
           {error && (
             <div className="text-red-600 bg-red-50 py-2 px-3 text-sm text-center rounded border border-red-200">
               {error}
+            </div>
+          )}
+          {success && (
+            <div className="text-green-600 bg-green-50 py-2 px-3 text-sm text-center rounded border border-green-200">
+              {success}
             </div>
           )}
         </div>

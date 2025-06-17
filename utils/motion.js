@@ -1,6 +1,3 @@
-// utils/motion.js
-import { motion } from "framer-motion";
-
 // Re-export motion so you can use <motion.div>, etc.
 export { motion } from "framer-motion";
 
