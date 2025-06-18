@@ -79,6 +79,7 @@ const FORM_CONFIG = {
     "biomedical scientist",
     "mortuary attendant",
     "first responder",
+    "coHo",
   ],
   statusOptions: ["open", "closed", "pending"],
   languages: [

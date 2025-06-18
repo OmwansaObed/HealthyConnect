@@ -85,6 +85,7 @@ const JobSchema = new mongoose.Schema(
         "biomedical scientist",
         "mortuary attendant",
         "first responder",
+        "coHo",
         "", // Allow empty string for no selection
       ],
       default: "",

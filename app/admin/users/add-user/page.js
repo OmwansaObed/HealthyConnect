@@ -32,7 +32,7 @@ export default function AddUserPage() {
       value: "registerd-clinical-officer",
       label: "Registered Clinical Officer",
     },
-    { value: "coho", label: "CoHo" },
+    { value: "coHo", label: "CoHo" },
     { value: "theatretechs", label: "Theatre Technician" },
     { value: "ambulance-crews", label: "Ambulance Crew" },
     { value: "casuals", label: "Casuals" },

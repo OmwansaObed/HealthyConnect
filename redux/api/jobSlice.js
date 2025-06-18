@@ -8,7 +8,7 @@ const initialState = {
       { value: "clinical-officers", label: "Clinical Officers" },
       { value: "lab-technician", label: "Lab Technician" },
       { value: "medical-technicians", label: "Medical Technicians" },
-      { value: "coho", label: "CoHo" },
+      { value: "coHo", label: "CoHo" },
       { value: "managerial", label: "Managerial" },
       { value: "pharmacy", label: "Pharmacy" },
       { value: "radiography", label: "Radiography" },
