@@ -330,7 +330,7 @@ const JobCard = ({ job, onViewDetails }) => {
           <div className="p-1 bg-purple-100 rounded-lg mr-2">
             <Calendar className="w-3 h-3 text-purple-600" />
           </div>
-          <span>{formatDate(job.createdAt)}</span>
+          <span> Posted {formatDate(job.createdAt)}</span>
         </div>
       </div>
 

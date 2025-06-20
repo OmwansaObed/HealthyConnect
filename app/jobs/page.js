@@ -9,6 +9,7 @@ import JobModal from "../../components/admin/job-listing/JobModal";
 import { useGetJobsQuery } from "../../redux/api/jobApiSlice";
 import { toast } from "sonner";
 import { Briefcase, Users, X } from "lucide-react";
+import { useSession } from "next-auth/react";
 
 // Pagination Component
 const Pagination = ({ page, totalPages, totalCount, limit, setPage }) => {
@@ -142,7 +143,7 @@ export default function JobListingPage() {
   const { data: session } = useSession();
   useEffect(() => {
     if (!session) {
-      router.push("/login");
+      router.push("/auth/login");
     }
   }, [session, router]);
 
