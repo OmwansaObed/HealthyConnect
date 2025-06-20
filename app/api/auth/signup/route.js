@@ -4,6 +4,7 @@ import { connectDB } from "../../../../lib/db";
 import User from "../../../../models/User.js";
 import bcrypt from "bcryptjs";
 import { NextResponse as Response } from "next/server";
+import { sendWelcomeEmail } from "../../../../utils/sendWelcomeEmail";
 
 export async function POST(req) {
   try {
@@ -34,6 +35,15 @@ export async function POST(req) {
       password: hashedPassword,
       isAdmin: false,
     });
+
+    try {
+      await sendWelcomeEmail(email, { username: email.split("@")[0] });
+      console.log("Welcome email sent successfully");
+    } catch (emailError) {
+      // Log email error but don't fail the signup
+      console.error("Failed to send welcome email:", emailError);
+      // You might want to add this to a queue for retry later
+    }
 
     await newUser.save();
 
