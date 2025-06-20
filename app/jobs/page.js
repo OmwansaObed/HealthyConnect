@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import JobCards from "../../components/admin/job-listing/JobCards";
@@ -9,7 +9,6 @@ import JobModal from "../../components/admin/job-listing/JobModal";
 import { useGetJobsQuery } from "../../redux/api/jobApiSlice";
 import { toast } from "sonner";
 import { Briefcase, Users, X } from "lucide-react";
-import Disclaimer from "../../components/general/Disclaimer";
 
 // Pagination Component
 const Pagination = ({ page, totalPages, totalCount, limit, setPage }) => {
@@ -137,6 +136,15 @@ export default function JobListingPage() {
   const [modalOpen, setModalOpen] = useState(false);
   const [modalType, setModalType] = useState(""); // "view" | "edit" | "delete"
   const [selectedJob, setSelectedJob] = useState(null);
+
+  const router = useRouter();
+
+  const { data: session } = useSession();
+  useEffect(() => {
+    if (!session) {
+      router.push("/login");
+    }
+  }, [session, router]);
 
   // Pagination state
   const [page, setPage] = useState(1);
