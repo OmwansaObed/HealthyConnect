@@ -484,25 +484,25 @@ export async function POST(request) {
 
 // GET request handler to fetch all jobs
 export async function GET(request) {
-  const { searchParams } = new URL(request.url);
-  const page = parseInt(searchParams.get("page")) || 1;
-  const limit = parseInt(searchParams.get("limit")) || 10;
-  const skip = (page - 1) * limit;
+  try {
+    await connectDB();
 
-  await connectDB();
-  const jobs = await Job.find({})
-    .sort({ createdAt: -1 })
-    .skip(skip)
-    .limit(limit);
+    // Fetch all jobs without pagination
+    const jobs = await Job.find({}).sort({ createdAt: -1 });
 
-  const total = await Job.countDocuments();
-
-  return NextResponse.json({
-    jobs,
-    total,
-    page,
-    totalPages: Math.ceil(total / limit),
-  });
+    const total = jobs.length;
+    console.log("Total jobs found:", jobs.length);
+    return NextResponse.json({
+      jobs,
+      total,
+    });
+  } catch (error) {
+    console.error("Jobs API Error:", error);
+    return NextResponse.json(
+      { error: "Failed to fetch jobs" },
+      { status: 500 }
+    );
+  }
 }
 
 export async function PATCH(request) {

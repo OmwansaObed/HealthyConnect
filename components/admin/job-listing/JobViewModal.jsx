@@ -170,7 +170,7 @@ export default function JobViewModal({
                   <div className="flex justify-between items-center">
                     <span className="text-gray-600">Experience:</span>
                     <span className="font-medium">
-                      {formatExperience(job.experience)}
+                      {formatExperience(job.experience)} years experience
                     </span>
                   </div>
                   <div className="flex justify-between items-center">

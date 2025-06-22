@@ -26,159 +26,31 @@ import {
 } from "lucide-react";
 
 // Pagination Component
-const Pagination = ({ page, totalPages, totalCount, limit, setPage }) => {
-  // Function to generate page numbers to display
-  const getVisiblePages = () => {
-    const delta = 2; // Number of pages to show on each side of current page
-    const range = [];
-
-    // If total pages is small (7 or less), show all pages
-    if (totalPages <= 7) {
-      for (let i = 1; i <= totalPages; i++) {
-        range.push(i);
-      }
-      return range;
-    }
-
-    // Always include first page
-    range.push(1);
-
-    // Calculate start and end of middle range around current page
-    const start = Math.max(2, page - delta);
-    const end = Math.min(totalPages - 1, page + delta);
-
-    // Add ellipsis after first page if there's a gap
-    if (start > 2) {
-      range.push("...");
-    }
-
-    // Add middle range (pages around current page)
-    for (let i = start; i <= end; i++) {
-      if (i !== 1 && i !== totalPages) {
-        // Don't duplicate first/last page
-        range.push(i);
-      }
-    }
-
-    // Add ellipsis before last page if there's a gap
-    if (end < totalPages - 1) {
-      range.push("...");
-    }
-
-    // Always include last page (if more than 1 page total)
-    if (totalPages > 1) {
-      range.push(totalPages);
-    }
-
-    return range;
-  };
-
-  const visiblePages = getVisiblePages();
-
-  return (
-    <div className="mt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-      <div className="text-sm text-gray-600 order-2 sm:order-1">
-        Showing <span className="font-medium">{(page - 1) * limit + 1}</span> to{" "}
-        <span className="font-medium">
-          {Math.min(page * limit, totalCount)}
-        </span>{" "}
-        of <span className="font-medium">{totalCount}</span> results
-      </div>
-
-      <div className="flex items-center space-x-1 order-1 sm:order-2">
-        <button
-          onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
-          disabled={page === 1}
-          className={`px-3 py-1.5 rounded-lg border ${
-            page === 1
-              ? "bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed"
-              : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
-          }`}
-        >
-          Previous
-        </button>
-
-        {visiblePages.map((pageNum, index) => {
-          // Handle ellipsis
-          if (pageNum === "...") {
-            return (
-              <span
-                key={`ellipsis-${index}`}
-                className="px-2 py-1.5 text-gray-500"
-              >
-                ...
-              </span>
-            );
-          }
-
-          // Handle page numbers
-          return (
-            <button
-              key={pageNum}
-              onClick={() => setPage(pageNum)}
-              className={`px-3 py-1.5 rounded-lg border ${
-                page === pageNum
-                  ? "bg-blue-600 text-white border-blue-600"
-                  : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
-              }`}
-            >
-              {pageNum}
-            </button>
-          );
-        })}
-
-        <button
-          onClick={() => setPage((prev) => Math.min(prev + 1, totalPages))}
-          disabled={page === totalPages}
-          className={`px-3 py-1.5 rounded-lg border ${
-            page === totalPages
-              ? "bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed"
-              : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
-          }`}
-        >
-          Next
-        </button>
-      </div>
-    </div>
-  );
-};
 
 export default function JobListingPage() {
   const router = useRouter();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [filterStatus, setFilterStatus] = useState("all");
-  const [filterType, setFilterType] = useState("all");
+  // const [searchTerm, setSearchTerm] = useState("");
+  // const [filterStatus, setFilterStatus] = useState("all");
+  // const [filterType, setFilterType] = useState("all");
   const [viewMode, setViewMode] = useState("cards"); // cards or table
   const [modalOpen, setModalOpen] = useState(false);
   const [modalType, setModalType] = useState(""); // "view" | "edit" | "delete"
   const [selectedJob, setSelectedJob] = useState(null);
 
-  // Pagination state
+  // Pagination
   const [page, setPage] = useState(1);
   const limit = 10; // Jobs per page
 
-  // Fetch jobs from API with pagination
   const { data, isLoading, error, refetch } = useGetJobsQuery({ page, limit });
   const jobs = data?.jobs || [];
   const totalPages = data?.totalPages || 1;
-  const totalCount = data?.totalCount || 0;
+  const totalCount = data?.total || 0;
 
   const [deleteJob] = useDeleteJobMutation();
 
   // Sidebar toggle for mobile
   const toggleSidebar = () => setIsSidebarOpen((prev) => !prev);
-
-  // Filter jobs based on search and filters
-  const filteredJobs = jobs.filter((job) => {
-    const matchesSearch =
-      job.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      job.category?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      job.location?.state?.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = filterStatus === "all" || job.status === filterStatus;
-    const matchesType = filterType === "all" || job.type === filterType;
-    return matchesSearch && matchesStatus && matchesType;
-  });
 
   // Open modal with job details
   const openModal = (type, job) => {
@@ -243,12 +115,6 @@ export default function JobListingPage() {
     );
   };
 
-  // Get unique values for filters
-  const uniqueStatuses = [
-    ...new Set(jobs.map((job) => job.status).filter(Boolean)),
-  ];
-  const uniqueTypes = [...new Set(jobs.map((job) => job.type).filter(Boolean))];
-
   // Get status color for mobile cards
   const getStatusColor = (status) => {
     const colors = {
@@ -260,21 +126,8 @@ export default function JobListingPage() {
     return colors[status?.toLowerCase()] || "border-l-slate-500 bg-slate-50";
   };
 
-  // Reset to first page when filters change
-  const handleSearchChange = (value) => {
-    setSearchTerm(value);
-    setPage(1);
-  };
-
-  const handleStatusFilterChange = (value) => {
-    setFilterStatus(value);
-    setPage(1);
-  };
-
-  const handleTypeFilterChange = (value) => {
-    setFilterType(value);
-    setPage(1);
-  };
+  console.log("Current Page:", page);
+  console.log("Jobs:", jobs);
 
   return (
     <div className="min-h-screen bg-gradient-to-br flex from-purple-50 via-blue-50 to-cyan-50">
@@ -338,18 +191,6 @@ export default function JobListingPage() {
             </button>
           </div>
 
-          {/* Filters & Search */}
-          <JobFilters
-            searchTerm={searchTerm}
-            setSearchTerm={handleSearchChange}
-            filterStatus={filterStatus}
-            setFilterStatus={handleStatusFilterChange}
-            filterType={filterType}
-            setFilterType={handleTypeFilterChange}
-            uniqueStatuses={uniqueStatuses}
-            uniqueTypes={uniqueTypes}
-          />
-
           {/* View Switcher */}
           <JobViewSwitcher viewMode={viewMode} setViewMode={setViewMode} />
 
@@ -375,7 +216,7 @@ export default function JobListingPage() {
                 Retry
               </button>
             </div>
-          ) : filteredJobs.length === 0 ? (
+          ) : jobs.length === 0 ? (
             <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/50 p-12 text-center">
               <Briefcase className="w-12 h-12 text-gray-400 mx-auto mb-4" />
               <p className="text-gray-500 font-medium">
@@ -393,7 +234,7 @@ export default function JobListingPage() {
             <>
               {viewMode === "cards" && (
                 <JobCards
-                  jobs={filteredJobs}
+                  jobs={jobs}
                   handleViewJob={handleViewJob}
                   handleEditJob={handleEditJob}
                   handleDeleteJob={handleDeleteJob}
@@ -403,7 +244,7 @@ export default function JobListingPage() {
               )}
               {viewMode === "table" && (
                 <JobTable
-                  jobs={filteredJobs}
+                  jobs={jobs}
                   handleViewJob={handleViewJob}
                   handleEditJob={handleEditJob}
                   handleDeleteJob={handleDeleteJob}
@@ -414,17 +255,8 @@ export default function JobListingPage() {
             </>
           )}
 
-          {/* Pagination Component */}
-          <Pagination
-            page={page}
-            totalPages={totalPages}
-            totalCount={totalCount}
-            limit={limit}
-            setPage={setPage}
-          />
-
           {/* Results Summary */}
-          {!isLoading && !error && filteredJobs.length > 0 && (
+          {!isLoading && !error && jobs.length > 0 && (
             <div className="mt-6 text-center">
               <div className="inline-flex items-center px-6 py-3 bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/50">
                 <Users className="w-4 h-4 text-purple-600 mr-2" />

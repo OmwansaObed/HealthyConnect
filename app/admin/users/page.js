@@ -26,32 +26,6 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import JobViewModal from "../../../components/admin/job-listing/JobViewModal";
 
-// Helper functions for job status (move inside component)
-const getStatusBadge = (status) => {
-  switch (status) {
-    case "open":
-      return "Open";
-    case "closed":
-      return "Closed";
-    case "pending":
-      return "Pending";
-    default:
-      return status;
-  }
-};
-const getStatusColor = (status) => {
-  switch (status) {
-    case "open":
-      return "bg-green-100 text-green-800";
-    case "closed":
-      return "bg-red-100 text-red-800";
-    case "pending":
-      return "bg-yellow-100 text-yellow-800";
-    default:
-      return "bg-gray-100 text-gray-800";
-  }
-};
-
 const UsersAdminDashboard = () => {
   const { data: users = [], isLoading, error } = useGetUsersQuery();
   const [searchTerm, setSearchTerm] = useState("");

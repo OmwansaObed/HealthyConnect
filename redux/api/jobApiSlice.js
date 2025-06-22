@@ -1,5 +1,6 @@
 import { apiSlice } from "./apiSlice";
 import { JOBS_URL } from "../constants";
+import { get } from "mongoose";
 
 export const jobApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
@@ -11,19 +12,15 @@ export const jobApiSlice = apiSlice.injectEndpoints({
       }),
       invalidatesTags: ["Job"],
     }),
+
     getJobs: builder.query({
-      query: ({ page = 1, limit = 10 }) => ({
-        url: `${JOBS_URL}?page=${page}&limit=${limit}`,
+      query: () => ({
+        url: `${JOBS_URL}`,
         method: "GET",
       }),
-      providesTags: (result) =>
-        result?.jobs
-          ? [
-              ...result.jobs.map((job) => ({ type: "Job", id: job._id })),
-              { type: "Job", id: "LIST" },
-            ]
-          : [{ type: "Job", id: "LIST" }],
+      providesTags: ["Job"],
     }),
+
     updateJob: builder.mutation({
       query: ({ id, ...updateData }) => ({
         url: `${JOBS_URL}`,

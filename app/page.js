@@ -750,7 +750,6 @@ export default function Homepage() {
   return (
     <>
       <HeroSection />
-      {/* disclaimer div */}
       <Disclaimer />
       <StatsSection />
       <JobCategoriesSection onClick={() => router.push("/categories")} />
