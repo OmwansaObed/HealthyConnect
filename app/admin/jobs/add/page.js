@@ -298,7 +298,9 @@ export default function AddJobPage() {
     if (
       form.phone?.trim() &&
       !form.phone.startsWith("07") &&
-      !form.phone.startsWith("011")
+      !form.phone.startsWith("011") &&
+      !form.phone.startsWith("+254") &&
+      !form.phone.startsWith("0")
     ) {
       newErrors.phone = "Phone number must start with 07 or 011";
     }

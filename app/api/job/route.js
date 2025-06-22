@@ -394,7 +394,12 @@ export async function POST(request) {
 
     // Validate phone number only if it's provided and not empty
     if (data.phone && data.phone.trim() !== "") {
-      if (!data.phone.startsWith("07") && !data.phone.startsWith("011")) {
+      if (
+        !data.phone.startsWith("07") &&
+        !data.phone.startsWith("011") &&
+        !data.phone.startsWith("+254") &&
+        !data.phone.startsWith("0")
+      ) {
         return NextResponse.json(
           { error: "Phone number must start with 07 or 011" },
           { status: 400 }
