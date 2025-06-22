@@ -54,7 +54,7 @@ const formatDate = (dateString) => {
   const diffTime = Math.abs(now - date);
   const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-  if (diffDays === 1) return "1 day ago";
+  if (diffDays === 1) return "Today";
   if (diffDays < 7) return `${diffDays} days ago`;
   if (diffDays < 30) return `${Math.ceil(diffDays / 7)} weeks ago`;
   return `${Math.ceil(diffDays / 30)} months ago`;
