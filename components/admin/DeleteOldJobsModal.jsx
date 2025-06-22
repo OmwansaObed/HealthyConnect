@@ -12,7 +12,7 @@ const DeleteOldJobsModal = ({ isOpen, onClose, onSuccess }) => {
 
     try {
       const response = await fetch(
-        `/api/job/cleanup?token=${process.env.NEXT_PUBLIC_CLEANUP_SECRET}`,
+        `/api/job/cleanup?token=${process.env.CLEANUP_SECRET}`,
         {
           method: "GET",
         }

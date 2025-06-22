@@ -198,7 +198,7 @@ export default function JobListingPage() {
           {isLoading ? (
             <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/50 p-12 text-center">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
-              <p className="text-gray-500">Loading jobs...</p>
+              <p className="text-gray-500">Loading healthcare jobs...</p>
             </div>
           ) : error ? (
             <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/50 p-12 text-center">
