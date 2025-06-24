@@ -12,13 +12,13 @@ import {
 // About Us Component
 const AboutUs = () => {
   const teamMembers = [
-    {
-      name: "Dr. Elegwa",
-      role: "Founder Health realted jobs",
-      bio: "Medical Officer with  years in healthcare expertise",
-      avatar: "E",
-      color: "bg-blue-600",
-    },
+    // {
+    //   name: "Dr. Elegwa",
+    //   role: "Founder Health realted jobs",
+    //   bio: "Medical Officer with  years in healthcare expertise",
+    //   avatar: "E",
+    //   color: "bg-blue-600",
+    // },
     {
       name: "Omwansa Obed",
       role: "Web Developer",

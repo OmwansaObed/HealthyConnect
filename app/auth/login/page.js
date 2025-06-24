@@ -33,7 +33,7 @@ const Login = () => {
     setError(null);
 
     signIn("google", {
-      callbackUrl: "/",
+      callbackUrl: "/profile",
       prompt: "select_account",
     });
   };

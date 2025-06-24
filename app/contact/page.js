@@ -61,10 +61,10 @@ const Contact = () => {
     {
       icon: Mail,
       title: "Email Us",
-      details: "support@healthyconnect.co.ke",
+      details: "healthyconnect010@gmail.com",
       description: "We'll respond within 24 hours",
       color: "bg-emerald-600",
-      href: "mailto:support@healthyconnect.co.ke",
+      href: "mailto:healthyconnect010@gmail.com",
       isClickable: true,
     },
     {

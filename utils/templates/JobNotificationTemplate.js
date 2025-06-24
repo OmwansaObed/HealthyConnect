@@ -74,7 +74,7 @@ export const jobNotificationTemplate = (
                     : ""
                 }
                 
-                <a href="${process.env.NEXTAUTH_URL}/jobs" class="cta-button">
+                <a href="https://healthyconnect.vercel.app/job" class="cta-button">
                     View Full Job Details
                 </a>
             </div>

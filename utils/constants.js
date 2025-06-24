@@ -48,6 +48,65 @@ const LOCATIONS = [
   { value: "eldoret", label: "Eldoret" },
 ];
 
+const PROFESSIONS = [
+  { value: "nursing", label: "Nursing" },
+  { value: "cna", label: "CNA (Certified Nursing Assistant)" },
+  { value: "administration", label: "Administration" },
+  { value: "medical officer", label: "Medical Officer" },
+  { value: "clinical officer", label: "Clinical Officer" },
+  { value: "care giver", label: "Care Giver" },
+  { value: "home-based caregiver", label: "Home-based Caregiver" },
+  { value: "public health officer", label: "Public Health Officer" },
+  { value: "community health worker", label: "Community Health Worker" },
+  { value: "pharmacy", label: "Pharmacy" },
+  { value: "laboratory", label: "Laboratory" },
+  { value: "radiology", label: "Radiology" },
+  { value: "nutritionist", label: "Nutritionist" },
+  { value: "dental", label: "Dental" },
+  { value: "physiotherapy", label: "Physiotherapy" },
+  { value: "occupational therapy", label: "Occupational Therapy" },
+  { value: "speech therapy", label: "Speech Therapy" },
+  { value: "psychology", label: "Psychology" },
+  { value: "psychiatry", label: "Psychiatry" },
+  { value: "medical technician", label: "Medical Technician" },
+  { value: "medical engineer", label: "Medical Engineer" },
+  { value: "orthopedics", label: "Orthopedics" },
+  { value: "optometry", label: "Optometry" },
+  { value: "anesthesiology", label: "Anesthesiology" },
+  { value: "surgery", label: "Surgery" },
+  { value: "midwifery", label: "Midwifery" },
+  { value: "pediatrics", label: "Pediatrics" },
+  { value: "gynecology", label: "Gynecology" },
+  { value: "general practitioner", label: "General Practitioner" },
+  { value: "health records officer", label: "Health Records Officer" },
+  { value: "health administration", label: "Health Administration" },
+  { value: "hospital porter", label: "Hospital Porter" },
+  { value: "hospital cleaner", label: "Hospital Cleaner" },
+  { value: "ambulance driver", label: "Ambulance Driver" },
+  {
+    value: "emergency medical technician (emt)",
+    label: "Emergency Medical Technician (EMT)",
+  },
+  { value: "telemedicine", label: "Telemedicine" },
+  { value: "health educator", label: "Health Educator" },
+  { value: "hiv/aids counselor", label: "HIV/AIDS Counselor" },
+  { value: "social worker", label: "Social Worker" },
+  { value: "vaccination outreach", label: "Vaccination Outreach" },
+  { value: "medical sales rep", label: "Medical Sales Representative" },
+  { value: "health insurance agent", label: "Health Insurance Agent" },
+  {
+    value: "occupational health officer",
+    label: "Occupational Health Officer",
+  },
+  {
+    value: "environmental health officer",
+    label: "Environmental Health Officer",
+  },
+  { value: "biomedical scientist", label: "Biomedical Scientist" },
+  { value: "mortuary attendant", label: "Mortuary Attendant" },
+  { value: "first responder", label: "First Responder" },
+];
+
 const formatDate = (dateString) => {
   const date = new Date(dateString);
   const now = new Date();
@@ -139,4 +198,5 @@ export {
   calculateJobStatus,
   getStatusBadge,
   getStatusText,
+  PROFESSIONS,
 };
