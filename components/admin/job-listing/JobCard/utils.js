@@ -445,7 +445,7 @@ const JobCard = ({ job, onViewDetails }) => {
         </div>
       </div>
       {job.phone && (
-        <p className="text-sm text-center  text-gray-500">
+        <p className="text-sm text-center pb-5 text-gray-500">
           Click the green button to call <strong>{job.phone}</strong>
         </p>
       )}
