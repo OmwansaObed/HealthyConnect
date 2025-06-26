@@ -94,6 +94,10 @@ const JobDetailModal = ({ job, isOpen, onClose }) => {
   const IconComponent = category?.icon || Briefcase;
   const jobStatus = calculateJobStatus(job.createdAt);
 
+  const whatsappLink = job.phone
+    ? `https://wa.me/${job.phone.replace(/[^0-9]/g, "")}`
+    : null;
+
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-hidden">
@@ -229,17 +233,19 @@ const JobDetailModal = ({ job, isOpen, onClose }) => {
             </div>
 
             {/* Contact */}
-            <div className="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-xl p-4 border border-blue-100">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-blue-100 rounded-lg">
-                  <Phone className="w-5 h-5 text-blue-600" />
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-gray-600">Contact</p>
-                  <p className="font-semibold text-gray-900">{job.phone}</p>
+            {job.phone && (
+              <div className="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-xl p-4 border border-blue-100">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-blue-100 rounded-lg">
+                    <Phone className="w-5 h-5 text-blue-600" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-gray-600">Contact</p>
+                    <p className="font-semibold text-gray-900">{job.phone}</p>
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
           </div>
 
           {/* Description */}
@@ -274,13 +280,16 @@ const JobDetailModal = ({ job, isOpen, onClose }) => {
 
           {/* Action Buttons */}
           <div className="flex gap-3 pt-4 border-t border-gray-200">
-            <a
-              href={`tel:${job.phone}`}
-              className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl"
-            >
-              <Phone className="w-5 h-5" />
-              Call Now
-            </a>
+            {job.phone && (
+              <a
+                href={`tel:${job.phone}`}
+                className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl"
+              >
+                <Phone className="w-5 h-5" />
+                Call Now
+              </a>
+            )}
+
             <button
               onClick={onClose}
               className="px-6 py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-colors font-medium"
@@ -423,19 +432,23 @@ const JobCard = ({ job, onViewDetails }) => {
             <Eye className="w-4 h-4" />
             View Details
           </button>
-          <a
-            href={`tel:${job.phone}`}
-            className="flex items-center justify-center gap-2 px-4 py-2.5 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-colors font-semibold shadow-md hover:shadow-lg"
-          >
-            <Phone className="w-4 h-4" />
-            <span className="hidden sm:inline">{job.phone}</span>
-            <span className="sm:hidden">Call</span>
-          </a>
+          {job.phone && (
+            <a
+              href={`tel:${job.phone}`}
+              className="flex items-center justify-center gap-2 px-4 py-2.5 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-colors font-semibold shadow-md hover:shadow-lg"
+            >
+              <Phone className="w-4 h-4" />
+              <span className="hidden sm:inline">{job.phone}</span>
+              <span className="sm:hidden">Call</span>
+            </a>
+          )}
         </div>
       </div>
-      <p className="text-sm text-center  text-gray-500">
-        Click the green button to call <strong>{job.phone}</strong>
-      </p>
+      {job.phone && (
+        <p className="text-sm text-center  text-gray-500">
+          Click the green button to call <strong>{job.phone}</strong>
+        </p>
+      )}
     </div>
   );
 };

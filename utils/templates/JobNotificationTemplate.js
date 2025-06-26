@@ -5,7 +5,7 @@ export const jobNotificationTemplate = (
   jobLocation,
   companyName,
   jobSalary,
-  jobType
+  type
 ) => `
 <!DOCTYPE html>
 <html>
@@ -52,13 +52,9 @@ export const jobNotificationTemplate = (
                     ${
                       jobSalary
                         ? `<p><strong>Salary:</strong> ${jobSalary}</p>`
-                        : ""
+                        : "To be communicated"
                     }
-                    ${
-                      jobType
-                        ? `<p><strong>Job Type:</strong> ${jobType}</p>`
-                        : ""
-                    }
+                    ${type ? `<p><strong>Job Type:</strong> ${type}</p>` : ""}
                 </div>
                 
                 ${
