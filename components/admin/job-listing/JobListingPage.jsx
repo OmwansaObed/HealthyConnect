@@ -184,7 +184,7 @@ export default function JobListingPage() {
           <div className="md:hidden mb-6">
             <button
               onClick={() => router.push("/admin/jobs/add")}
-              className="w-full px-6 py-4 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-2xl hover:from-purple-700 hover:to-blue-700 transition-all duration-200 flex items-center justify-center space-x-2 shadow-lg font-medium"
+              className="w-full px-6 py-4 bg-blue-600 text-white rounded-2xl hover:bg-blue-700 transition-all duration-200 flex items-center justify-center space-x-2 shadow-lg font-medium"
             >
               <Plus className="w-5 h-5" />
               <span>Add New Job</span>
