@@ -370,7 +370,6 @@ const JobCard = ({ job, onViewDetails }) => {
               {job.location?.county && `, ${job.location.county}`}
             </span>
           </div>
-
           {/* Salary */}
           {job.salary && job.salary !== "not-listed" && (
             <div className="flex items-center text-sm text-gray-600">
@@ -378,7 +377,46 @@ const JobCard = ({ job, onViewDetails }) => {
               <span className="font-medium">{job.salary}</span>
             </div>
           )}
-
+          {job.preference.gender && (
+            <div className="flex items-center text-sm text-gray-600">
+              <User className="w-4 h-4 text-blue-600 mr-2" />
+              <span>
+                {job.preference.gender === "male"
+                  ? "Male"
+                  : job.preference.gender === "female"
+                  ? "Female"
+                  : "No gender preference"}
+              </span>
+            </div>
+          )}
+          {/* age */}
+          {/* {job.preference.age && (
+            <div className="flex items-center text-sm text-gray-600">
+              <User className="w-4 h-4 text-blue-600 mr-2" />
+              <span>
+                {job.preference.age === "18-25"
+                  ? "18-25"
+                  : job.preference.age === "26-35"
+                  ? "26-35"
+                  : job.preference.age === "36-45"
+                  ? "36-45"
+                  : "No age preference"}
+              </span>
+            </div>
+          )} */}
+          {/* contact */}
+          {/* {job.preference.contactType && (
+            <div className="flex items-center text-sm text-gray-600">
+              <User className="w-4 h-4 text-blue-600 mr-2" />
+              <span>
+                {job.preference.contactType === "text-or-whatsapp-only"
+                  ? "Text or WhatsApp Only"
+                  : job.preference.contactType === "calls-or-text"
+                  ? "Calls or Text Only"
+                  : "Call or Whatsapp"}
+              </span>
+            </div>
+          )} */}
           {/* Experience */}
           {formatExperience(job.experience) && (
             <div className="flex items-center text-sm text-gray-600">
@@ -386,7 +424,6 @@ const JobCard = ({ job, onViewDetails }) => {
               <span>{formatExperience(job.experience)} years experience</span>
             </div>
           )}
-
           {/* Language */}
           {formatLanguage(job.preferredCommunicationLanguage) && (
             <div className="flex items-center text-sm text-gray-600">
@@ -396,7 +433,6 @@ const JobCard = ({ job, onViewDetails }) => {
               </span>
             </div>
           )}
-
           {/* Posted Date */}
           <div className="flex items-center text-sm text-gray-500">
             <Calendar className="w-4 h-4 text-purple-600 mr-2" />

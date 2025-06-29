@@ -5,7 +5,7 @@ import JobCards from "../../components/admin/job-listing/JobCards";
 import JobModal from "../../components/admin/job-listing/JobModal";
 import { useGetJobsQuery } from "../../redux/api/jobApiSlice";
 import { toast } from "sonner";
-import { Briefcase, Users, X } from "lucide-react";
+import { Briefcase, Users, Eye, X } from "lucide-react";
 
 import { useSelector } from "react-redux";
 

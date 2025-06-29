@@ -7,15 +7,16 @@ import { NextResponse } from "next/server";
 import { jobNotificationTemplate } from "../../../utils/templates/JobNotificationTemplate.js";
 
 // Function to map job categories to professions
+
 const mapJobToProfessions = (jobCategory, jobTitle, jobDescription) => {
   const professions = [];
   const jobText = `${jobCategory || ""} ${jobTitle} ${
     jobDescription || ""
   }`.toLowerCase();
 
-  // Define profession mappings based on Kenyan healthcare system
+  // Define profession mappings - UPDATED to match User model enum values exactly
   const professionMappings = {
-    nurse: [
+    nursing: [
       "nurse",
       "nursing",
       "nurses",
@@ -34,32 +35,35 @@ const mapJobToProfessions = (jobCategory, jobTitle, jobDescription) => {
       "healthcare assistant",
       "cnas",
     ],
-    administration: [
+    adminisration: [
       "administration",
       "health administration",
       "hospital management",
       "admin",
     ],
-    medical_officer: [
+    "medical officer": [
       "medical officer",
       "medical officers",
       "doctor",
       "doctors",
       "physician",
       "md",
+      "mo",
       "medical doctor",
       "general practitioner",
       "gp",
     ],
-    clinical_officer: [
+    "clinical officer": [
       "clinical officer",
       "clinical officers",
       "cos",
       "co",
+      "rco",
+      "registered clinical officer",
       "clinician",
       "clinical associate",
     ],
-    care_giver: [
+    "care giver": [
       "care giver",
       "caregivers",
       "caregiver",
@@ -68,19 +72,19 @@ const mapJobToProfessions = (jobCategory, jobTitle, jobDescription) => {
       "elderly care",
       "care givers",
     ],
-    home_based_caregiver: [
+    "home-based caregiver": [
       "home-based caregiver",
       "home care",
       "in-home caregiver",
       "domiciliary care",
     ],
-    public_health_officer: [
+    "public health officer": [
       "public health officer",
       "public health",
       "health surveillance",
       "health inspector",
     ],
-    community_health_worker: [
+    "community health worker": [
       "community health worker",
       "chv",
       "chw",
@@ -140,18 +144,13 @@ const mapJobToProfessions = (jobCategory, jobTitle, jobDescription) => {
       "rehabilitation",
       "pt",
     ],
-    occupational_therapy: [
+    "occupational therapy": [
       "occupational therapy",
       "occupational therapist",
       "rehab therapy",
       "adl training",
     ],
-    speech_therapy: [
-      "speech therapy",
-      "speech therapist",
-      "communication disorder",
-      "slp",
-    ],
+    "speech therapy": ["speech therapist", "communication disorder", "slp"],
     psychology: [
       "psychologist",
       "psychology",
@@ -165,13 +164,13 @@ const mapJobToProfessions = (jobCategory, jobTitle, jobDescription) => {
       "mental illness",
       "behavioral medicine",
     ],
-    medical_technician: [
+    "medical technician": [
       "medical technician",
       "med tech",
       "health technician",
       "clinical technician",
     ],
-    medical_engineer: [
+    "medical engineer": [
       "medical engineer",
       "biomedical engineer",
       "clinical engineer",
@@ -201,39 +200,34 @@ const mapJobToProfessions = (jobCategory, jobTitle, jobDescription) => {
       "pediatrics",
       "pediatrician",
       "child doctor",
-      "children’s health",
+      "children's health",
     ],
     gynecology: [
       "gynecology",
       "gynecologist",
       "obstetrician",
-      "women’s health",
+      "women's health",
     ],
-    general_practitioner: [
-      "general practitioner",
-      "gp",
-      "family doctor",
-      "primary care",
-    ],
-    health_records_officer: [
+    "general practitioner": ["gp", "family doctor", "primary care"],
+    "health records officer": [
       "health records officer",
       "records clerk",
       "medical records",
       "health data",
     ],
-    health_administration: [
+    "health administration": [
       "health administration",
       "hospital admin",
       "health management",
     ],
-    hospital_porter: ["hospital porter", "medical porter", "transport aide"],
-    hospital_cleaner: [
+    "hospital porter": ["hospital porter", "medical porter", "transport aide"],
+    "hospital cleaner": [
       "hospital cleaner",
       "medical cleaner",
       "sanitation worker",
     ],
-    ambulance_driver: ["ambulance driver", "emergency driver", "ems driver"],
-    emergency_medical_technician_emt: [
+    "ambulance driver": ["emergency driver", "ems driver"],
+    "emergency medical technician (emt)": [
       "emergency medical technician",
       "emt",
       "paramedic",
@@ -241,67 +235,66 @@ const mapJobToProfessions = (jobCategory, jobTitle, jobDescription) => {
       "ambulance technician",
     ],
     telemedicine: ["telemedicine", "virtual care", "online consultation"],
-    health_educator: [
-      "health educator",
+    "health educator": [
       "health education",
       "wellness trainer",
       "health promoter",
     ],
-    hiv_aids_counselor: [
+    "hiv/aids counselor": [
       "hiv counselor",
       "aids counselor",
       "vct",
       "testing and counseling",
       "hiv/aids counselor",
     ],
-    social_worker: [
+    "social worker": [
       "social worker",
       "social work",
       "community health",
       "case manager",
     ],
-    vaccination_outreach: [
+    "vaccination outreach": [
       "vaccination outreach",
       "immunization campaign",
       "vaccine mobilizer",
     ],
-    medical_sales_rep: [
+    "medical sales rep": [
       "medical sales rep",
       "pharma sales",
       "healthcare representative",
     ],
-    health_insurance_agent: [
+    "health insurance agent": [
       "health insurance agent",
       "insurance advisor",
       "medical coverage agent",
     ],
-    occupational_health_officer: [
+    "occupational health officer": [
       "occupational health officer",
       "workplace safety",
       "employee health",
     ],
-    environmental_health_officer: [
+    "environmental health officer": [
       "environmental health officer",
       "sanitation officer",
       "environmental inspector",
     ],
-    biomedical_scientist: [
+    "biomedical scientist": [
       "biomedical scientist",
       "biomedical researcher",
       "lab scientist",
     ],
-    mortuary_attendant: [
+    "mortuary attendant": [
       "mortuary attendant",
       "funeral attendant",
       "morgue assistant",
     ],
-    first_responder: [
+    "first responder": [
       "first responder",
       "emergency care",
       "pre-hospital care",
       "emergency worker",
     ],
-    coHo: ["coHo"],
+    // Removed "coHo" as it's not in your User model enum
   };
 
   // Check which professions match the job
