@@ -105,6 +105,7 @@ const PROFESSIONS = [
   { value: "biomedical scientist", label: "Biomedical Scientist" },
   { value: "mortuary attendant", label: "Mortuary Attendant" },
   { value: "first responder", label: "First Responder" },
+  { value: "coho", label: "COHO" },
 ];
 
 const formatDate = (dateString) => {

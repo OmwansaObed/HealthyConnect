@@ -53,8 +53,9 @@ export async function POST(req) {
             jobData.title,
             jobData.description,
             jobData.location,
-            jobData.company,
-            jobData._id || jobData.id
+            jobData.postedBy || "Not listed ", // Using postedBy as company name
+            jobData.salary,
+            jobData.type
           ),
         });
 

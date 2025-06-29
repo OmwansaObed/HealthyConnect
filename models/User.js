@@ -68,6 +68,7 @@ const userSchema = new mongoose.Schema(
         "biomedical scientist",
         "mortuary attendant",
         "first responder",
+        "coho",
       ],
     },
   },
