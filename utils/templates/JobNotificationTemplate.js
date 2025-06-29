@@ -50,9 +50,8 @@ export const jobNotificationTemplate = (
                         : jobLocation.county || "Location not specified"
                     }</p>
                     ${
-                      jobSalary
-                        ? `<p><strong>Salary:</strong> ${jobSalary}</p>`
-                        : "To be communicated"
+                      jobSalary &&
+                      `<p><strong>Salary:</strong> To be communicated</p>`
                     }
                     ${type ? `<p><strong>Job Type:</strong> ${type}</p>` : ""}
                 </div>
