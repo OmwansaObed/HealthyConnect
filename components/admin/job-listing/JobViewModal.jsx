@@ -46,7 +46,7 @@ export default function JobViewModal({
   };
 
   const formatLanguage = (language) => {
-    if (!language || language === "english") return "English";
+    if (!language || language === "swahili") return "Swahili";
     return language.charAt(0).toUpperCase() + language.slice(1);
   };
 

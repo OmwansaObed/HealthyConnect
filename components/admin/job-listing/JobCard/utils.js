@@ -377,7 +377,7 @@ const JobCard = ({ job, onViewDetails }) => {
               <span className="font-medium">{job.salary}</span>
             </div>
           )}
-          {job.preference.gender && (
+          {/* {job.preference.gender && (
             <div className="flex items-center text-sm text-gray-600">
               <User className="w-4 h-4 text-blue-600 mr-2" />
               <span>
@@ -388,7 +388,7 @@ const JobCard = ({ job, onViewDetails }) => {
                   : "No gender preference"}
               </span>
             </div>
-          )}
+          )} */}
           {/* age */}
           {/* {job.preference.age && (
             <div className="flex items-center text-sm text-gray-600">
