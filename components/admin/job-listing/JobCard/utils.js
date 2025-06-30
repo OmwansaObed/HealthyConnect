@@ -14,6 +14,7 @@ import {
   AlertCircle,
   Briefcase,
   Calendar,
+  Clock,
   DollarSign,
   Eye,
   Globe,
@@ -23,6 +24,9 @@ import {
   RefreshCw,
   Search,
   User,
+  Users,
+  Award,
+  MessageCircle,
   X,
 } from "lucide-react";
 
@@ -87,6 +91,39 @@ const NoResults = ({ clearAllFilters }) => (
     </button>
   </div>
 );
+
+// Helper function to format preference values
+const formatPreferenceValue = (key, value) => {
+  if (!value || value === "any") return "No preference";
+
+  switch (key) {
+    case "gender":
+      return value === "male" ? "Male" : value === "female" ? "Female" : "Any";
+    case "age":
+      return value === "any" ? "No preference" : `${value} years old`;
+    case "contactType":
+      return value === "text-or-whatsapp-only"
+        ? "Text/WhatsApp Only"
+        : value === "calls-or-text"
+        ? "Calls or Text"
+        : "Any method";
+    case "time":
+      return value === "day"
+        ? "Day shift"
+        : value === "night"
+        ? "Night shift"
+        : "Any time";
+    case "certificate":
+      return value.charAt(0).toUpperCase() + value.slice(1);
+    case "completedRecently":
+      return value
+        ? "Recently completed training preferred"
+        : "Experience level flexible";
+    default:
+      return value;
+  }
+};
+
 const JobDetailModal = ({ job, isOpen, onClose }) => {
   if (!isOpen || !job) return null;
 
@@ -98,9 +135,17 @@ const JobDetailModal = ({ job, isOpen, onClose }) => {
     ? `https://wa.me/${job.phone.replace(/[^0-9]/g, "")}`
     : null;
 
+  // Check if there are any specific preferences set
+  const hasSpecificPreferences =
+    job.preference &&
+    Object.entries(job.preference).some(([key, value]) => {
+      if (key === "completedRecently") return value === true;
+      return value && value !== "any" && value !== "";
+    });
+
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-hidden">
+      <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
         {/* Header */}
         <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white p-6">
           <div className="flex justify-between items-start">
@@ -263,16 +308,152 @@ const JobDetailModal = ({ job, isOpen, onClose }) => {
             </div>
           )}
 
-          {/* Preferences */}
-          {formatPreference(job.preference) && (
+          {/* Detailed Employer Preferences */}
+          {hasSpecificPreferences && (
             <div className="mb-6">
-              <h3 className="text-lg font-bold text-gray-900 mb-3 flex items-center gap-2">
-                <User className="w-5 h-5 text-blue-600" />
+              <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                <Users className="w-5 h-5 text-blue-600" />
                 Employer Preferences
               </h3>
-              <div className="bg-blue-50 rounded-xl p-4 border border-blue-200">
-                <p className="text-blue-800 font-medium">
-                  {formatPreference(job.preference)}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Gender Preference */}
+                {job.preference?.gender && job.preference.gender !== "any" && (
+                  <div className="bg-pink-50 rounded-xl p-4 border border-pink-200">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-pink-100 rounded-lg">
+                        <User className="w-4 h-4 text-pink-600" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-gray-600">
+                          Gender
+                        </p>
+                        <p className="font-semibold text-pink-800">
+                          {formatPreferenceValue(
+                            "gender",
+                            job.preference.gender
+                          )}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Age Preference */}
+                {job.preference?.age && job.preference.age !== "any" && (
+                  <div className="bg-yellow-50 rounded-xl p-4 border border-yellow-200">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-yellow-100 rounded-lg">
+                        <Calendar className="w-4 h-4 text-yellow-600" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-gray-600">
+                          Age Range
+                        </p>
+                        <p className="font-semibold text-yellow-800">
+                          {formatPreferenceValue("age", job.preference.age)}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Contact Type Preference */}
+                {job.preference?.contactType &&
+                  job.preference.contactType !== "any" && (
+                    <div className="bg-green-50 rounded-xl p-4 border border-green-200">
+                      <div className="flex items-center gap-3">
+                        <div className="p-2 bg-green-100 rounded-lg">
+                          <MessageCircle className="w-4 h-4 text-green-600" />
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium text-gray-600">
+                            Contact Method
+                          </p>
+                          <p className="font-semibold text-green-800">
+                            {formatPreferenceValue(
+                              "contactType",
+                              job.preference.contactType
+                            )}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                {/* Time Preference */}
+                {job.preference?.time && job.preference.time !== "any" && (
+                  <div className="bg-indigo-50 rounded-xl p-4 border border-indigo-200">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-indigo-100 rounded-lg">
+                        <Clock className="w-4 h-4 text-indigo-600" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-gray-600">
+                          Preferred Time
+                        </p>
+                        <p className="font-semibold text-indigo-800">
+                          {formatPreferenceValue("time", job.preference.time)}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Certificate Preference */}
+                {job.preference?.certificate &&
+                  job.preference.certificate !== "any" && (
+                    <div className="bg-purple-50 rounded-xl p-4 border border-purple-200">
+                      <div className="flex items-center gap-3">
+                        <div className="p-2 bg-purple-100 rounded-lg">
+                          <Award className="w-4 h-4 text-purple-600" />
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium text-gray-600">
+                            Education Level
+                          </p>
+                          <p className="font-semibold text-purple-800">
+                            {formatPreferenceValue(
+                              "certificate",
+                              job.preference.certificate
+                            )}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                {/* Recently Completed Training */}
+                {job.preference?.completedRecently && (
+                  <div className="bg-emerald-50 rounded-xl p-4 border border-emerald-200 md:col-span-2">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-emerald-100 rounded-lg">
+                        <GraduationCap className="w-4 h-4 text-emerald-600" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-gray-600">
+                          Training Status
+                        </p>
+                        <p className="font-semibold text-emerald-800">
+                          Recently completed training preferred
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* No specific preferences message */}
+          {!hasSpecificPreferences && (
+            <div className="mb-6">
+              <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                <Users className="w-5 h-5 text-blue-600" />
+                Employer Preferences
+              </h3>
+              <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                <p className="text-gray-600 text-center">
+                  No specific preferences set - Open to all qualified candidates
                 </p>
               </div>
             </div>
@@ -287,6 +468,18 @@ const JobDetailModal = ({ job, isOpen, onClose }) => {
               >
                 <Phone className="w-5 h-5" />
                 Call Now
+              </a>
+            )}
+
+            {whatsappLink && (
+              <a
+                href={whatsappLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center gap-2 px-6 py-3 bg-green-500 text-white rounded-xl hover:bg-green-600 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl"
+              >
+                <MessageCircle className="w-5 h-5" />
+                WhatsApp
               </a>
             )}
 
@@ -377,46 +570,6 @@ const JobCard = ({ job, onViewDetails }) => {
               <span className="font-medium">{job.salary}</span>
             </div>
           )}
-          {/* {job.preference.gender && (
-            <div className="flex items-center text-sm text-gray-600">
-              <User className="w-4 h-4 text-blue-600 mr-2" />
-              <span>
-                {job.preference.gender === "male"
-                  ? "Male"
-                  : job.preference.gender === "female"
-                  ? "Female"
-                  : "No gender preference"}
-              </span>
-            </div>
-          )} */}
-          {/* age */}
-          {/* {job.preference.age && (
-            <div className="flex items-center text-sm text-gray-600">
-              <User className="w-4 h-4 text-blue-600 mr-2" />
-              <span>
-                {job.preference.age === "18-25"
-                  ? "18-25"
-                  : job.preference.age === "26-35"
-                  ? "26-35"
-                  : job.preference.age === "36-45"
-                  ? "36-45"
-                  : "No age preference"}
-              </span>
-            </div>
-          )} */}
-          {/* contact */}
-          {/* {job.preference.contactType && (
-            <div className="flex items-center text-sm text-gray-600">
-              <User className="w-4 h-4 text-blue-600 mr-2" />
-              <span>
-                {job.preference.contactType === "text-or-whatsapp-only"
-                  ? "Text or WhatsApp Only"
-                  : job.preference.contactType === "calls-or-text"
-                  ? "Calls or Text Only"
-                  : "Call or Whatsapp"}
-              </span>
-            </div>
-          )} */}
           {/* Experience */}
           {formatExperience(job.experience) && (
             <div className="flex items-center text-sm text-gray-600">
@@ -488,4 +641,5 @@ const JobCard = ({ job, onViewDetails }) => {
     </div>
   );
 };
+
 export { JobCard, NoResults, SearchBar, FilterSelect, JobDetailModal };

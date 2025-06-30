@@ -43,20 +43,17 @@ export const jobNotificationTemplate = (
                                 <div class="job-title">${jobTitle}</div>
                                 
                                 <div class="job-details">
-                                        <p><strong>Company:</strong> ${companyName}</p>
+                                        <p><strong>Facility:</strong> ${companyName}</p>
                                         <p><strong>Location:</strong> ${
                                           jobLocation.state
                                             ? `${jobLocation.county}, ${jobLocation.state}`
                                             : jobLocation.county ||
                                               "Location not specified"
                                         }</p>
-                                        <p><strong>Salary:</strong> ${
-                                          jobSalary
-                                            ? jobSalary
-                                            : "To be communicated"
-                                        }</p>
+                                       
                                         <p><strong>Job Type:</strong> ${
-                                          type ? type : "Not specified"
+                                          type.charAt(0).toUpperCase() +
+                                          type.slice(1)
                                         }</p>
                                 </div>
                                 

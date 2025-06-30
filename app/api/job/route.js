@@ -631,7 +631,7 @@ const professionMatcher = new ProfessionMatcher();
 class JobNotificationService {
   constructor() {
     this.maxEmailsPerBatch = 50; // Prevent overwhelming email service
-    this.emailDelay = 100; // Delay between emails in ms
+    this.emailDelay = 50; // Delay between emails in ms
   }
 
   /**
@@ -709,9 +709,9 @@ class JobNotificationService {
               jobData.title,
               jobData.description || "No description provided",
               jobData.location || {},
-              jobData.postedBy || "HealthyConnect",
+              jobData.postedBy || "Anonymous",
               jobData._id,
-              jobData.salary || "Negotiable",
+
               jobData.type || "Not specified"
             ),
           });
