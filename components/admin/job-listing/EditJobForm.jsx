@@ -14,7 +14,7 @@ export default function EditJobForm({ job, closeModal, refetchJobs }) {
     phone: job.phone || "",
     preferredCommunicationLanguage:
       job.preferredCommunicationLanguage || "english",
-    postedBy: job.postedBy || "Anonymous",
+    postedBy: job.postedBy || "Not listed",
     location: {
       state: job.location?.state || "",
       county: job.location?.county || "",

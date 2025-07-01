@@ -709,7 +709,7 @@ class JobNotificationService {
               jobData.title,
               jobData.description || "No description provided",
               jobData.location || {},
-              jobData.postedBy || "Anonymous",
+              jobData.postedBy || "Not listed",
               jobData._id,
 
               jobData.type || "Not specified"
@@ -875,7 +875,7 @@ export async function POST(request) {
     // Create system notification
     await Notification.create({
       type: "job_posted",
-      message: `${job.title} was posted by ${job.postedBy || "Anonymous"}.`,
+      message: `${job.title} was posted by ${job.postedBy || "Not listed"}.`,
       jobId: job._id,
     });
 

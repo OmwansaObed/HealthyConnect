@@ -132,7 +132,21 @@ const JobDetailModal = ({ job, isOpen, onClose }) => {
   const jobStatus = calculateJobStatus(job.createdAt);
 
   const whatsappLink = job.phone
-    ? `https://wa.me/${job.phone.replace(/[^0-9]/g, "")}`
+    ? (() => {
+        // Remove all non-digit characters
+        let digits = job.phone.replace(/\D/g, "");
+        // Replace leading '01' with '254'
+        if (digits.startsWith("01")) {
+          digits = "254" + digits.slice(2);
+        } else if (digits.startsWith("07")) {
+          // Remove leading zero for '07' numbers and add country code
+          digits = "254" + digits.slice(1);
+        } else if (!digits.startsWith("254")) {
+          // Add country code if not present
+          digits = "254" + digits;
+        }
+        return `https://wa.me/${digits}`;
+      })()
     : null;
 
   // Check if there are any specific preferences set
