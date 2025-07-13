@@ -19,13 +19,12 @@ const Register = () => {
 
   const { data: session } = useSession();
 
+  const router = useRouter();
   useEffect(() => {
     if (session) {
       router.push("/");
     }
   }, [session, router]);
-
-  const router = useRouter();
 
   const handleGoogleSignup = () => {
     try {
