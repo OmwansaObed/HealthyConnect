@@ -7,349 +7,14 @@ import { NextResponse } from "next/server";
 import { jobNotificationTemplate } from "../../../utils/templates/JobNotificationTemplate.js";
 
 /**
- * IMPROVED EMAIL QUEUE SYSTEM
- * Fixes race conditions, retry logic, and runs completely in background
- */
-class EmailQueue {
-  constructor() {
-    this.queue = [];
-    this.retryQueue = [];
-    this.processing = false;
-    this.batchSize = 5; // Reduced for better rate limiting
-    this.delayBetweenBatches = 3000; // 3 seconds between batches
-    this.delayBetweenEmails = 500; // 500ms between individual emails
-    this.maxRetries = 3;
-    this.retryDelay = 5000; // 5 seconds before retry
-  }
-
-  /**
-   * Add emails to queue with proper async handling (NON-BLOCKING)
-   */
-  addToQueue(emailJobs) {
-    console.log(`Adding ${emailJobs.length} emails to queue`);
-
-    // Add retry count to each job
-    const jobsWithRetry = emailJobs.map((job) => ({
-      ...job,
-      retries: 0,
-      addedAt: new Date(),
-    }));
-
-    this.queue.push(...jobsWithRetry);
-
-    // Start processing in background without waiting
-    this.ensureProcessing();
-
-    return {
-      queued: emailJobs.length,
-      totalInQueue: this.queue.length + this.retryQueue.length,
-    };
-  }
-
-  /**
-   * Ensure processing starts without race conditions (FIRE AND FORGET)
-   */
-  ensureProcessing() {
-    if (this.processing) {
-      console.log("Queue already processing, skipping...");
-      return;
-    }
-
-    this.processing = true;
-
-    // Process queue in background without blocking
-    this.processQueue()
-      .catch((error) => {
-        console.error("Queue processing failed:", error);
-      })
-      .finally(() => {
-        this.processing = false;
-      });
-  }
-
-  /**
-   * Process email queue with proper error handling (BACKGROUND PROCESS)
-   */
-  async processQueue() {
-    console.log(
-      `Starting email queue processing. Queue size: ${this.queue.length}`
-    );
-
-    while (this.queue.length > 0 || this.retryQueue.length > 0) {
-      try {
-        // Process retry queue first
-        if (this.retryQueue.length > 0) {
-          console.log(`Processing ${this.retryQueue.length} retry emails`);
-          await this.processRetryQueue();
-        }
-
-        // Process main queue
-        if (this.queue.length > 0) {
-          const batch = this.queue.splice(0, this.batchSize);
-          console.log(`Processing batch of ${batch.length} emails`);
-
-          const results = await this.processBatch(batch);
-
-          // Handle failed emails
-          const failedEmails = results.filter((r) => r.status === "failed");
-          if (failedEmails.length > 0) {
-            await this.handleFailedEmails(failedEmails);
-          }
-
-          // Wait between batches
-          if (this.queue.length > 0 || this.retryQueue.length > 0) {
-            console.log(
-              `Waiting ${this.delayBetweenBatches}ms before next batch...`
-            );
-            await this.delay(this.delayBetweenBatches);
-          }
-        }
-      } catch (error) {
-        console.error("Batch processing error:", error);
-
-        // If it's a service-wide error, pause processing
-        if (this.isServiceError(error)) {
-          console.log("Service error detected, pausing for 30 seconds...");
-          await this.delay(30000);
-        }
-      }
-    }
-
-    console.log("Email queue processing completed");
-  }
-
-  /**
-   * Process retry queue with exponential backoff
-   */
-  async processRetryQueue() {
-    const readyToRetry = this.retryQueue.filter((job) => {
-      const timeSinceLastTry = Date.now() - job.lastRetryAt;
-      const backoffDelay = this.retryDelay * Math.pow(2, job.retries - 1);
-      return timeSinceLastTry >= backoffDelay;
-    });
-
-    if (readyToRetry.length === 0) return;
-
-    // Remove from retry queue
-    this.retryQueue = this.retryQueue.filter(
-      (job) => !readyToRetry.includes(job)
-    );
-
-    // Process retry batch
-    const results = await this.processBatch(readyToRetry);
-
-    // Handle still-failed emails
-    const stillFailed = results.filter((r) => r.status === "failed");
-    if (stillFailed.length > 0) {
-      await this.handleFailedEmails(stillFailed);
-    }
-  }
-
-  /**
-   * Process batch with individual error handling
-   */
-  async processBatch(batch) {
-    const results = [];
-
-    for (let i = 0; i < batch.length; i++) {
-      const emailJob = batch[i];
-
-      try {
-        // Add delay between emails
-        if (i > 0) {
-          await this.delay(this.delayBetweenEmails);
-        }
-
-        await this.sendEmail(emailJob);
-
-        results.push({
-          status: "success",
-          email: emailJob.to,
-          job: emailJob,
-        });
-
-        console.log(`✓ Email sent to ${emailJob.to}`);
-      } catch (error) {
-        console.error(
-          `✗ Failed to send email to ${emailJob.to}:`,
-          error.message
-        );
-
-        results.push({
-          status: "failed",
-          email: emailJob.to,
-          error: error,
-          job: emailJob,
-        });
-      }
-    }
-
-    return results;
-  }
-
-  /**
-   * Handle failed emails with proper retry logic
-   */
-  async handleFailedEmails(failedResults) {
-    for (const result of failedResults) {
-      const emailJob = result.job;
-
-      if (emailJob.retries < this.maxRetries) {
-        emailJob.retries += 1;
-        emailJob.lastRetryAt = Date.now();
-
-        // Add to separate retry queue instead of main queue
-        this.retryQueue.push(emailJob);
-
-        console.log(
-          `Scheduled retry for ${emailJob.to} (attempt ${emailJob.retries}/${this.maxRetries})`
-        );
-      } else {
-        console.error(
-          `❌ Permanently failed to send email to ${emailJob.to} after ${this.maxRetries} attempts`
-        );
-
-        // Log to a failed emails collection or external service
-        await this.logPermanentFailure(emailJob, result.error);
-      }
-    }
-  }
-
-  /**
-   * Send individual email with better error handling
-   */
-  async sendEmail(emailJob) {
-    try {
-      const info = await transporter.sendMail({
-        ...mailOptions,
-        to: emailJob.to,
-        subject: emailJob.subject,
-        html: emailJob.html,
-      });
-
-      // Log successful send
-      console.log(
-        `Email sent to ${emailJob.to}, Message ID: ${info.messageId}`
-      );
-
-      return info;
-    } catch (error) {
-      // Check if it's a temporary or permanent error
-      if (this.isTemporaryError(error)) {
-        throw new Error(`Temporary error: ${error.message}`);
-      } else {
-        throw new Error(`Permanent error: ${error.message}`);
-      }
-    }
-  }
-
-  /**
-   * Check if error is temporary (should retry)
-   */
-  isTemporaryError(error) {
-    const temporaryErrors = [
-      "ETIMEDOUT",
-      "ECONNRESET",
-      "ENOTFOUND",
-      "rate limit",
-      "too many requests",
-      "service unavailable",
-    ];
-
-    return temporaryErrors.some((tempError) =>
-      error.message.toLowerCase().includes(tempError.toLowerCase())
-    );
-  }
-
-  /**
-   * Check if it's a service-wide error
-   */
-  isServiceError(error) {
-    const serviceErrors = [
-      "authentication failed",
-      "invalid credentials",
-      "service unavailable",
-      "connection refused",
-    ];
-
-    return serviceErrors.some((serviceError) =>
-      error.message.toLowerCase().includes(serviceError.toLowerCase())
-    );
-  }
-
-  /**
-   * Log permanent failures for monitoring
-   */
-  async logPermanentFailure(emailJob, error) {
-    try {
-      // This could be saved to database or external logging service
-      console.error("PERMANENT EMAIL FAILURE:", {
-        email: emailJob.to,
-        subject: emailJob.subject,
-        error: error.message,
-        retries: emailJob.retries,
-        jobId: emailJob.jobId,
-        timestamp: new Date().toISOString(),
-      });
-
-      // Optionally save to database
-      // await FailedEmail.create({
-      //   email: emailJob.to,
-      //   subject: emailJob.subject,
-      //   error: error.message,
-      //   jobId: emailJob.jobId,
-      //   finalAttempt: new Date()
-      // });
-    } catch (logError) {
-      console.error("Failed to log permanent email failure:", logError);
-    }
-  }
-
-  /**
-   * Utility delay function
-   */
-  delay(ms) {
-    return new Promise((resolve) => setTimeout(resolve, ms));
-  }
-
-  /**
-   * Get comprehensive queue status
-   */
-  getStatus() {
-    return {
-      mainQueue: this.queue.length,
-      retryQueue: this.retryQueue.length,
-      totalQueued: this.queue.length + this.retryQueue.length,
-      processing: this.processing,
-      nextRetry:
-        this.retryQueue.length > 0
-          ? Math.min(
-              ...this.retryQueue.map((job) => job.lastRetryAt + this.retryDelay)
-            )
-          : null,
-    };
-  }
-
-  /**
-   * Clear all queues (for testing/debugging)
-   */
-  clearQueues() {
-    this.queue = [];
-    this.retryQueue = [];
-    console.log("All queues cleared");
-  }
-}
-
-// Global email queue instance
-const emailQueue = new EmailQueue();
-
-/**
- * Enhanced profession mapping
+ * Enhanced profession mapping with better keyword specificity
+ * Uses exact phrase matching and word boundaries to prevent false positives
  */
 class ProfessionMatcher {
   constructor() {
+    // Ordered by specificity - more specific professions first
     this.professionMappings = {
-      // Physicians and Clinical Professionals
+      // Medical Professionals
       "medical officer": {
         keywords: [
           "medical officer",
@@ -369,20 +34,11 @@ class ProfessionMatcher {
           "registered clinical officer",
           "rco",
           "clinical associate",
-          "coho",
-        ],
-        priority: 1,
-      },
-      "general practitioner": {
-        keywords: [
-          "general practitioner",
-          "family physician",
-          "primary care physician",
         ],
         priority: 1,
       },
 
-      // Nursing and Midwifery
+      // Nursing Professionals
       nursing: {
         keywords: [
           "registered nurse",
@@ -400,151 +56,62 @@ class ProfessionMatcher {
         ],
         priority: 2,
       },
-      midwifery: {
-        keywords: [
-          "midwife",
-          "midwives",
-          "midwifery",
-          "registered midwife",
-          "rm",
-        ],
-        priority: 2,
-      },
-      "care giver": {
-        keywords: [
-          "care giver",
-          "caregiver",
-          "home-based caregiver",
-          "patient attendant",
-          "nursing aide",
-        ],
-        priority: 3,
-      },
       cna: {
         keywords: [
           "certified nursing assistant",
-          "cna",
           "nursing assistant",
-          "health aide",
-        ],
-        priority: 3,
-      },
-
-      // Pharmacy
-      pharmacy: {
-        keywords: [
-          "pharmacist",
-          "pharmacy",
-          "pharmaceutical",
-          "pharmacy technician",
-          "pharmacy assistant",
-          "pharm",
-          "pharmtech",
-          "pharm tech",
-          "pharmtechs",
-          "dispensary",
+          "care assistant",
+          "healthcare assistant",
+          "patient care assistant",
+          "cna",
+          "cnas",
         ],
         priority: 2,
-      },
-
-      // Diagnostic Services
-      laboratory: {
-        keywords: [
-          "laboratory technician",
-          "medical laboratory",
-          "lab technician",
-          "pathology",
-          "diagnostics",
-          "lab tech",
-          "medical lab scientist",
-          "mls",
-          "laboratory technologist",
-          "lab technologist",
-          "labtech",
-          "lab tech",
-          "labtechs",
-        ],
-        priority: 3,
-      },
-      radiology: {
-        keywords: [
-          "radiologist",
-          "radiology",
-          "x-ray technician",
-          "radiographer",
-          "radiology technician",
-          "ultrasound technician",
-          "sonographer",
-        ],
-        priority: 3,
       },
 
       // Allied Health Professionals
-      physiotherapy: {
+      pharmacy: {
         keywords: [
-          "physiotherapist",
-          "physical therapist",
-          "physiotherapy",
-          "pt",
+          "pharmacist",
+          "pharmacy technician",
+          "pharmaceutical technician",
+          "pharmacy",
+          "pharmaceutical",
+          "drug dispenser",
+          "medication specialist",
+          "pharmtech",
+          "pharm tech",
         ],
-        priority: 3,
-      },
-      "occupational therapy": {
-        keywords: ["occupational therapist", "occupational therapy", "ot"],
-        priority: 3,
-      },
-      "speech therapy": {
-        keywords: [
-          "speech therapist",
-          "speech pathologist",
-          "speech therapy",
-          "slp",
-        ],
-        priority: 3,
-      },
-      nutritionist: {
-        keywords: ["nutritionist", "dietician", "dietitian", "nutrition"],
-        priority: 3,
-      },
-      dental: {
-        keywords: [
-          "dentist",
-          "dental",
-          "dental officer",
-          "dental surgeon",
-          "dental technician",
-          "dental assistant",
-          "oral health",
-        ],
-        priority: 3,
-      },
-      optometry: {
-        keywords: ["optometrist", "optometry", "ophthalmic", "eye care"],
-        priority: 3,
-      },
-
-      // Mental Health
-      psychology: {
-        keywords: [
-          "psychologist",
-          "psychology",
-          "clinical psychologist",
-          "counseling psychologist",
-        ],
-        priority: 3,
-      },
-      psychiatry: {
-        keywords: ["psychiatrist", "psychiatry"],
         priority: 2,
       },
-      "hiv/aids counselor": {
+      laboratory: {
         keywords: [
-          "hiv counselor",
-          "aids counselor",
-          "hiv/aids counselor",
-          "hiv testing",
+          "laboratory technician",
+          "lab technician",
+          "medical technologist",
+          "laboratory scientist",
+          "pathology technician",
+          "lab tech",
+          "medical laboratory",
+          "laboratory",
+          "lab scientist",
         ],
-        priority: 4,
+        priority: 2,
+      },
+      radiology: {
+        keywords: [
+          "radiologic technologist",
+          "radiology technician",
+          "imaging technician",
+          "x-ray technician",
+          "ct technician",
+          "mri technician",
+          "ultrasound technician",
+          "radiologist",
+          "radiology",
+          "medical imaging",
+        ],
+        priority: 2,
       },
 
       // Specialized Medical Fields
@@ -552,134 +119,245 @@ class ProfessionMatcher {
         keywords: [
           "anesthesiologist",
           "anesthetist",
-          "anesthesia",
+          "anesthesia technician",
           "anesthesiology",
+          "perioperative nurse",
+        ],
+        priority: 1,
+      },
+      surgery: {
+        keywords: [
+          "surgeon",
+          "surgical technician",
+          "operating room technician",
+          "surgery",
+          "surgical specialist",
+          "scrub nurse",
+          "or nurse",
+        ],
+        priority: 1,
+      },
+      "emergency medical technician (emt)": {
+        keywords: [
+          "emergency medical technician",
+          "paramedic",
+          "emt",
+          "first responder",
+          "ambulance technician",
+          "emergency care technician",
+          "pre-hospital care",
+        ],
+        priority: 1,
+      },
+
+      // Therapy and Rehabilitation
+      physiotherapy: {
+        keywords: [
+          "physiotherapist",
+          "physical therapist",
+          "physiotherapy",
+          "physical therapy",
+          "rehabilitation therapist",
+          "pt",
         ],
         priority: 2,
       },
-      surgery: {
-        keywords: ["surgeon", "surgery", "surgical", "general surgery"],
+      "occupational therapy": {
+        keywords: [
+          "occupational therapist",
+          "occupational therapy",
+          "rehabilitation specialist",
+          "ot",
+        ],
+        priority: 2,
+      },
+      "speech therapy": {
+        keywords: [
+          "speech therapist",
+          "speech pathologist",
+          "communication specialist",
+          "speech therapy",
+          "slp",
+        ],
+        priority: 2,
+      },
+
+      // Mental Health
+      psychology: {
+        keywords: [
+          "psychologist",
+          "clinical psychologist",
+          "counseling psychologist",
+          "psychology",
+          "mental health counselor",
+          "therapist",
+        ],
+        priority: 2,
+      },
+      psychiatry: {
+        keywords: [
+          "psychiatrist",
+          "psychiatric nurse",
+          "mental health specialist",
+          "psychiatry",
+          "behavioral health specialist",
+        ],
+        priority: 1,
+      },
+
+      // Specialized Care
+      midwifery: {
+        keywords: [
+          "midwife",
+          "certified midwife",
+          "nurse midwife",
+          "midwifery",
+          "maternal health specialist",
+          "delivery specialist",
+        ],
         priority: 2,
       },
       pediatrics: {
-        keywords: ["pediatrician", "pediatrics", "child health"],
-        priority: 2,
+        keywords: [
+          "pediatrician",
+          "pediatric nurse",
+          "child health specialist",
+          "pediatrics",
+          "children's health",
+          "pediatric specialist",
+        ],
+        priority: 1,
       },
       gynecology: {
         keywords: [
           "gynecologist",
-          "obgyn",
-          "ob/gyn",
+          "obstetrician",
+          "women's health specialist",
           "gynecology",
           "obstetrics",
+          "reproductive health",
+        ],
+        priority: 1,
+      },
+      orthopedics: {
+        keywords: [
+          "orthopedic surgeon",
+          "orthopedic specialist",
+          "bone specialist",
+          "orthopedics",
+          "musculoskeletal specialist",
+          "joint specialist",
+        ],
+        priority: 1,
+      },
+
+      // Diagnostic and Technical
+      nutritionist: {
+        keywords: [
+          "nutritionist",
+          "dietitian",
+          "clinical nutritionist",
+          "nutrition specialist",
+          "dietary consultant",
         ],
         priority: 2,
       },
-      orthopedics: {
-        keywords: ["orthopedic", "orthopedics", "orthopedic surgeon"],
+      dental: {
+        keywords: [
+          "dentist",
+          "dental hygienist",
+          "dental assistant",
+          "dental technician",
+          "oral health specialist",
+          "orthodontist",
+        ],
+        priority: 2,
+      },
+      optometry: {
+        keywords: [
+          "optometrist",
+          "optician",
+          "eye care specialist",
+          "optometry",
+          "vision specialist",
+          "eye health",
+        ],
         priority: 2,
       },
 
-      // Public and Community Health
+      // Public Health and Community
       "public health officer": {
         keywords: [
           "public health officer",
-          "public health",
+          "health surveillance officer",
+          "public health specialist",
+          "health inspector",
           "epidemiologist",
-          "disease control",
         ],
-        priority: 3,
+        priority: 2,
       },
       "community health worker": {
         keywords: [
           "community health worker",
-          "community health",
-          "chw",
+          "community health volunteer",
           "health promoter",
-        ],
-        priority: 4,
-      },
-      "health educator": {
-        keywords: ["health educator", "health education", "patient educator"],
-        priority: 4,
-      },
-      "vaccination outreach": {
-        keywords: ["vaccination", "immunization", "vaccine", "outreach worker"],
-        priority: 4,
-      },
-
-      // Emergency Services
-      "emergency medical technician (emt)": {
-        keywords: [
-          "emergency medical technician",
-          "emt",
-          "paramedic",
-          "emergency care",
+          "chw",
+          "chv",
+          "community outreach worker",
         ],
         priority: 3,
       },
-      "first responder": {
+      "environmental health officer": {
         keywords: [
-          "first responder",
-          "emergency responder",
-          "disaster response",
+          "environmental health officer",
+          "sanitation officer",
+          "environmental health specialist",
+          "health and safety officer",
         ],
-        priority: 4,
-      },
-      "ambulance driver": {
-        keywords: ["ambulance driver", "emergency driver"],
-        priority: 5,
+        priority: 2,
       },
 
-      // Administration and Support
-      administration: {
+      // Care and Support Services
+      "care giver": {
         keywords: [
-          "administrator",
-          "administration",
-          "hospital admin",
-          "health admin",
-          "medical admin",
-          "clinic manager",
-          "healthcare executive",
+          "caregiver",
+          "care giver",
+          "patient care aide",
+          "personal care assistant",
+          "home health aide",
         ],
-        priority: 4,
+        priority: 3,
+      },
+      "home-based caregiver": {
+        keywords: [
+          "home-based caregiver",
+          "home care aide",
+          "in-home caregiver",
+          "domiciliary care worker",
+          "private duty nurse",
+        ],
+        priority: 3,
+      },
+
+      // Administrative and Support
+      "health administration": {
+        keywords: [
+          "health administrator",
+          "hospital administrator",
+          "health management",
+          "healthcare administrator",
+          "medical administrator",
+        ],
+        priority: 3,
       },
       "health records officer": {
         keywords: [
-          "health records",
-          "medical records",
-          "health information",
-          "records officer",
-          "him",
+          "health records officer",
+          "medical records clerk",
+          "health information technician",
+          "medical coding specialist",
         ],
-        priority: 4,
-      },
-      "health administration": {
-        keywords: [
-          "health administration",
-          "healthcare administration",
-          "hospital administration",
-        ],
-        priority: 4,
-      },
-
-      // Support Staff
-      "hospital porter": {
-        keywords: ["hospital porter", "porter", "ward assistant"],
-        priority: 5,
-      },
-      "hospital cleaner": {
-        keywords: [
-          "hospital cleaner",
-          "sanitation worker",
-          "cleaner",
-          "janitor",
-        ],
-        priority: 5,
-      },
-      "mortuary attendant": {
-        keywords: ["mortuary", "mortuary attendant", "morgue"],
-        priority: 5,
+        priority: 3,
       },
 
       // Technical and Engineering
@@ -687,79 +365,201 @@ class ProfessionMatcher {
         keywords: [
           "medical technician",
           "biomedical technician",
-          "equipment technician",
+          "health technician",
+          "clinical technician",
+          "medical equipment technician",
         ],
-        priority: 3,
+        priority: 2,
       },
       "medical engineer": {
         keywords: [
-          "medical engineer",
           "biomedical engineer",
+          "medical engineer",
           "clinical engineer",
+          "healthcare technology specialist",
         ],
-        priority: 3,
+        priority: 2,
       },
       "biomedical scientist": {
-        keywords: ["biomedical scientist", "medical scientist"],
-        priority: 3,
+        keywords: [
+          "biomedical scientist",
+          "medical scientist",
+          "clinical scientist",
+          "laboratory scientist",
+          "research scientist",
+        ],
+        priority: 2,
       },
 
-      // Business and Sales
-      "medical sales rep": {
-        keywords: [
-          "medical sales",
-          "pharma sales",
-          "medical representative",
-          "drug rep",
-        ],
-        priority: 4,
-      },
-      "health insurance agent": {
-        keywords: ["health insurance", "medical insurance", "insurance agent"],
-        priority: 4,
-      },
-
-      // Specialized Health Fields
-      "occupational health officer": {
-        keywords: [
-          "occupational health",
-          "workplace health",
-          "industrial health",
-        ],
-        priority: 3,
-      },
-      "environmental health officer": {
-        keywords: ["environmental health", "public health inspector", "eho"],
-        priority: 3,
-      },
-      telemedicine: {
-        keywords: ["telemedicine", "telehealth", "remote healthcare"],
-        priority: 4,
-      },
+      // Specialized Services
       "social worker": {
         keywords: [
-          "social worker",
           "medical social worker",
-          "hospital social worker",
+          "healthcare social worker",
+          "social worker",
+          "case manager",
+          "patient advocate",
+        ],
+        priority: 3,
+      },
+      "health educator": {
+        keywords: [
+          "health educator",
+          "wellness coordinator",
+          "health promotion specialist",
+          "community educator",
+          "patient educator",
+        ],
+        priority: 3,
+      },
+      "hiv/aids counselor": {
+        keywords: [
+          "hiv counselor",
+          "aids counselor",
+          "vct counselor",
+          "hiv/aids counselor",
+          "testing counselor",
+          "prevention counselor",
+        ],
+        priority: 2,
+      },
+
+      // Sales and Insurance
+      "medical sales rep": {
+        keywords: [
+          "medical sales representative",
+          "pharmaceutical sales rep",
+          "healthcare sales",
+          "medical device sales",
+          "pharma rep",
+        ],
+        priority: 3,
+      },
+      "health insurance agent": {
+        keywords: [
+          "health insurance agent",
+          "medical insurance advisor",
+          "healthcare insurance specialist",
+          "benefits coordinator",
+        ],
+        priority: 3,
+      },
+
+      // Support and Auxiliary Services
+      "hospital porter": {
+        keywords: [
+          "hospital porter",
+          "medical porter",
+          "patient transport aide",
+          "hospital transport",
+          "medical transport",
         ],
         priority: 4,
+      },
+      "hospital cleaner": {
+        keywords: [
+          "hospital cleaner",
+          "medical facility cleaner",
+          "healthcare cleaner",
+          "hospital housekeeping",
+          "medical sanitation",
+        ],
+        priority: 4,
+      },
+      "ambulance driver": {
+        keywords: [
+          "ambulance driver",
+          "emergency driver",
+          "medical transport driver",
+          "ems driver",
+          "patient transport driver",
+        ],
+        priority: 3,
+      },
+
+      // Emerging Fields
+      telemedicine: {
+        keywords: [
+          "telemedicine specialist",
+          "telehealth coordinator",
+          "virtual care provider",
+          "remote healthcare",
+          "digital health",
+        ],
+        priority: 2,
+      },
+
+      // Specialized Officers
+      "occupational health officer": {
+        keywords: [
+          "occupational health officer",
+          "workplace health specialist",
+          "industrial health officer",
+          "employee health coordinator",
+        ],
+        priority: 2,
+      },
+      "vaccination outreach": {
+        keywords: [
+          "vaccination coordinator",
+          "immunization specialist",
+          "vaccine outreach worker",
+          "vaccination campaign worker",
+        ],
+        priority: 3,
+      },
+
+      // Other Services
+      "mortuary attendant": {
+        keywords: [
+          "mortuary attendant",
+          "funeral home attendant",
+          "morgue assistant",
+          "pathology assistant",
+        ],
+        priority: 4,
+      },
+      "first responder": {
+        keywords: [
+          "first responder",
+          "emergency responder",
+          "crisis responder",
+          "disaster response",
+          "emergency services",
+        ],
+        priority: 2,
+      },
+      coho: {
+        keywords: ["coho"],
       },
     };
   }
 
+  /**
+   * Create word boundary regex for better matching
+   */
   createWordBoundaryRegex(keyword) {
     const escapedKeyword = keyword.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
     return new RegExp(`\\b${escapedKeyword}\\b`, "i");
   }
 
+  /**
+   * Check if a keyword matches in the job text
+   */
   matchesKeyword(jobText, keyword) {
+    // For multi-word phrases, use includes
     if (keyword.includes(" ")) {
       return jobText.includes(keyword.toLowerCase());
     }
+
+    // For single words, use word boundaries to prevent partial matches
     const regex = this.createWordBoundaryRegex(keyword);
     return regex.test(jobText);
   }
 
+  /**
+   * Map job details to relevant professions
+   */
   mapJobToProfessions(jobCategory, jobTitle, jobDescription) {
     const jobText = `${jobCategory || ""} ${jobTitle || ""} ${
       jobDescription || ""
@@ -767,11 +567,17 @@ class ProfessionMatcher {
       .toLowerCase()
       .trim();
 
-    if (!jobText) return [];
+    if (!jobText) {
+      console.log("No job text provided for profession matching");
+      return [];
+    }
+
+    console.log("Analyzing job text:", jobText);
 
     const matchedProfessions = [];
     const matchDetails = {};
 
+    // Sort professions by priority (lower number = higher priority)
     const sortedProfessions = Object.entries(this.professionMappings).sort(
       ([, a], [, b]) => a.priority - b.priority
     );
@@ -787,39 +593,53 @@ class ProfessionMatcher {
           matchedKeywords,
           priority: config.priority,
         };
+
+        console.log(
+          `✓ ${profession} matched (priority ${config.priority}):`,
+          matchedKeywords
+        );
       }
     }
 
+    // If we have multiple matches, prefer higher priority (lower number) professions
     if (matchedProfessions.length > 1) {
       const highestPriority = Math.min(
         ...matchedProfessions.map((p) => matchDetails[p].priority)
       );
-      return matchedProfessions.filter(
+      const filteredProfessions = matchedProfessions.filter(
         (p) => matchDetails[p].priority === highestPriority
       );
+
+      console.log(
+        `Filtered to highest priority (${highestPriority}):`,
+        filteredProfessions
+      );
+      return filteredProfessions;
     }
 
+    console.log("Final matched professions:", matchedProfessions);
     return matchedProfessions;
   }
 }
 
+// Initialize the profession matcher
 const professionMatcher = new ProfessionMatcher();
 
 /**
- * NON-BLOCKING JOB NOTIFICATION SERVICE
- * Queues emails without waiting for them to be sent
+ * Enhanced job notification service
  */
-class AsyncJobNotificationService {
+class JobNotificationService {
   constructor() {
-    this.maxUsersPerJob = 1000; // Limit users per job posting
+    this.maxEmailsPerBatch = 50; // Prevent overwhelming email service
+    this.emailDelay = 50; // Delay between emails in ms
   }
 
   /**
-   * Queue job notifications for background processing (NON-BLOCKING)
+   * Send job notifications with improved error handling and logging
    */
-  async queueJobNotifications(jobData) {
+  async sendJobNotifications(jobData) {
     try {
-      console.log("Queuing job notifications for:", jobData.title);
+      console.log("Starting job notification process for:", jobData.title);
 
       // Determine target professions
       const targetProfessions = professionMatcher.mapJobToProfessions(
@@ -829,112 +649,168 @@ class AsyncJobNotificationService {
       );
 
       if (targetProfessions.length === 0) {
+        console.log(
+          "No specific profession matches found for job:",
+          jobData.title
+        );
         return {
-          status: "no_matches",
+          emailsSent: 0,
+          emailsFailed: 0,
           message: "No matching professions found",
           targetProfessions: [],
-          usersQueued: 0,
         };
       }
 
-      // Find matching users
+      console.log("Target professions:", targetProfessions);
+
+      // Find matching users with enhanced query
       const targetUsers = await User.find({
         profession: { $in: targetProfessions },
         email: { $exists: true, $ne: null, $ne: "" },
+        // Add additional filters if needed
+        // isActive: { $ne: false },
+        // emailNotifications: { $ne: false }
       })
-        .select("email username profession")
-        .limit(this.maxUsersPerJob)
-        .lean();
+        .select("email username profession location")
+        .limit(this.maxEmailsPerBatch)
+        .lean(); // Use lean() for better performance
+
+      console.log(`Found ${targetUsers.length} users matching professions`);
 
       if (targetUsers.length === 0) {
         return {
-          status: "no_users",
+          emailsSent: 0,
+          emailsFailed: 0,
           message: "No users found with matching professions",
           targetProfessions,
-          usersQueued: 0,
         };
       }
 
-      // Prepare email jobs for queue
-      const emailJobs = targetUsers.map((user) => ({
-        to: user.email,
-        subject: this.generateEmailSubject(jobData),
-        html: jobNotificationTemplate(
-          user.username || "Healthcare Professional",
-          jobData.title,
-          jobData.description || "No description provided",
-          jobData.location || {},
-          jobData.postedBy || "Not listed",
-          jobData.salary,
-          jobData.type || "Not specified"
-        ),
-        userId: user._id,
-        jobId: jobData._id,
-        profession: user.profession,
-      }));
+      // Send emails with better error handling
+      let emailsSent = 0;
+      let emailsFailed = 0;
+      const failedEmails = [];
 
-      // Add to background queue (NON-BLOCKING - returns immediately)
-      const queueResult = emailQueue.addToQueue(emailJobs);
+      for (const user of targetUsers) {
+        try {
+          // Add small delay to prevent overwhelming email service
+          if (emailsSent > 0) {
+            await new Promise((resolve) =>
+              setTimeout(resolve, this.emailDelay)
+            );
+          }
 
-      return {
-        status: "queued",
-        message: "Email notifications queued for background processing",
+          await transporter.sendMail({
+            ...mailOptions,
+            to: user.email,
+            subject: this.generateEmailSubject(jobData),
+            html: jobNotificationTemplate(
+              user.username || "Healthcare Professional",
+              jobData.title,
+              jobData.description || "No description provided",
+              jobData.location || {},
+              jobData.postedBy || "Not listed",
+              jobData._id,
+
+              jobData.type || "Not specified"
+            ),
+          });
+
+          console.log(
+            `✓ Notification sent to ${user.email} (${user.profession})`
+          );
+          emailsSent++;
+        } catch (error) {
+          console.error(
+            `✗ Failed to send notification to ${user.email}:`,
+            error.message
+          );
+          emailsFailed++;
+          failedEmails.push({
+            email: user.email,
+            error: error.message,
+          });
+        }
+      }
+
+      const result = {
+        emailsSent,
+        emailsFailed,
+        totalUsers: targetUsers.length,
         targetProfessions,
-        usersQueued: targetUsers.length,
-        queueResult,
-        queueStatus: emailQueue.getStatus(),
+        failedEmails: emailsFailed > 0 ? failedEmails : undefined,
       };
+
+      console.log("Job notification summary:", result);
+      return result;
     } catch (error) {
-      console.error("Failed to queue job notifications:", error);
+      console.error("Job notification service error:", error);
       return {
-        status: "error",
-        message: error.message,
+        emailsSent: 0,
+        emailsFailed: 0,
+        error: error.message,
         targetProfessions: [],
-        usersQueued: 0,
       };
     }
   }
 
+  /**
+   * Generate dynamic email subject based on job data
+   */
   generateEmailSubject(jobData) {
     const location =
       jobData.location?.county || jobData.location?.state || "Kenya";
     const jobType = jobData.type ? ` (${jobData.type})` : "";
+
     return `🎯 New ${jobData.title} Position${jobType} - ${location}`;
   }
 }
 
-const asyncNotificationService = new AsyncJobNotificationService();
+// Initialize notification service
+const notificationService = new JobNotificationService();
 
 /**
- * Job Validator
+ * Enhanced input validation
  */
 class JobValidator {
   static validatePhoneNumber(phone) {
-    if (!phone || phone.trim() === "") return true;
+    if (!phone || phone.trim() === "") return true; // Optional field
+
     const cleanPhone = phone.trim();
     const validPrefixes = ["07", "011", "+254", "01"];
+
     return validPrefixes.some((prefix) => cleanPhone.startsWith(prefix));
   }
 
   static validateRequiredFields(data) {
     const errors = [];
+
     if (!data.title || data.title.trim() === "") {
       errors.push("Job title is required");
     }
+
     return errors;
   }
 
   static validateOptionalFields(data) {
     const errors = [];
+
     if (data.phone && !this.validatePhoneNumber(data.phone)) {
       errors.push("Phone number must start with 07, 011, +254, or 01");
     }
+
+    // Add more field validations as needed
+
     return errors;
   }
 
   static sanitizeJobData(data) {
-    const cleanedData = { ...data, title: data.title?.trim() };
+    const cleanedData = {
+      ...data,
+      title: data.title?.trim(),
+    };
 
+    // Only include fields that have actual values
     if (data.description?.trim())
       cleanedData.description = data.description.trim();
     if (data.phone?.trim()) cleanedData.phone = data.phone.trim();
@@ -944,6 +820,7 @@ class JobValidator {
     if (data.experience) cleanedData.experience = data.experience;
     if (data.category) cleanedData.category = data.category;
 
+    // Handle nested objects
     cleanedData.location = {
       state: data.location?.state?.trim() || "",
       county: data.location?.county?.trim() || "",
@@ -963,7 +840,7 @@ class JobValidator {
 }
 
 /**
- * IMMEDIATE JOB POSTING - Create job and queue emails in background
+ * POST - Create a new job
  */
 export async function POST(request) {
   try {
@@ -991,40 +868,36 @@ export async function POST(request) {
     // Sanitize and prepare data
     const cleanedData = JobValidator.sanitizeJobData(data);
 
-    // Create job - THIS HAPPENS IMMEDIATELY
+    // Create job
     const job = await Job.create(cleanedData);
     console.log("Job created successfully:", job._id);
 
-    // Create system notification - IMMEDIATE
+    // Create system notification
     await Notification.create({
       type: "job_posted",
       message: `${job.title} was posted by ${job.postedBy || "Not listed"}.`,
       jobId: job._id,
     });
 
-    // Queue email notifications (NON-BLOCKING - happens in background)
-    // We don't await this, so it doesn't block the response
-    asyncNotificationService
-      .queueJobNotifications(job)
-      .then((notificationResult) => {
-        console.log("Email notification queuing result:", notificationResult);
-      })
-      .catch((error) => {
-        console.error("Email notification queuing error:", error);
-      });
+    // Send email notifications (don't let this fail the job creation)
+    let notificationResult = {
+      emailsSent: 0,
+      emailsFailed: 0,
+      message: "Notifications skipped due to error",
+    };
 
-    // Return immediately - job is created, emails will be sent in background
+    try {
+      notificationResult = await notificationService.sendJobNotifications(job);
+    } catch (notificationError) {
+      console.error("Failed to send job notifications:", notificationError);
+      // Continue with successful job creation even if notifications fail
+    }
+
     return NextResponse.json(
       {
         success: true,
         job,
-        message:
-          "Job created successfully. Email notifications are being processed in the background.",
-        emailQueue: {
-          status: "queued",
-          message: "Email notifications queued for background processing",
-          queueStatus: emailQueue.getStatus(),
-        },
+        notifications: notificationResult,
       },
       { status: 201 }
     );
@@ -1049,29 +922,20 @@ export async function POST(request) {
 }
 
 /**
- * GET - Fetch jobs and queue status
+ * GET - Fetch jobs with optional filtering and pagination
  */
 export async function GET(request) {
   try {
-    const { searchParams } = new URL(request.url);
-    const action = searchParams.get("action");
-
-    if (action === "queue-status") {
-      return NextResponse.json({
-        success: true,
-        queueStatus: emailQueue.getStatus(),
-      });
-    }
-
-    // Existing job fetching logic
     await connectDB();
 
+    const { searchParams } = new URL(request.url);
     const page = parseInt(searchParams.get("page")) || 1;
     const limit = parseInt(searchParams.get("limit")) || 50;
     const category = searchParams.get("category");
     const location = searchParams.get("location");
     const type = searchParams.get("type");
 
+    // Build query filter
     const filter = {};
     if (category) filter.category = category;
     if (location) {
@@ -1082,11 +946,14 @@ export async function GET(request) {
     }
     if (type) filter.type = type;
 
+    // Execute query with pagination
     const skip = (page - 1) * limit;
     const [jobs, total] = await Promise.all([
       Job.find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit).lean(),
       Job.countDocuments(filter),
     ]);
+
+    console.log(`Found ${jobs.length} jobs (${total} total) - Page ${page}`);
 
     return NextResponse.json({
       success: true,
@@ -1098,7 +965,6 @@ export async function GET(request) {
         hasNextPage: page < Math.ceil(total / limit),
         hasPrevPage: page > 1,
       },
-      queueStatus: emailQueue.getStatus(), // Include queue status in response
     });
   } catch (error) {
     console.error("Jobs fetch error:", error);
@@ -1110,7 +976,7 @@ export async function GET(request) {
 }
 
 /**
- * PATCH - Update job
+ * PATCH - Update an existing job
  */
 export async function PATCH(request) {
   try {
@@ -1131,6 +997,7 @@ export async function PATCH(request) {
       );
     }
 
+    // Validate update data
     const optionalFieldErrors = JobValidator.validateOptionalFields(updateData);
     if (optionalFieldErrors.length > 0) {
       return NextResponse.json(
@@ -1139,6 +1006,7 @@ export async function PATCH(request) {
       );
     }
 
+    // Update job
     const updatedJob = await Job.findByIdAndUpdate(
       id,
       { $set: updateData, updatedAt: new Date() },
@@ -1149,9 +1017,25 @@ export async function PATCH(request) {
       return NextResponse.json({ error: "Job not found" }, { status: 404 });
     }
 
-    return NextResponse.json({ success: true, job: updatedJob });
+    console.log("Job updated successfully:", id);
+
+    return NextResponse.json({
+      success: true,
+      job: updatedJob,
+    });
   } catch (error) {
     console.error("Job update error:", error);
+
+    if (error.name === "ValidationError") {
+      const validationErrors = Object.values(error.errors).map(
+        (err) => err.message
+      );
+      return NextResponse.json(
+        { error: `Validation failed: ${validationErrors.join(", ")}` },
+        { status: 400 }
+      );
+    }
+
     return NextResponse.json(
       { error: error.message || "Failed to update job" },
       { status: 500 }
@@ -1160,7 +1044,7 @@ export async function PATCH(request) {
 }
 
 /**
- * DELETE - Delete job
+ * DELETE - Remove a job
  */
 export async function DELETE(request) {
   try {
@@ -1175,11 +1059,16 @@ export async function DELETE(request) {
     }
 
     const deletedJob = await Job.findByIdAndDelete(id);
+
     if (!deletedJob) {
       return NextResponse.json({ error: "Job not found" }, { status: 404 });
     }
 
+    // Clean up related notifications
     await Notification.deleteMany({ jobId: id });
+
+    console.log("Job deleted successfully:", id);
+
     return NextResponse.json({
       success: true,
       message: "Job deleted successfully",
