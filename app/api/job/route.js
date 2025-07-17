@@ -6,13 +6,8 @@ import { transporter, mailOptions } from "../../../utils/nodemailer.js";
 import { NextResponse } from "next/server";
 import { jobNotificationTemplate } from "../../../utils/templates/JobNotificationTemplate.js";
 
-/**
- * Enhanced profession mapping with better keyword specificity
- * Uses exact phrase matching and word boundaries to prevent false positives
- */
 class ProfessionMatcher {
   constructor() {
-    // Ordered by specificity - more specific professions first
     this.professionMappings = {
       // Medical Professionals
       "medical officer": {
@@ -535,31 +530,19 @@ class ProfessionMatcher {
     };
   }
 
-  /**
-   * Create word boundary regex for better matching
-   */
   createWordBoundaryRegex(keyword) {
     const escapedKeyword = keyword.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
     return new RegExp(`\\b${escapedKeyword}\\b`, "i");
   }
 
-  /**
-   * Check if a keyword matches in the job text
-   */
   matchesKeyword(jobText, keyword) {
-    // For multi-word phrases, use includes
     if (keyword.includes(" ")) {
       return jobText.includes(keyword.toLowerCase());
     }
-
-    // For single words, use word boundaries to prevent partial matches
     const regex = this.createWordBoundaryRegex(keyword);
     return regex.test(jobText);
   }
 
-  /**
-   * Map job details to relevant professions
-   */
   mapJobToProfessions(jobCategory, jobTitle, jobDescription) {
     const jobText = `${jobCategory || ""} ${jobTitle || ""} ${
       jobDescription || ""
@@ -567,17 +550,11 @@ class ProfessionMatcher {
       .toLowerCase()
       .trim();
 
-    if (!jobText) {
-      console.log("No job text provided for profession matching");
-      return [];
-    }
-
-    console.log("Analyzing job text:", jobText);
+    if (!jobText) return [];
 
     const matchedProfessions = [];
     const matchDetails = {};
 
-    // Sort professions by priority (lower number = higher priority)
     const sortedProfessions = Object.entries(this.professionMappings).sort(
       ([, a], [, b]) => a.priority - b.priority
     );
@@ -593,214 +570,127 @@ class ProfessionMatcher {
           matchedKeywords,
           priority: config.priority,
         };
-
-        console.log(
-          `✓ ${profession} matched (priority ${config.priority}):`,
-          matchedKeywords
-        );
       }
     }
 
-    // If we have multiple matches, prefer higher priority (lower number) professions
     if (matchedProfessions.length > 1) {
       const highestPriority = Math.min(
         ...matchedProfessions.map((p) => matchDetails[p].priority)
       );
-      const filteredProfessions = matchedProfessions.filter(
+      return matchedProfessions.filter(
         (p) => matchDetails[p].priority === highestPriority
       );
-
-      console.log(
-        `Filtered to highest priority (${highestPriority}):`,
-        filteredProfessions
-      );
-      return filteredProfessions;
     }
 
-    console.log("Final matched professions:", matchedProfessions);
     return matchedProfessions;
   }
 }
 
-// Initialize the profession matcher
-const professionMatcher = new ProfessionMatcher();
-
-/**
- * Enhanced job notification service
- */
 class JobNotificationService {
   constructor() {
-    this.maxEmailsPerBatch = 50; // Prevent overwhelming email service
-    this.emailDelay = 50; // Delay between emails in ms
+    this.maxEmailsPerBatch = 50;
+    this.emailDelay = 50;
+    this.professionMatcher = new ProfessionMatcher();
   }
 
-  /**
-   * Send job notifications with improved error handling and logging
-   */
-  async sendJobNotifications(jobData) {
+  async sendSingleNotification(email, username, jobData) {
     try {
-      console.log("Starting job notification process for:", jobData.title);
+      await transporter.sendMail({
+        ...mailOptions,
+        to: email,
+        subject: this.generateEmailSubject(jobData),
+        html: jobNotificationTemplate(
+          username || "Healthcare Professional",
+          jobData.title,
+          jobData.description || "No description provided",
+          jobData.location || {},
+          jobData.postedBy || "Not listed",
+          jobData._id,
+          jobData.type || "Not specified"
+        ),
+      });
+      return { success: true, email };
+    } catch (error) {
+      console.error(`Failed to send to ${email}:`, error.message);
+      return { success: false, email, error: error.message };
+    }
+  }
 
-      // Determine target professions
-      const targetProfessions = professionMatcher.mapJobToProfessions(
+  async sendNotificationsAsync(jobData) {
+    try {
+      const targetProfessions = this.professionMatcher.mapJobToProfessions(
         jobData.category,
         jobData.title,
         jobData.description
       );
 
       if (targetProfessions.length === 0) {
-        console.log(
-          "No specific profession matches found for job:",
-          jobData.title
-        );
-        return {
-          emailsSent: 0,
-          emailsFailed: 0,
-          message: "No matching professions found",
-          targetProfessions: [],
-        };
+        console.log("No matching professions found - skipping notifications");
+        return;
       }
 
-      console.log("Target professions:", targetProfessions);
-
-      // Find matching users with enhanced query
       const targetUsers = await User.find({
         profession: { $in: targetProfessions },
         email: { $exists: true, $ne: null, $ne: "" },
-        // Add additional filters if needed
-        // isActive: { $ne: false },
-        // emailNotifications: { $ne: false }
       })
         .select("email username profession location")
         .limit(this.maxEmailsPerBatch)
-        .lean(); // Use lean() for better performance
-
-      console.log(`Found ${targetUsers.length} users matching professions`);
+        .lean();
 
       if (targetUsers.length === 0) {
-        return {
-          emailsSent: 0,
-          emailsFailed: 0,
-          message: "No users found with matching professions",
-          targetProfessions,
-        };
+        console.log("No users found for matched professions");
+        return;
       }
 
-      // Send emails with better error handling
-      let emailsSent = 0;
-      let emailsFailed = 0;
-      const failedEmails = [];
-
-      for (const user of targetUsers) {
-        try {
-          // Add small delay to prevent overwhelming email service
-          if (emailsSent > 0) {
-            await new Promise((resolve) =>
-              setTimeout(resolve, this.emailDelay)
-            );
-          }
-
-          await transporter.sendMail({
-            ...mailOptions,
-            to: user.email,
-            subject: this.generateEmailSubject(jobData),
-            html: jobNotificationTemplate(
-              user.username || "Healthcare Professional",
-              jobData.title,
-              jobData.description || "No description provided",
-              jobData.location || {},
-              jobData.postedBy || "Not listed",
-              jobData._id,
-
-              jobData.type || "Not specified"
-            ),
-          });
-
-          console.log(
-            `✓ Notification sent to ${user.email} (${user.profession})`
-          );
-          emailsSent++;
-        } catch (error) {
-          console.error(
-            `✗ Failed to send notification to ${user.email}:`,
-            error.message
-          );
-          emailsFailed++;
-          failedEmails.push({
-            email: user.email,
-            error: error.message,
-          });
-        }
-      }
-
-      const result = {
-        emailsSent,
-        emailsFailed,
-        totalUsers: targetUsers.length,
-        targetProfessions,
-        failedEmails: emailsFailed > 0 ? failedEmails : undefined,
-      };
-
-      console.log("Job notification summary:", result);
-      return result;
+      // Start sending emails in background without waiting
+      this.sendEmailsInBackground(targetUsers, jobData);
     } catch (error) {
-      console.error("Job notification service error:", error);
-      return {
-        emailsSent: 0,
-        emailsFailed: 0,
-        error: error.message,
-        targetProfessions: [],
-      };
+      console.error("Notification error:", error);
     }
   }
 
-  /**
-   * Generate dynamic email subject based on job data
-   */
+  async sendEmailsInBackground(users, jobData) {
+    try {
+      for (const [index, user] of users.entries()) {
+        if (index > 0 && this.emailDelay > 0) {
+          await new Promise((resolve) => setTimeout(resolve, this.emailDelay));
+        }
+        await this.sendSingleNotification(user.email, user.username, jobData);
+      }
+    } catch (error) {
+      console.error("Background email sending error:", error);
+    }
+  }
+
   generateEmailSubject(jobData) {
     const location =
       jobData.location?.county || jobData.location?.state || "Kenya";
     const jobType = jobData.type ? ` (${jobData.type})` : "";
-
     return `🎯 New ${jobData.title} Position${jobType} - ${location}`;
   }
 }
 
-// Initialize notification service
-const notificationService = new JobNotificationService();
-
-/**
- * Enhanced input validation
- */
 class JobValidator {
   static validatePhoneNumber(phone) {
-    if (!phone || phone.trim() === "") return true; // Optional field
-
+    if (!phone || phone.trim() === "") return true;
     const cleanPhone = phone.trim();
     const validPrefixes = ["07", "011", "+254", "01"];
-
     return validPrefixes.some((prefix) => cleanPhone.startsWith(prefix));
   }
 
   static validateRequiredFields(data) {
     const errors = [];
-
     if (!data.title || data.title.trim() === "") {
       errors.push("Job title is required");
     }
-
     return errors;
   }
 
   static validateOptionalFields(data) {
     const errors = [];
-
     if (data.phone && !this.validatePhoneNumber(data.phone)) {
       errors.push("Phone number must start with 07, 011, +254, or 01");
     }
-
-    // Add more field validations as needed
-
     return errors;
   }
 
@@ -808,46 +698,37 @@ class JobValidator {
     const cleanedData = {
       ...data,
       title: data.title?.trim(),
+      description: data.description?.trim(),
+      phone: data.phone?.trim(),
+      postedBy: data.postedBy?.trim(),
+      salary: data.salary?.trim(),
+      type: data.type,
+      experience: data.experience,
+      category: data.category,
+      location: {
+        state: data.location?.state?.trim() || "",
+        county: data.location?.county?.trim() || "",
+      },
+      preference: {
+        gender: data.preference?.gender || "any",
+        age: data.preference?.age || "any",
+        contactType: data.preference?.contactType || "any",
+        time: data.preference?.time || "any",
+        certificate: data.preference?.certificate || "any",
+        completedRecently: Boolean(data.preference?.completedRecently),
+      },
     };
-
-    // Only include fields that have actual values
-    if (data.description?.trim())
-      cleanedData.description = data.description.trim();
-    if (data.phone?.trim()) cleanedData.phone = data.phone.trim();
-    if (data.postedBy?.trim()) cleanedData.postedBy = data.postedBy.trim();
-    if (data.salary?.trim()) cleanedData.salary = data.salary.trim();
-    if (data.type) cleanedData.type = data.type;
-    if (data.experience) cleanedData.experience = data.experience;
-    if (data.category) cleanedData.category = data.category;
-
-    // Handle nested objects
-    cleanedData.location = {
-      state: data.location?.state?.trim() || "",
-      county: data.location?.county?.trim() || "",
-    };
-
-    cleanedData.preference = {
-      gender: data.preference?.gender || "any",
-      age: data.preference?.age || "any",
-      contactType: data.preference?.contactType || "any",
-      time: data.preference?.time || "any",
-      certificate: data.preference?.certificate || "any",
-      completedRecently: Boolean(data.preference?.completedRecently),
-    };
-
     return cleanedData;
   }
 }
 
-/**
- * POST - Create a new job
- */
+const notificationService = new JobNotificationService();
+
 export async function POST(request) {
   try {
     await connectDB();
     const data = await request.json();
 
-    // Validate required fields
     const requiredFieldErrors = JobValidator.validateRequiredFields(data);
     if (requiredFieldErrors.length > 0) {
       return NextResponse.json(
@@ -856,7 +737,6 @@ export async function POST(request) {
       );
     }
 
-    // Validate optional fields
     const optionalFieldErrors = JobValidator.validateOptionalFields(data);
     if (optionalFieldErrors.length > 0) {
       return NextResponse.json(
@@ -865,45 +745,30 @@ export async function POST(request) {
       );
     }
 
-    // Sanitize and prepare data
     const cleanedData = JobValidator.sanitizeJobData(data);
-
-    // Create job
     const job = await Job.create(cleanedData);
-    console.log("Job created successfully:", job._id);
 
-    // Create system notification
     await Notification.create({
       type: "job_posted",
       message: `${job.title} was posted by ${job.postedBy || "Not listed"}.`,
       jobId: job._id,
     });
 
-    // Send email notifications (don't let this fail the job creation)
-    let notificationResult = {
-      emailsSent: 0,
-      emailsFailed: 0,
-      message: "Notifications skipped due to error",
-    };
-
-    try {
-      notificationResult = await notificationService.sendJobNotifications(job);
-    } catch (notificationError) {
-      console.error("Failed to send job notifications:", notificationError);
-      // Continue with successful job creation even if notifications fail
-    }
+    // Start notifications in background without waiting
+    notificationService
+      .sendNotificationsAsync(job)
+      .catch((err) => console.error("Background notification error:", err));
 
     return NextResponse.json(
       {
         success: true,
         job,
-        notifications: notificationResult,
+        message: "Job posted successfully. Notifications are being sent.",
       },
       { status: 201 }
     );
   } catch (error) {
     console.error("Job creation error:", error);
-
     if (error.name === "ValidationError") {
       const validationErrors = Object.values(error.errors).map(
         (err) => err.message
@@ -913,7 +778,6 @@ export async function POST(request) {
         { status: 400 }
       );
     }
-
     return NextResponse.json(
       { error: error.message || "Failed to create job" },
       { status: 500 }
@@ -921,13 +785,9 @@ export async function POST(request) {
   }
 }
 
-/**
- * GET - Fetch jobs with optional filtering and pagination
- */
 export async function GET(request) {
   try {
     await connectDB();
-
     const { searchParams } = new URL(request.url);
     const page = parseInt(searchParams.get("page")) || 1;
     const limit = parseInt(searchParams.get("limit")) || 50;
@@ -935,7 +795,6 @@ export async function GET(request) {
     const location = searchParams.get("location");
     const type = searchParams.get("type");
 
-    // Build query filter
     const filter = {};
     if (category) filter.category = category;
     if (location) {
@@ -946,14 +805,11 @@ export async function GET(request) {
     }
     if (type) filter.type = type;
 
-    // Execute query with pagination
     const skip = (page - 1) * limit;
     const [jobs, total] = await Promise.all([
       Job.find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit).lean(),
       Job.countDocuments(filter),
     ]);
-
-    console.log(`Found ${jobs.length} jobs (${total} total) - Page ${page}`);
 
     return NextResponse.json({
       success: true,
@@ -975,9 +831,6 @@ export async function GET(request) {
   }
 }
 
-/**
- * PATCH - Update an existing job
- */
 export async function PATCH(request) {
   try {
     await connectDB();
@@ -997,7 +850,6 @@ export async function PATCH(request) {
       );
     }
 
-    // Validate update data
     const optionalFieldErrors = JobValidator.validateOptionalFields(updateData);
     if (optionalFieldErrors.length > 0) {
       return NextResponse.json(
@@ -1006,7 +858,6 @@ export async function PATCH(request) {
       );
     }
 
-    // Update job
     const updatedJob = await Job.findByIdAndUpdate(
       id,
       { $set: updateData, updatedAt: new Date() },
@@ -1017,15 +868,12 @@ export async function PATCH(request) {
       return NextResponse.json({ error: "Job not found" }, { status: 404 });
     }
 
-    console.log("Job updated successfully:", id);
-
     return NextResponse.json({
       success: true,
       job: updatedJob,
     });
   } catch (error) {
     console.error("Job update error:", error);
-
     if (error.name === "ValidationError") {
       const validationErrors = Object.values(error.errors).map(
         (err) => err.message
@@ -1035,7 +883,6 @@ export async function PATCH(request) {
         { status: 400 }
       );
     }
-
     return NextResponse.json(
       { error: error.message || "Failed to update job" },
       { status: 500 }
@@ -1043,9 +890,6 @@ export async function PATCH(request) {
   }
 }
 
-/**
- * DELETE - Remove a job
- */
 export async function DELETE(request) {
   try {
     await connectDB();
@@ -1059,16 +903,11 @@ export async function DELETE(request) {
     }
 
     const deletedJob = await Job.findByIdAndDelete(id);
-
     if (!deletedJob) {
       return NextResponse.json({ error: "Job not found" }, { status: 404 });
     }
 
-    // Clean up related notifications
     await Notification.deleteMany({ jobId: id });
-
-    console.log("Job deleted successfully:", id);
-
     return NextResponse.json({
       success: true,
       message: "Job deleted successfully",
