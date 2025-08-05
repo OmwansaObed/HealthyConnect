@@ -15,7 +15,7 @@ const Contact = () => {
     userType: "professional",
   });
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (
@@ -29,8 +29,7 @@ const Contact = () => {
     }
 
     try {
-      const response = axios.post("/api/contact", formData);
-      toast.success("Form submitted successfully");
+      const response = await axios.post("/api/contact", formData);
       setFormData({
         name: "",
         email: "",
@@ -38,10 +37,13 @@ const Contact = () => {
         message: "",
         userType: "professional",
       });
+      console.log("response: ", response);
 
-      if (response.status === 200) {
-        toast.success("Form submitted successfully");
+      if (!response.data.success) {
+        toast.error(response.data.message || "Failed to send message");
       }
+      toast.success("Message sent successfully! We'll get back to you soon.");
+      console.log("Form submitted successfully:", response.data);
     } catch (error) {
       console.error("Error submitting form:", error);
       toast.error("Failed to submit form");

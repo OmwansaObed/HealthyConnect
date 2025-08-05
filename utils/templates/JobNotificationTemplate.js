@@ -23,53 +23,40 @@ export const jobNotificationTemplate = (
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             line-height: 1.6;
-            color: #2d3748;
-            background-color: #f7fafc;
+            color: #334155;
+            background-color: #f8fafc;
+            margin: 0;
+            padding: 0;
         }
         
         .email-wrapper {
             width: 100%;
-            background-color: #f7fafc;
-            padding: 20px 0;
+            background-color: #f8fafc;
+            padding: 24px 16px;
         }
         
         .container {
             max-width: 600px;
             margin: 0 auto;
             background-color: #ffffff;
-            border-radius: 12px;
+            border-radius: 16px;
             overflow: hidden;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
         }
         
         .header {
-            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #ec4899 100%);
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
             color: white;
-            padding: 40px 30px;
+            padding: 40px 32px;
             text-align: center;
             position: relative;
-        }
-        
-        .header::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="white" opacity="0.1"/><circle cx="75" cy="75" r="1" fill="white" opacity="0.1"/><circle cx="50" cy="10" r="0.5" fill="white" opacity="0.15"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
-        }
-        
-        .header-content {
-            position: relative;
-            z-index: 1;
         }
         
         .logo {
             font-size: 28px;
             font-weight: 700;
             margin-bottom: 8px;
-            letter-spacing: -0.5px;
+            letter-spacing: -0.025em;
         }
         
         .header-subtitle {
@@ -79,29 +66,31 @@ export const jobNotificationTemplate = (
         }
         
         .content {
-            padding: 40px 30px;
+            padding: 40px 32px;
         }
         
         .greeting {
-            font-size: 18px;
-            margin-bottom: 20px;
-            color: #1a202c;
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: #1e293b;
         }
         
         .intro-text {
             font-size: 16px;
-            margin-bottom: 30px;
-            color: #4a5568;
+            margin-bottom: 32px;
+            color: #64748b;
+            line-height: 1.7;
         }
         
         .job-card {
-            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            background: #ffffff;
+            border: 2px solid #e2e8f0;
             border-radius: 16px;
-            padding: 30px;
-            margin: 30px 0;
-            border: 1px solid #e2e8f0;
+            padding: 32px;
+            margin: 32px 0;
             position: relative;
-            overflow: hidden;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
         }
         
         .job-card::before {
@@ -112,86 +101,90 @@ export const jobNotificationTemplate = (
             width: 4px;
             height: 100%;
             background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            border-radius: 2px 0 0 2px;
         }
         
         .job-title {
-            color: #1a202c;
+            color: #1e293b;
             font-size: 24px;
             font-weight: 700;
-            margin-bottom: 20px;
+            margin-bottom: 24px;
             line-height: 1.3;
+            letter-spacing: -0.025em;
         }
         
         .job-meta {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
-            margin-bottom: 25px;
+            display: grid;
+            gap: 16px;
+            margin-bottom: 24px;
         }
         
         .meta-item {
             display: flex;
             align-items: center;
-            gap: 8px;
-            font-size: 14px;
-            color: #4a5568;
+            gap: 12px;
+            font-size: 15px;
+            color: #475569;
         }
         
         .meta-icon {
-            width: 16px;
-            height: 16px;
+            width: 20px;
+            height: 20px;
             background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
-            border-radius: 50%;
+            border-radius: 6px;
             display: flex;
             align-items: center;
             justify-content: center;
+            font-size: 12px;
+            flex-shrink: 0;
+        }
+        
+        .meta-label {
+            font-weight: 600;
+            color: #374151;
+            min-width: 70px;
+        }
+        
+        .salary-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: linear-gradient(135deg, #059669 0%, #047857 100%);
             color: white;
-            font-size: 10px;
-            font-weight: bold;
+            padding: 10px 16px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            margin: 16px 0 24px 0;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
         }
         
         .job-details {
-            background: white;
-            padding: 20px;
-            border-radius: 12px;
-            margin: 20px 0;
+            background: #f8fafc;
             border: 1px solid #e2e8f0;
+            padding: 24px;
+            border-radius: 12px;
+            margin: 24px 0;
         }
         
         .job-details-title {
             font-weight: 600;
-            color: #2d3748;
-            margin-bottom: 10px;
+            color: #374151;
+            margin-bottom: 12px;
             font-size: 14px;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.05em;
         }
         
         .job-description {
-            color: #4a5568;
-            line-height: 1.6;
-        }
-        
-        ${
-          jobSalary
-            ? `
-        .salary-badge {
-            display: inline-block;
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-            color: white;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 14px;
-            font-weight: 600;
-            margin: 10px 0;
-        }
-        `
-            : ""
+            color: #64748b;
+            line-height: 1.7;
+            font-size: 15px;
         }
         
         .cta-section {
             text-align: center;
-            margin: 40px 0 30px;
+            margin: 32px 0;
         }
         
         .cta-button {
@@ -203,17 +196,18 @@ export const jobNotificationTemplate = (
             border-radius: 12px;
             font-weight: 600;
             font-size: 16px;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(79, 70, 229, 0.3);
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.3);
+            letter-spacing: -0.025em;
         }
         
         .cta-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(79, 70, 229, 0.4);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 8px -1px rgba(79, 70, 229, 0.4);
         }
         
         .secondary-cta {
-            margin-top: 15px;
+            margin-top: 16px;
         }
         
         .secondary-link {
@@ -221,36 +215,44 @@ export const jobNotificationTemplate = (
             text-decoration: none;
             font-weight: 500;
             font-size: 14px;
+            transition: color 0.2s ease;
+        }
+        
+        .secondary-link:hover {
+            color: #7c3aed;
         }
         
         .closing {
-            margin: 30px 0;
-            color: #4a5568;
+            margin: 32px 0;
+            color: #64748b;
+            font-size: 15px;
+            line-height: 1.7;
         }
         
         .signature {
             font-weight: 600;
-            color: #2d3748;
-            margin-top: 10px;
+            color: #374151;
+            margin-top: 20px;
         }
         
         .footer {
             background: #f8fafc;
-            padding: 30px;
+            padding: 32px;
             text-align: center;
             border-top: 1px solid #e2e8f0;
         }
         
         .footer-text {
             font-size: 14px;
-            color: #718096;
-            margin-bottom: 15px;
+            color: #64748b;
+            margin-bottom: 20px;
+            line-height: 1.6;
         }
         
         .footer-links {
             display: flex;
             justify-content: center;
-            gap: 20px;
+            gap: 24px;
             flex-wrap: wrap;
         }
         
@@ -259,50 +261,73 @@ export const jobNotificationTemplate = (
             text-decoration: none;
             font-size: 14px;
             font-weight: 500;
+            transition: all 0.2s ease;
         }
         
         .footer-link:hover {
+            color: #7c3aed;
             text-decoration: underline;
         }
         
         /* Responsive Design */
-        @media (max-width: 600px) {
+        @media (max-width: 640px) {
             .email-wrapper {
-                padding: 10px;
+                padding: 16px 8px;
             }
             
             .container {
-                border-radius: 8px;
+                border-radius: 12px;
             }
             
             .header {
-                padding: 30px 20px;
+                padding: 32px 24px;
+            }
+            
+            .logo {
+                font-size: 24px;
+            }
+            
+            .header-subtitle {
+                font-size: 14px;
             }
             
             .content {
-                padding: 30px 20px;
+                padding: 32px 24px;
             }
             
             .job-card {
-                padding: 20px;
+                padding: 24px;
             }
             
             .job-title {
                 font-size: 20px;
+                margin-bottom: 20px;
             }
             
             .job-meta {
-                flex-direction: column;
-                gap: 10px;
+                gap: 12px;
+            }
+            
+            .meta-item {
+                font-size: 14px;
+            }
+            
+            .job-details {
+                padding: 20px;
             }
             
             .footer {
-                padding: 20px;
+                padding: 24px;
             }
             
             .footer-links {
                 flex-direction: column;
-                gap: 10px;
+                gap: 12px;
+            }
+            
+            .cta-button {
+                padding: 14px 28px;
+                font-size: 15px;
             }
         }
     </style>
@@ -311,10 +336,8 @@ export const jobNotificationTemplate = (
     <div class="email-wrapper">
         <div class="container">
             <div class="header">
-                <div class="header-content">
-                    <div class="logo">🩺 HealthyConnect</div>
-                    <div class="header-subtitle">Your perfect job match is here!</div>
-                </div>
+                <div class="logo">🩺 HealthyConnect</div>
+                <div class="header-subtitle">Your perfect job match is here!</div>
             </div>
             
             <div class="content">
@@ -330,12 +353,14 @@ export const jobNotificationTemplate = (
                     <div class="job-meta">
                         <div class="meta-item">
                             <div class="meta-icon">🏥</div>
-                            <span><strong>Facility:</strong> ${companyName}</span>
+                            <span class="meta-label">Facility:</span>
+                            <span>${companyName}</span>
                         </div>
                         
                         <div class="meta-item">
                             <div class="meta-icon">📍</div>
-                            <span><strong>Location:</strong> ${
+                            <span class="meta-label">Location:</span>
+                            <span>${
                               jobLocation.state
                                 ? `${jobLocation.county}, ${jobLocation.state}`
                                 : jobLocation.county || "Location not specified"
@@ -344,7 +369,8 @@ export const jobNotificationTemplate = (
                         
                         <div class="meta-item">
                             <div class="meta-icon">⏰</div>
-                            <span><strong>Type:</strong> ${
+                            <span class="meta-label">Type:</span>
+                            <span>${
                               type.charAt(0).toUpperCase() + type.slice(1)
                             }</span>
                         </div>
@@ -400,12 +426,12 @@ export const jobNotificationTemplate = (
                 <div class="footer-links">
                     <a href="${
                       process.env.NEXTAUTH_URL
-                    }/profile/settings" class="footer-link">
+                    }/settings" class="footer-link">
                         Update Preferences
                     </a>
                     <a href="${
                       process.env.NEXTAUTH_URL
-                    }/profile/notifications" class="footer-link">
+                    }/notifications" class="footer-link">
                         Notification Settings
                     </a>
                     <a href="${

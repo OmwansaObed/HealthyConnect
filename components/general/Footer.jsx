@@ -186,7 +186,7 @@ export default function Footer() {
                 { name: "FAQs", link: "/faqs" },
 
                 { name: "Terms of Service", link: "/terms" },
-                { name: "Cookie Policy", link: "/cookies" },
+                // { name: "Cookie Policy", link: "/cookies" },
               ].map(({ name, link }) => (
                 <li key={name}>
                   <a

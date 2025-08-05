@@ -63,13 +63,13 @@ const MENU_ITEMS = [
   //   icon: Calendar,
   //   href: "/admin/calendar",
   // },
-  // {
-  //   id: "messages",
-  //   label: "Messages",
-  //   icon: MessageSquare,
-  //   href: "/admin/messages",
-  //   badge: "5",
-  // },
+  {
+    id: "messages",
+    label: "Messages",
+    icon: MessageSquare,
+    href: "/admin/contact",
+    badge: "5",
+  },
   // {
   //   id: "settings",
   //   label: "Settings",

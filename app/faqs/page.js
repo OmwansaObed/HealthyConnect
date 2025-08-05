@@ -49,28 +49,28 @@ const FAQ = () => {
       category: "account",
       question: "How do I create a HealthyConnect account?",
       answer:
-        "To create an account, click the 'Sign Up' button on our homepage. You'll need to provide your email, create a password, and verify your email address. For healthcare professionals, you'll also need to upload your professional credentials for verification.",
+        "To create an account, click the 'Sign Up' button on our homepage. You'll need to provide your email, create a password, and verify your email address. For healthcare professionals",
     },
     {
       id: 2,
       category: "account",
       question: "How do I update my profile information?",
       answer:
-        "Go to your dashboard and click on 'Profile Settings'. You can update your personal information, professional credentials, work experience, and preferences. Remember to save your changes before leaving the page.",
+        "Go to your dashboard and click on 'Profile Settings'. You can update your personal information, professional credentials. Remember to save your changes before leaving the page.",
     },
     {
       id: 3,
       category: "account",
       question: "What if I forget my password?",
       answer:
-        "Click on 'Forgot Password' on the login page. Enter your email address, and we'll send you a password reset link. Follow the instructions in the email to create a new password.",
+        "Click on 'Forgot Password' on the login page. Enter your email address, and we'll send you a password reset link. Follow the instructions in the email to create a new password. Works with users who used email and password to sign up. This feature is in beta and may not work for all users.",
     },
     {
       id: 4,
       category: "account",
       question: "How do I verify my professional credentials?",
       answer:
-        "Upload clear photos or scans of your professional licenses, certificates, and relevant qualifications in the 'Credentials' section of your profile. Our verification team reviews documents within 2-3 business days.",
+        "Upload clear photos or scans of your professional licenses, certificates, and relevant qualifications in the 'Credentials' section of your profile. Our verification team reviews documents within 2-3 business days. This feature is currently in beta and may not work for all users. If you encounter issues, please contact support.",
     },
 
     // Job Search
@@ -92,22 +92,20 @@ const FAQ = () => {
       id: 7,
       category: "job-search",
       question: "How do I apply for a job?",
-      answer:
-        "Click on a job listing to view full details, then click 'Apply Now'. You'll need to submit your application with your updated profile information. Some employers may request additional documents or a cover letter.",
+      answer: "Job applications from the website will soon be functional.",
     },
     {
       id: 8,
       category: "job-search",
       question: "Can I save jobs to apply later?",
       answer:
-        "Yes! Click the heart icon on any job listing to save it to your 'Saved Jobs' list. You can access saved jobs from your dashboard at any time.",
+        "Yes! But this feature is currently in beta and may not work for all users.",
     },
     {
       id: 9,
       category: "job-search",
       question: "How do I track my job applications?",
-      answer:
-        "Go to your dashboard and click on 'My Applications' to see all jobs you've applied for, their status (pending, reviewed, shortlisted, etc.), and any messages from employers.",
+      answer: "Still in development and may not work for all users.",
     },
 
     // For Facilities
@@ -115,8 +113,7 @@ const FAQ = () => {
       id: 10,
       category: "facilities",
       question: "How can my healthcare facility post job openings?",
-      answer:
-        "Create a facility account and complete your organization's verification process. Once verified, you can post unlimited job openings, manage applications, and communicate directly with candidates through our platform.",
+      answer: "Facilities will soon be able to post job openings.",
     },
     {
       id: 11,
@@ -130,7 +127,7 @@ const FAQ = () => {
       category: "facilities",
       question: "How do I manage applications from candidates?",
       answer:
-        "Access your facility dashboard to view all applications for your job postings. You can filter candidates, review profiles, schedule interviews, and communicate directly through our messaging system.",
+        "Access your facility dashboard to view all applications for your job postings. You can filter candidates, review profiles, schedule interviews, and communicate directly through our messaging system. This feature is currently in beta and may not work for all users.",
     },
     {
       id: 13,
@@ -146,21 +143,14 @@ const FAQ = () => {
       category: "payments",
       question: "Is HealthyConnect free to use?",
       answer:
-        "Yes, creating an account and searching for jobs is completely free for healthcare professionals. Some premium features like profile boosting may have associated costs, which will be clearly communicated.",
+        "Yes, creating an account and searching for jobs is completely free for healthcare professionals. Some premium features like profile boosting will be introduced in the future.",
     },
     {
       id: 15,
       category: "payments",
       question: "Are there fees for healthcare facilities?",
       answer:
-        "Basic job posting is free for verified healthcare facilities. We may offer premium services like featured job listings or advanced recruitment tools for a fee, but basic functionality remains free.",
-    },
-    {
-      id: 16,
-      category: "payments",
-      question: "How do I handle payments for locum work?",
-      answer:
-        "HealthyConnect facilitates connections between healthcare professionals and facilities. Payment arrangements are made directly between you and the hiring facility. We recommend discussing payment terms before accepting any position.",
+        "Basic job posting is free for verified healthcare facilities. We may offer premium services like featured job listings or advanced recruitment tools for a fee, but basic functionality remains free. Don't pay for any applications or job postings.",
     },
 
     // Privacy & Security
@@ -190,7 +180,7 @@ const FAQ = () => {
       category: "privacy",
       question: "How do you verify healthcare facilities?",
       answer:
-        "We verify all healthcare facilities by checking their business registration, licenses, and legitimacy. Only verified facilities can post jobs and contact candidates, ensuring a safe environment for job seekers.",
+        "We verify all healthcare facilities by checking their business registration, licenses, and legitimacy. Only verified facilities can post jobs and contact candidates, ensuring a safe environment for job seekers. This verification process is currently in beta and may not work for all facilities.",
     },
   ];
 

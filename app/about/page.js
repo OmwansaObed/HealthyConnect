@@ -12,13 +12,6 @@ import {
 // About Us Component
 const AboutUs = () => {
   const teamMembers = [
-    // {
-    //   name: "Dr. Elegwa",
-    //   role: "Founder Health realted jobs",
-    //   bio: "Medical Officer with  years in healthcare expertise",
-    //   avatar: "E",
-    //   color: "bg-blue-600",
-    // },
     {
       name: "Omwansa Obed",
       role: "Web Developer",
@@ -26,20 +19,6 @@ const AboutUs = () => {
       avatar: "OO",
       color: "bg-emerald-600",
     },
-    // {
-    //   name: "Dr. Grace Wanjiku",
-    //   role: "Head of Medical Relations",
-    //   bio: "Specialist in healthcare recruitment and professional development",
-    //   avatar: "GW",
-    //   color: "bg-purple-600",
-    // },
-    // {
-    //   name: "James Mwangi",
-    //   role: "Head of Operations",
-    //   bio: "Operations expert focused on optimizing healthcare workforce solutions",
-    //   avatar: "JM",
-    //   color: "bg-orange-600",
-    // },
   ];
 
   const values = [
@@ -117,7 +96,7 @@ const AboutUs = () => {
               </h2>
               <div className="space-y-6 text-lg text-gray-600 leading-relaxed">
                 <motion.p variants={fadeIn("up", "tween", 0.4, 1)}>
-                  Founded in 2023, HealthyConnect emerged from a simple
+                  Founded in 2025, HealthyConnect emerged from a simple
                   observation: Kenya&apos;s healthcare system had incredible
                   professionals and facilities, but they weren&apos;t finding
                   each other efficiently.

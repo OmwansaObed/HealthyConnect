@@ -276,7 +276,7 @@ const Mission = () => {
             opportunity or a facility seeking qualified staff, you&apos;re part
             of our mission to transform healthcare in Kenya.
           </motion.p>
-          <motion.div
+          {/* <motion.div
             className="flex flex-col sm:flex-row gap-4 justify-center"
             variants={fadeIn("up", "spring", 0.3, 0.6)}
           >
@@ -304,7 +304,7 @@ const Mission = () => {
             >
               Learn More
             </motion.button>
-          </motion.div>
+          </motion.div> */}
         </div>
       </motion.section>
     </div>

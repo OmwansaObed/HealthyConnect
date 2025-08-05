@@ -1,6 +1,5 @@
 "use client";
 import React, { useState } from "react";
-import { motion } from "framer-motion";
 import {
   BookOpen,
   Users,
@@ -29,19 +28,6 @@ import {
 const InterviewTipsPage = () => {
   const [expandedTip, setExpandedTip] = useState(null);
   const [selectedCareer, setSelectedCareer] = useState("nursing");
-
-  const fadeInUp = {
-    hidden: { opacity: 0, y: 60 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
-  };
-
-  const staggerContainer = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: { staggerChildren: 0.1 },
-    },
-  };
 
   const interviewTips = [
     {
@@ -245,12 +231,12 @@ const InterviewTipsPage = () => {
   };
 
   const TipCard = ({ tip }) => (
-    <motion.div
-      className="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden"
-      variants={fadeInUp}
-      whileHover={{ y: -5, boxShadow: "0 20px 40px rgba(0,0,0,0.1)" }}
-    >
-      <div className="p-6 cursor-pointer" onClick={() => toggleTip(tip.id)}>
+    <div className="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+      {/* Clickable Header Only */}
+      <div
+        className="p-6 cursor-pointer select-none hover:bg-gray-50 transition-colors duration-200 border-b border-gray-100"
+        onClick={() => toggleTip(tip.id)}
+      >
         <div className="flex items-start space-x-4">
           <div className="w-12 h-12 bg-blue-500 rounded-xl flex items-center justify-center flex-shrink-0">
             <tip.icon className="w-6 h-6 text-white" />
@@ -258,85 +244,89 @@ const InterviewTipsPage = () => {
           <div className="flex-1">
             <div className="flex items-center justify-between">
               <h3 className="text-xl font-bold text-gray-900">{tip.title}</h3>
-              {expandedTip === tip.id ? (
-                <ChevronUp className="w-5 h-5 text-gray-500" />
-              ) : (
+              <div
+                className={`transform transition-transform duration-200 ${
+                  expandedTip === tip.id ? "rotate-180" : ""
+                }`}
+              >
                 <ChevronDown className="w-5 h-5 text-gray-500" />
-              )}
+              </div>
             </div>
             <p className="text-gray-600 mt-2">{tip.summary}</p>
           </div>
         </div>
       </div>
 
-      {expandedTip === tip.id && (
-        <motion.div
-          className="px-6 pb-6"
-          initial={{ opacity: 0, height: 0 }}
-          animate={{ opacity: 1, height: "auto" }}
-          exit={{ opacity: 0, height: 0 }}
-          transition={{ duration: 0.3 }}
-        >
+      {/* Expandable Content */}
+      <div
+        className={`overflow-hidden transition-all duration-300 ease-in-out ${
+          expandedTip === tip.id ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
+        }`}
+      >
+        <div className="px-6 pb-6 pt-4">
           <div className="bg-gray-50 rounded-lg p-4">
-            <ul className="space-y-2">
+            <ul className="space-y-3">
               {tip.details.map((detail, index) => (
-                <li key={index} className="flex items-start space-x-2">
-                  <CheckCircle className="w-4 h-4 text-emerald-500 mt-0.5 flex-shrink-0" />
-                  <span className="text-gray-700">{detail}</span>
+                <li
+                  key={index}
+                  className="flex items-start space-x-3 animate-fade-in"
+                  style={{ animationDelay: `${index * 0.1}s` }}
+                >
+                  <CheckCircle className="w-4 h-4 text-emerald-500 mt-1 flex-shrink-0" />
+                  <span className="text-gray-700 leading-relaxed">
+                    {detail}
+                  </span>
                 </li>
               ))}
             </ul>
           </div>
-        </motion.div>
-      )}
-    </motion.div>
+        </div>
+      </div>
+    </div>
   );
 
   return (
     <div className="min-h-screen bg-gray-50">
+      <style jsx>{`
+        @keyframes fade-in {
+          from {
+            opacity: 0;
+            transform: translateX(-10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateX(0);
+          }
+        }
+        .animate-fade-in {
+          animation: fade-in 0.3s ease-out both;
+        }
+      `}</style>
+
       {/* Hero Section */}
-      <motion.section
-        className="bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 text-white py-20"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 1 }}
-      >
+      <section className="bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 text-white py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <motion.h1
-            className="text-4xl lg:text-6xl font-bold mb-6"
-            variants={fadeInUp}
-            initial="hidden"
-            animate="visible"
-          >
+          <h1 className="text-4xl lg:text-6xl font-bold mb-6 animate-fade-in">
             Healthcare Career
             <span className="bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">
               {" "}
               Success Guide
             </span>
-          </motion.h1>
-          <motion.p
-            className="text-xl text-blue-100 mb-8 max-w-3xl mx-auto"
-            variants={fadeInUp}
-            initial="hidden"
-            animate="visible"
-            transition={{ delay: 0.2 }}
+          </h1>
+          <p
+            className="text-xl text-blue-100 mb-8 max-w-3xl mx-auto animate-fade-in"
+            style={{ animationDelay: "0.2s" }}
           >
             Master your healthcare interviews, understand salary expectations,
             and explore career advancement opportunities
-          </motion.p>
+          </p>
         </div>
-      </motion.section>
+      </section>
 
       {/* Interview Tips Section */}
-      <motion.section
-        className="py-20"
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true }}
-        variants={staggerContainer}
-      >
+      <section className="py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div className="text-center mb-16" variants={fadeInUp}>
+          <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-gray-900 mb-4">
               Interview Tips for
               <span className="text-blue-600"> Healthcare Professionals</span>
@@ -345,26 +335,26 @@ const InterviewTipsPage = () => {
               Prepare for success with our comprehensive interview guide
               tailored specifically for healthcare careers
             </p>
-          </motion.div>
+          </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {interviewTips.map((tip) => (
-              <TipCard key={tip.id} tip={tip} />
+            {interviewTips.map((tip, index) => (
+              <div
+                key={tip.id}
+                className="animate-fade-in"
+                style={{ animationDelay: `${index * 0.1}s` }}
+              >
+                <TipCard tip={tip} />
+              </div>
             ))}
           </div>
         </div>
-      </motion.section>
+      </section>
 
       {/* Salary Guide Section */}
-      <motion.section
-        className="py-20 bg-white"
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true }}
-        variants={staggerContainer}
-      >
+      <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div className="text-center mb-16" variants={fadeInUp}>
+          <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-gray-900 mb-4">
               Healthcare Salary
               <span className="text-green-600"> Guide</span>
@@ -373,7 +363,7 @@ const InterviewTipsPage = () => {
               Understand competitive salary ranges across different healthcare
               positions in Kenya
             </p>
-          </motion.div>
+          </div>
 
           {/* Salary Category Tabs */}
           <div className="flex flex-wrap justify-center gap-4 mb-12">
@@ -381,10 +371,10 @@ const InterviewTipsPage = () => {
               <button
                 key={key}
                 onClick={() => setSelectedCareer(key)}
-                className={`flex items-center space-x-2 px-6 py-3 rounded-xl font-medium transition-all ${
+                className={`flex items-center space-x-2 px-6 py-3 rounded-xl font-medium transition-all duration-200 ${
                   selectedCareer === key
-                    ? "bg-blue-600 text-white shadow-lg"
-                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                    ? "bg-blue-600 text-white shadow-lg transform scale-105"
+                    : "bg-gray-100 text-gray-700 hover:bg-gray-200 hover:shadow-md"
                 }`}
               >
                 <data.icon className="w-5 h-5" />
@@ -394,10 +384,7 @@ const InterviewTipsPage = () => {
           </div>
 
           {/* Salary Ranges Display */}
-          <motion.div
-            className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-8"
-            variants={fadeInUp}
-          >
+          <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-8 transition-all duration-400">
             <div className="flex items-center mb-6">
               {React.createElement(salaryData[selectedCareer].icon, {
                 className: "w-8 h-8 text-blue-600 mr-3",
@@ -409,11 +396,10 @@ const InterviewTipsPage = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {salaryData[selectedCareer].ranges.map((range, index) => (
-                <motion.div
+                <div
                   key={index}
-                  className="bg-white rounded-xl p-6 shadow-sm border border-gray-100"
-                  whileHover={{ scale: 1.02 }}
-                  transition={{ type: "spring", stiffness: 300 }}
+                  className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 transition-all duration-200 hover:scale-105 hover:shadow-lg animate-fade-in"
+                  style={{ animationDelay: `${index * 0.1}s` }}
                 >
                   <div className="flex items-center justify-between">
                     <div>
@@ -426,7 +412,7 @@ const InterviewTipsPage = () => {
                     </div>
                     <DollarSign className="w-8 h-8 text-green-500" />
                   </div>
-                </motion.div>
+                </div>
               ))}
             </div>
 
@@ -438,20 +424,14 @@ const InterviewTipsPage = () => {
                 institutions in most setups.
               </p>
             </div>
-          </motion.div>
+          </div>
         </div>
-      </motion.section>
+      </section>
 
       {/* Career Highlights Section */}
-      <motion.section
-        className="py-20 bg-gray-50"
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true }}
-        variants={staggerContainer}
-      >
+      <section className="py-20 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div className="text-center mb-16" variants={fadeInUp}>
+          <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-gray-900 mb-4">
               Healthcare Career
               <span className="text-purple-600"> Highlights</span>
@@ -459,15 +439,14 @@ const InterviewTipsPage = () => {
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
               Discover the rewarding aspects of building a career in healthcare
             </p>
-          </motion.div>
+          </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {careerHighlights.map((highlight, index) => (
-              <motion.div
+              <div
                 key={index}
-                className="bg-white rounded-2xl p-8 shadow-lg border border-gray-100"
-                variants={fadeInUp}
-                whileHover={{ y: -5, boxShadow: "0 20px 40px rgba(0,0,0,0.1)" }}
+                className="bg-white rounded-2xl p-8 shadow-lg border border-gray-100 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 animate-fade-in"
+                style={{ animationDelay: `${index * 0.1}s` }}
               >
                 <div className="flex items-center mb-6">
                   <div
@@ -488,20 +467,14 @@ const InterviewTipsPage = () => {
                     </li>
                   ))}
                 </ul>
-              </motion.div>
+              </div>
             ))}
           </div>
         </div>
-      </motion.section>
+      </section>
 
       {/* CTA Section */}
-      <motion.section
-        className="py-20 bg-gradient-to-r from-blue-600 to-indigo-700 text-white"
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true }}
-        variants={fadeInUp}
-      >
+      <section className="py-20 bg-gradient-to-r from-blue-600 to-indigo-700 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-4xl font-bold mb-6">
             Ready to Advance Your Healthcare Career?
@@ -511,27 +484,23 @@ const InterviewTipsPage = () => {
             and build a fulfilling career
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <motion.a
+            <a
               href="https://www.jobseeker.com/app/resumes/start"
               target="_blank"
               rel="noopener noreferrer"
-              className="bg-white text-blue-600 px-8 py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+              className="bg-white text-blue-600 px-8 py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105"
             >
               CV Builder
-            </motion.a>
-            <motion.a
+            </a>
+            <a
               href="/jobs"
-              className="bg-emerald-500 text-white px-8 py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+              className="bg-emerald-500 text-white px-8 py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105"
             >
               Browse Jobs
-            </motion.a>
+            </a>
           </div>
         </div>
-      </motion.section>
+      </section>
     </div>
   );
 };

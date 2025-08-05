@@ -2,9 +2,9 @@ import { connectDB } from "../../../../lib/db.js";
 import Job from "../../../../models/Job.js";
 import { NextResponse } from "next/server";
 
-export async function GET(request, { params }) {
+export async function GET(request, context) {
   await connectDB();
-  const { id } = params;
+  const { id } = await context.params;
   try {
     // Increment views and return the job
     const job = await Job.findByIdAndUpdate(

@@ -1,3 +1,4 @@
+// models/Contact.js - Enhanced version of your existing model
 import mongoose from "mongoose";
 
 const ContactSchema = new mongoose.Schema(
@@ -55,6 +56,16 @@ const ContactSchema = new mongoose.Schema(
       type: String,
       trim: true,
     },
+
+    // NEW FIELDS for email tracking
+    emailSent: {
+      type: Boolean,
+      default: false,
+    },
+    emailMessageId: {
+      type: String,
+      trim: true,
+    },
   },
   {
     timestamps: true,
@@ -91,6 +102,7 @@ ContactSchema.methods.addReply = function (reply, repliedBy) {
   this.repliedBy = repliedBy;
   this.repliedAt = new Date();
   this.status = "replied";
+  this.isRead = true; // Ensure it's marked as read when replied
   return this.save();
 };
 
