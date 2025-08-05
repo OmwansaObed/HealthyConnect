@@ -39,8 +39,6 @@ export default function JobSearchPage() {
   // Filter states
   const [selectedCategory, setSelectedCategory] = useState("");
   const [selectedType, setSelectedType] = useState("");
-  const [selectedExperience, setSelectedExperience] = useState("");
-  const [selectedLocation, setSelectedLocation] = useState("");
 
   const { data, isLoading } = useGetJobsQuery({ all: true });
   const jobs = data?.jobs || [];
@@ -67,33 +65,17 @@ export default function JobSearchPage() {
       matches = job.type === selectedType;
     }
 
-    // Experience filter
-    if (matches && selectedExperience) {
-      matches = job.experience === selectedExperience;
-    }
-
-    // Location filter
-    if (matches && selectedLocation) {
-      matches = job.location?.state === selectedLocation;
-    }
-
     return matches;
   });
 
   const clearAllFilters = () => {
     setSelectedCategory("");
     setSelectedType("");
-    setSelectedExperience("");
-    setSelectedLocation("");
+
     setSearchTerm("");
   };
 
-  const hasActiveFilters =
-    searchTerm ||
-    selectedCategory ||
-    selectedType ||
-    selectedExperience ||
-    selectedLocation;
+  const hasActiveFilters = searchTerm || selectedCategory || selectedType;
 
   const handleViewDetails = (job) => {
     setSelectedJob(job);
@@ -187,20 +169,6 @@ export default function JobSearchPage() {
                   onChange={(e) => setSelectedType(e.target.value)}
                   icon={Clock}
                 />
-                <FilterSelect
-                  label="Experience"
-                  value={selectedExperience}
-                  options={EXPERIENCE_LEVELS}
-                  onChange={(e) => setSelectedExperience(e.target.value)}
-                  icon={GraduationCap}
-                />
-                <FilterSelect
-                  label="Location"
-                  value={selectedLocation}
-                  options={LOCATIONS}
-                  onChange={(e) => setSelectedLocation(e.target.value)}
-                  icon={MapPin}
-                />
               </div>
             </div>
           )}
@@ -237,20 +205,6 @@ export default function JobSearchPage() {
                   options={JOB_TYPES}
                   onChange={(e) => setSelectedType(e.target.value)}
                   icon={Clock}
-                />
-                <FilterSelect
-                  label="Experience Level"
-                  value={selectedExperience}
-                  options={EXPERIENCE_LEVELS}
-                  onChange={(e) => setSelectedExperience(e.target.value)}
-                  icon={GraduationCap}
-                />
-                <FilterSelect
-                  label="Location"
-                  value={selectedLocation}
-                  options={LOCATIONS}
-                  onChange={(e) => setSelectedLocation(e.target.value)}
-                  icon={MapPin}
                 />
               </div>
 

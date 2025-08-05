@@ -117,10 +117,6 @@ const AdminHeader = ({ toggleSidebar, isSidebarOpen }) => {
                   </p>
                 </div>
                 <div className="py-2">
-                  <button className="flex items-center space-x-2 w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
-                    <Settings className="w-4 h-4" />
-                    <span>Settings</span>
-                  </button>
                   <button className="flex items-center space-x-2 w-full px-4 py-2 text-sm text-red-600 hover:bg-gray-50">
                     <LogOut className="w-4 h-4" />
                     <span>Logout</span>

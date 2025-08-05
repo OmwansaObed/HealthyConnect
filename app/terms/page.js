@@ -1,6 +1,13 @@
 "use client";
-import { Shield } from "lucide-react";
-import { motion } from "framer-motion";
+import {
+  Shield,
+  FileText,
+  Users,
+  CheckCircle,
+  Mail,
+  Phone,
+  MapPin,
+} from "lucide-react";
 
 const TermsOfService = () => {
   const sections = [
@@ -56,214 +63,180 @@ const TermsOfService = () => {
     },
   ];
 
-  // Basic animation variants
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
-        delayChildren: 0.2,
-      },
-    },
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 30 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        duration: 0.6,
-        ease: "easeOut",
-      },
-    },
-  };
-
-  const titleVariants = {
-    hidden: { opacity: 0, y: 50 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        duration: 0.8,
-        ease: "easeOut",
-      },
-    },
-  };
-
-  // Consistent hover effects
-  const cardHoverEffect = {
-    scale: 1.02,
-    y: -4,
-    boxShadow:
-      "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)",
-    transition: { duration: 0.3, ease: "easeOut" },
-  };
-
-  const textHoverEffect = {
-    x: 8,
-    color: "#3b82f6",
-    transition: { duration: 0.3, ease: "easeOut" },
-  };
-
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-gray-50">
+      <style jsx>{`
+        @keyframes fade-in {
+          from {
+            opacity: 0;
+            transform: translateX(-10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateX(0);
+          }
+        }
+        .animate-fade-in {
+          animation: fade-in 0.3s ease-out both;
+        }
+      `}</style>
+
       {/* Hero Section */}
-      <motion.section
-        className="bg-gray-800 py-20"
-        initial="hidden"
-        animate="visible"
-        variants={containerVariants}
-      >
+      <section className="bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 text-white py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <motion.h1
-            className="text-5xl font-bold text-white mb-6"
-            variants={titleVariants}
-          >
-            Terms of <span className="text-blue-400">Service</span>
-          </motion.h1>
-          <motion.p
-            className="text-xl text-gray-300 max-w-3xl mx-auto mb-8"
-            variants={itemVariants}
+          <h1 className="text-4xl lg:text-6xl font-bold mb-6 animate-fade-in">
+            Terms of
+            <span className="bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">
+              {" "}
+              Service
+            </span>
+          </h1>
+          <p
+            className="text-xl text-blue-100 mb-8 max-w-3xl mx-auto animate-fade-in"
+            style={{ animationDelay: "0.2s" }}
           >
             Please read these terms carefully before using HealthyConnect
-          </motion.p>
-          <motion.div className="text-gray-400" variants={itemVariants}>
+          </p>
+          <div
+            className="text-blue-200 animate-fade-in"
+            style={{ animationDelay: "0.3s" }}
+          >
             <p>Last updated: June 16, 2025</p>
-          </motion.div>
+          </div>
         </div>
-      </motion.section>
+      </section>
 
-      <div className="bg-red-600 text-white py-2 text-center">
-        Do not skip this section
-      </div>
+      {/* Important Notice */}
+      <section className="py-2 bg-red-600">
+        <div className="max-w-7xl mx-auto  ">
+          <div className="text-center text-white">
+            <p className="text-lg font-semibold">Do not skip this section</p>
+          </div>
+        </div>
+      </section>
 
       {/* Terms Content */}
-      <motion.section
-        className="py-20"
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, amount: 0.25 }}
-        variants={containerVariants}
-      >
+      <section className="py-20 bg-white">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Important Notice Card */}
-          <motion.div
-            className="bg-blue-50 border-l-4 border-blue-500 p-8 mb-12 rounded-xl"
-            variants={itemVariants}
-            whileHover={cardHoverEffect}
-          >
-            <div className="flex items-start">
-              <motion.div
-                className="mr-4 mt-1 flex-shrink-0"
-                initial={{ scale: 0, rotate: -180 }}
-                animate={{ scale: 1, rotate: 0 }}
-                transition={{
-                  delay: 0.3,
-                  type: "spring",
-                  stiffness: 260,
-                  damping: 20,
-                }}
-                whileHover={{ rotate: 15, scale: 1.1 }}
-              >
-                <Shield className="w-6 h-6 text-blue-500" />
-              </motion.div>
+          <div className="bg-blue-50 border-l-4 border-blue-500 p-8 mb-12 rounded-xl shadow-lg transition-all duration-300 hover:shadow-xl hover:-translate-y-1 animate-fade-in">
+            <div className="flex items-start space-x-4">
+              <div className="w-12 h-12 bg-blue-500 rounded-xl flex items-center justify-center flex-shrink-0">
+                <Shield className="w-6 h-6 text-white" />
+              </div>
               <div className="flex-1">
-                <motion.h3
-                  className="text-lg font-semibold text-blue-900 mb-3"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.4, duration: 0.5 }}
-                >
+                <h3 className="text-xl font-bold text-blue-900 mb-3">
                   Important Notice
-                </motion.h3>
-                <motion.p
-                  className="text-blue-800 leading-relaxed"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.5, duration: 0.5 }}
-                >
+                </h3>
+                <p className="text-blue-800 leading-relaxed">
                   These Terms of Service constitute a legally binding agreement
                   between you and HealthyConnect. By using our services, you
                   acknowledge that you have read, understood, and agree to these
                   terms.
-                </motion.p>
+                </p>
               </div>
             </div>
-          </motion.div>
+          </div>
 
           {/* Terms Sections */}
-          <motion.div className="space-y-8 mb-12" variants={containerVariants}>
+          <div className="space-y-8 mb-12">
             {sections.map((section, index) => (
-              <motion.div
+              <div
                 key={index}
-                className="bg-white rounded-xl p-8 shadow-lg border border-gray-100"
-                variants={itemVariants}
-                whileHover={cardHoverEffect}
+                className="bg-white rounded-xl p-8 shadow-lg border border-gray-100 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 animate-fade-in"
+                style={{ animationDelay: `${index * 0.1}s` }}
               >
-                <motion.h2
-                  className="text-2xl font-bold text-gray-900 mb-4"
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: index * 0.1 + 0.3, duration: 0.5 }}
-                >
-                  {section.title}
-                </motion.h2>
-                <motion.p
-                  className="text-gray-600 leading-relaxed"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: index * 0.1 + 0.4, duration: 0.5 }}
-                >
-                  {section.content}
-                </motion.p>
-              </motion.div>
+                <div className="flex items-start space-x-4">
+                  <div className="w-12 h-12 bg-blue-500 rounded-xl flex items-center justify-center flex-shrink-0">
+                    <FileText className="w-6 h-6 text-white" />
+                  </div>
+                  <div className="flex-1">
+                    <h2 className="text-xl font-bold text-gray-900 mb-4">
+                      {section.title}
+                    </h2>
+                    <p className="text-gray-600 leading-relaxed">
+                      {section.content}
+                    </p>
+                  </div>
+                </div>
+              </div>
             ))}
-          </motion.div>
-
-          {/* Contact Information */}
-          <motion.div
-            className="bg-gray-50 rounded-xl p-8"
-            variants={itemVariants}
-            whileHover={cardHoverEffect}
-          >
-            <motion.h2
-              className="text-2xl font-bold text-gray-900 mb-4"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5, duration: 0.5 }}
-            >
-              Contact Information
-            </motion.h2>
-            <motion.p
-              className="text-gray-600 mb-6 leading-relaxed"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.6, duration: 0.5 }}
-            >
-              If you have any questions about these Terms of Service, please
-              contact us:
-            </motion.p>
-            <motion.div
-              className="space-y-3 text-gray-600"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.7, duration: 0.5 }}
-            >
-              <motion.p className="cursor-pointer" whileHover={textHoverEffect}>
-                <strong>Email:</strong> healthyconnect010@gmail.com
-              </motion.p>
-              <motion.p className="cursor-pointer" whileHover={textHoverEffect}>
-                <strong>Phone:</strong> +254 794 909 991
-              </motion.p>
-              <motion.p className="cursor-pointer" whileHover={textHoverEffect}>
-                <strong>Address:</strong> Mradi, Embakasi, Nairobi, Kenya
-              </motion.p>
-            </motion.div>
-          </motion.div>
+          </div>
         </div>
-      </motion.section>
+      </section>
+
+      {/* Contact Information */}
+      <section className="py-20 bg-gray-50">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="bg-white rounded-2xl p-8 shadow-lg border border-gray-100 transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+            <div className="flex items-start space-x-4 mb-6">
+              <div className="w-12 h-12 bg-green-500 rounded-xl flex items-center justify-center flex-shrink-0">
+                <Users className="w-6 h-6 text-white" />
+              </div>
+              <div className="flex-1">
+                <h2 className="text-2xl font-bold text-gray-900 mb-4">
+                  Contact Information
+                </h2>
+                <p className="text-gray-600 mb-6 leading-relaxed">
+                  If you have any questions about these Terms of Service, please
+                  contact us:
+                </p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="bg-gray-50 rounded-xl p-6 transition-all duration-200 hover:scale-105 hover:shadow-lg">
+                <div className="flex items-center space-x-3 mb-2">
+                  <Mail className="w-5 h-5 text-blue-600" />
+                  <span className="font-semibold text-gray-900">Email</span>
+                </div>
+                <p className="text-gray-600">healthyconnect010@gmail.com</p>
+              </div>
+
+              <div className="bg-gray-50 rounded-xl p-6 transition-all duration-200 hover:scale-105 hover:shadow-lg">
+                <div className="flex items-center space-x-3 mb-2">
+                  <Phone className="w-5 h-5 text-green-600" />
+                  <span className="font-semibold text-gray-900">Phone</span>
+                </div>
+                <p className="text-gray-600">+254 794 909 991</p>
+              </div>
+
+              <div className="bg-gray-50 rounded-xl p-6 transition-all duration-200 hover:scale-105 hover:shadow-lg">
+                <div className="flex items-center space-x-3 mb-2">
+                  <MapPin className="w-5 h-5 text-red-600" />
+                  <span className="font-semibold text-gray-900">Address</span>
+                </div>
+                <p className="text-gray-600">Mradi, Embakasi, Nairobi, Kenya</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="py-20 bg-gradient-to-r from-blue-600 to-indigo-700 text-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h2 className="text-4xl font-bold mb-6">Ready to Get Started?</h2>
+          <p className="text-xl text-blue-100 mb-8 max-w-3xl mx-auto">
+            Join HealthyConnect today and start connecting with healthcare
+            opportunities across Kenya
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <a
+              href="/register"
+              className="bg-white text-blue-600 px-8 py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105"
+            >
+              Sign Up Now
+            </a>
+            <a
+              href="/jobs"
+              className="bg-emerald-500 text-white px-8 py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105"
+            >
+              Browse Jobs
+            </a>
+          </div>
+        </div>
+      </section>
     </div>
   );
 };

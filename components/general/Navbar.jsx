@@ -186,14 +186,7 @@ export default function Navbar() {
                       <User className="w-5 h-5" />
                       <span className="font-medium">My Profile</span>
                     </Link>
-                    <Link
-                      href="/settings"
-                      className="flex items-center space-x-3 px-4 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-700 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-sm hover:shadow-md"
-                      onClick={handleProfileMenuClose}
-                    >
-                      <Settings className="w-5 h-5" />
-                      <span className="font-medium">Settings</span>
-                    </Link>
+
                     <button
                       onClick={handleLogout}
                       className="flex items-center space-x-3 w-full px-4 py-3 text-red-600 hover:bg-red-50 rounded-xl transition-all duration-300 mt-2 transform hover:scale-105 shadow-sm hover:shadow-md"
@@ -240,18 +233,6 @@ export default function Navbar() {
           </div>
         </div>
 
-        <div className="flex items-center justify-between px-4 py-4 text-white hover:text-blue-200 hover:bg-white/10 rounded-xl transition-all duration-300 border border-transparent hover:border-white/20 shadow-sm hover:shadow-md transform hover:scale-105">
-          <div className="flex items-center space-x-3">
-            <NotificationBell mobile={true} />
-            <span className="text-lg font-medium">Notifications</span>
-          </div>
-          {unread && (
-            <span className="px-3 py-1 bg-yellow-400 text-blue-900 text-xs font-bold rounded-full animate-pulse shadow-md">
-              New
-            </span>
-          )}
-        </div>
-
         {session.user?.role === true && (
           <Link
             href="/admin/dashboard"
@@ -270,15 +251,6 @@ export default function Navbar() {
         >
           <User className="w-5 h-5" />
           <span className="text-lg font-medium">My Profile</span>
-        </Link>
-
-        <Link
-          href="/settings"
-          className="flex items-center space-x-3 px-4 py-4 text-white hover:text-blue-200 hover:bg-white/10 rounded-xl transition-all duration-300 border border-transparent hover:border-white/20 shadow-sm hover:shadow-md transform hover:scale-105"
-          onClick={closeMobileMenu}
-        >
-          <Settings className="w-5 h-5" />
-          <span className="text-lg font-medium">Settings</span>
         </Link>
 
         <button

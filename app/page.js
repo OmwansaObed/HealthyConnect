@@ -29,6 +29,7 @@ import {
   Quote,
   MapPin,
   Skull,
+  Grid3X3,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -115,7 +116,6 @@ const JOB_CATEGORIES = [
   { name: "Radiography", color: "bg-red-500", icon: Zap },
   { name: "Nutritionist", color: "bg-lime-600", icon: Thermometer },
   { name: "Dental", color: "bg-blue-500", icon: Smile },
-
   { name: "Mental Health", color: "bg-violet-600", icon: Brain },
   { name: "Health Admin", color: "bg-sky-500", icon: Briefcase },
   { name: "Health Education", color: "bg-teal-600", icon: BookOpen },
@@ -123,6 +123,7 @@ const JOB_CATEGORIES = [
   { name: "Health Records", color: "bg-slate-500", icon: Activity },
   { name: "OrthoPaedics", color: "bg-zinc-600", icon: Skull },
 ];
+
 const FEATURES_DATA = [
   {
     icon: Shield,
@@ -306,6 +307,52 @@ const JobCategoryCard = ({ category, index }) => {
   );
 };
 
+const MoreCategoriesCard = () => {
+  return (
+    <motion.div
+      className="group cursor-pointer"
+      variants={ANIMATION_VARIANTS.fadeInUp}
+      initial="rest"
+      whileHover="hover"
+      animate="rest"
+    >
+      <Link href="/categories">
+        <motion.div
+          className="bg-gradient-to-br from-blue-50 to-indigo-100 rounded-2xl p-8 shadow-lg border border-blue-200 h-full flex flex-col items-center justify-center text-center"
+          variants={ANIMATION_VARIANTS.cardHover}
+          whileHover={{
+            borderColor: "#3b82f6",
+            boxShadow: "0 20px 40px rgba(59, 130, 246, 0.15)",
+            background: "linear-gradient(135deg, #dbeafe 0%, #e0e7ff 100%)",
+          }}
+        >
+          <motion.div
+            className="w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center mb-6"
+            whileHover={{ rotate: 5, scale: 1.1 }}
+            transition={{ type: "spring", stiffness: 300, damping: 20 }}
+          >
+            <Grid3X3 className="w-8 h-8 text-white" />
+          </motion.div>
+          <h3 className="text-2xl font-bold text-gray-900 mb-2">
+            More Categories
+          </h3>
+          <p className="text-blue-600 mb-4 font-medium">
+            {JOB_CATEGORIES.length - 3}+ additional specialties
+          </p>
+
+          <motion.div
+            className="flex items-center text-blue-600 font-medium"
+            whileHover={{ x: 5 }}
+          >
+            <span>View All</span>
+            <ArrowRight className="w-4 h-4 ml-2" />
+          </motion.div>
+        </motion.div>
+      </Link>
+    </motion.div>
+  );
+};
+
 const FeatureCard = ({ feature, index }) => (
   <motion.div
     className="flex items-start space-x-4"
@@ -419,7 +466,7 @@ const HeroSection = () => (
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, delay: 0.2 }}
       >
-        Your Dream{" "}
+        Your Dream
         <motion.span
           className="bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent"
           initial={{ opacity: 0, scale: 0.8 }}
@@ -427,7 +474,7 @@ const HeroSection = () => (
           transition={{ duration: 0.8, delay: 0.5 }}
         >
           Healthcare Career
-        </motion.span>{" "}
+        </motion.span>
         Starts Here
       </motion.h1>
 
@@ -437,8 +484,8 @@ const HeroSection = () => (
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, delay: 0.4 }}
       >
-        Connect with top healthcare facilities and discover opportunities that
-        match your passion for making a difference in people's lives.
+        You have been identified as a strong candidate for an open position.
+        Securing a job has never been this seamless.
       </motion.p>
 
       <motion.div
@@ -486,45 +533,51 @@ const StatsSection = ({ onClick }) => (
   </motion.section>
 );
 
-const JobCategoriesSection = ({ onClick }) => (
-  <motion.section
-    id="get-started"
-    className="py-20"
-    initial="hidden"
-    whileInView="visible"
-    viewport={{ once: true, margin: "-50px" }}
-    variants={ANIMATION_VARIANTS.staggerContainer}
-    onClick={onClick}
-  >
-    <div
-      id="explore-opportunities"
-      className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"
-    >
-      <motion.div
-        className="text-center mb-16"
-        variants={ANIMATION_VARIANTS.fadeInUp}
-      >
-        <h2 className="text-4xl font-bold text-gray-900 mb-4">
-          Explore Healthcare
-          <span className="text-blue-600"> Opportunities</span>
-        </h2>
-        <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-          Discover your perfect role across various healthcare specialties and
-          make a meaningful impact in patient care.
-        </p>
-      </motion.div>
+const JobCategoriesSection = ({ onClick }) => {
+  // Get only the first 3 categories
+  const displayedCategories = JOB_CATEGORIES.slice(0, 3);
 
-      <motion.div
-        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
-        variants={ANIMATION_VARIANTS.staggerContainer}
+  return (
+    <motion.section
+      id="get-started"
+      className="py-20"
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true, margin: "-50px" }}
+      variants={ANIMATION_VARIANTS.staggerContainer}
+      onClick={onClick}
+    >
+      <div
+        id="explore-opportunities"
+        className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"
       >
-        {JOB_CATEGORIES.map((category, index) => (
-          <JobCategoryCard key={index} category={category} index={index} />
-        ))}
-      </motion.div>
-    </div>
-  </motion.section>
-);
+        <motion.div
+          className="text-center mb-16"
+          variants={ANIMATION_VARIANTS.fadeInUp}
+        >
+          <h2 className="text-4xl font-bold text-gray-900 mb-4">
+            Explore Healthcare
+            <span className="text-blue-600"> Opportunities</span>
+          </h2>
+          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+            Discover your perfect role across various healthcare specialties and
+            make a meaningful impact in patient care.
+          </p>
+        </motion.div>
+
+        <motion.div
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8"
+          variants={ANIMATION_VARIANTS.staggerContainer}
+        >
+          {displayedCategories.map((category, index) => (
+            <JobCategoryCard key={index} category={category} index={index} />
+          ))}
+          <MoreCategoriesCard />
+        </motion.div>
+      </div>
+    </motion.section>
+  );
+};
 
 const FeaturesSection = ({ lastJob, isLoading }) => (
   <motion.section
@@ -541,8 +594,8 @@ const FeaturesSection = ({ lastJob, isLoading }) => (
             Why Choose<span className="text-blue-600"> HealthyConnect?</span>
           </h2>
           <p className="text-xl text-gray-600 mb-8">
-            We're more than just a job board - we're your partner in building a
-            fulfilling healthcare career.
+            We&apos;re more than just a job board - we&apos;re your partner in
+            building a fulfilling healthcare career.
           </p>
 
           <div className="space-y-6">
@@ -694,6 +747,182 @@ const TestimonialsSection = () => (
   </motion.section>
 );
 
+const SEOBoosterSection = () => (
+  <motion.section
+    className="py-20 bg-white"
+    initial="hidden"
+    whileInView="visible"
+    viewport={{ once: true }}
+    variants={ANIMATION_VARIANTS.staggerContainer}
+  >
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <motion.div
+        className="text-center mb-16"
+        variants={ANIMATION_VARIANTS.fadeInUp}
+      >
+        <h2 className="text-4xl font-bold text-gray-900 mb-4">
+          Healthcare Jobs in Kenya - Your Gateway to Medical Career Excellence
+        </h2>
+        <p className="text-xl text-gray-600 max-w-4xl mx-auto">
+          Discover the best healthcare opportunities across Kenya with
+          HealthyConnect - the leading platform connecting medical professionals
+          with top healthcare facilities nationwide.
+        </p>
+      </motion.div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-16">
+        <motion.div variants={ANIMATION_VARIANTS.fadeInUp}>
+          <h3 className="text-2xl font-bold text-gray-900 mb-6">
+            Find Healthcare Jobs Across Kenya
+          </h3>
+          <div className="prose prose-lg text-gray-600 space-y-4">
+            <p>
+              Kenya&apos;s healthcare sector offers diverse opportunities for
+              medical professionals at all career levels. From bustling
+              hospitals in Nairobi and Mombasa to rural clinics serving remote
+              communities, healthcare workers play a vital role in improving
+              lives across the nation.
+            </p>
+            <p>
+              Whether you&apos;re a registered nurse seeking ICU positions, a
+              clinical officer looking for primary care roles, or a medical
+              specialist pursuing consultant opportunities, HealthyConnect
+              connects you with verified employers nationwide.
+            </p>
+            <div className="mt-6">
+              <h4 className="font-semibold text-gray-900 mb-3">
+                Popular Healthcare Job Categories:
+              </h4>
+              <ul className="grid grid-cols-2 gap-2 text-sm">
+                <li>• Nursing Jobs in Kenya</li>
+                <li>• Medical Officer Positions</li>
+                <li>• Clinical Officer Opportunities</li>
+                <li>• Laboratory Technician Roles</li>
+                <li>• Pharmacy Jobs</li>
+                <li>• Radiography Positions</li>
+                <li>• Public Health Officer Jobs</li>
+                <li>• Community Health Worker Roles</li>
+              </ul>
+            </div>
+          </div>
+        </motion.div>
+
+        <motion.div variants={ANIMATION_VARIANTS.fadeInUp}>
+          <h3 className="text-2xl font-bold text-gray-900 mb-6">
+            Healthcare Employment by Location
+          </h3>
+          <div className="prose prose-lg text-gray-600 space-y-4">
+            <p>
+              Kenya&apos;s major healthcare hubs offer abundant opportunities
+              for medical professionals. Nairobi leads with the highest
+              concentration of referral hospitals, private clinics, and
+              specialized medical centers, while coastal regions like Mombasa
+              provide unique opportunities in tropical medicine and maritime
+              health.
+            </p>
+            <div className="mt-6">
+              <h4 className="font-semibold text-gray-900 mb-3">
+                Top Healthcare Job Locations:
+              </h4>
+              <div className="grid grid-cols-1 gap-3">
+                <div className="bg-gray-50 p-3 rounded-lg">
+                  <h5 className="font-medium text-gray-900">
+                    Nairobi Healthcare Jobs
+                  </h5>
+                  <p className="text-sm text-gray-600">
+                    Referral hospitals, private clinics, NGO positions
+                  </p>
+                </div>
+                <div className="bg-gray-50 p-3 rounded-lg">
+                  <h5 className="font-medium text-gray-900">
+                    Mombasa Medical Positions
+                  </h5>
+                  <p className="text-sm text-gray-600">
+                    Coastal healthcare, port health, tourism medicine
+                  </p>
+                </div>
+                <div className="bg-gray-50 p-3 rounded-lg">
+                  <h5 className="font-medium text-gray-900">
+                    Kisumu Health Opportunities
+                  </h5>
+                  <p className="text-sm text-gray-600">
+                    Regional hospitals, research institutions
+                  </p>
+                </div>
+                <div className="bg-gray-50 p-3 rounded-lg">
+                  <h5 className="font-medium text-gray-900">
+                    Nakuru Medical Jobs
+                  </h5>
+                  <p className="text-sm text-gray-600">
+                    County hospitals, maternal health programs
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </motion.div>
+      </div>
+
+      <motion.div
+        className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-3xl p-8 lg:p-12"
+        variants={ANIMATION_VARIANTS.fadeInUp}
+      >
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div>
+            <h3 className="text-xl font-bold text-gray-900 mb-4">
+              Healthcare Career Growth in Kenya
+            </h3>
+            <p className="text-gray-600 mb-4">
+              Kenya&apos;s Vision 2030 emphasizes healthcare as a key pillar,
+              creating numerous opportunities for career advancement in both
+              public and private sectors.
+            </p>
+            <ul className="text-sm text-gray-600 space-y-1">
+              <li>• Universal Health Coverage expansion</li>
+              <li>• Digital health initiatives</li>
+              <li>• Specialized training programs</li>
+              <li>• International collaboration opportunities</li>
+            </ul>
+          </div>
+
+          <div>
+            <h3 className="text-xl font-bold text-gray-900 mb-4">
+              Salary Ranges & Benefits
+            </h3>
+            <p className="text-gray-600 mb-4">
+              Competitive compensation packages across public and private
+              healthcare institutions, with additional benefits and professional
+              development opportunities.
+            </p>
+            <ul className="text-sm text-gray-600 space-y-1">
+              <li>• Medical Officer: KSh 80,000 - 150,000</li>
+              <li>• Registered Nurse: KSh 45,000 - 80,000</li>
+              <li>• Clinical Officer: KSh 35,000 - 65,000</li>
+              <li>• Plus housing, medical, transport allowances</li>
+            </ul>
+          </div>
+
+          <div>
+            <h3 className="text-xl font-bold text-gray-900 mb-4">
+              Professional Requirements
+            </h3>
+            <p className="text-gray-600 mb-4">
+              Stay updated with Kenya&apos;s healthcare professional licensing
+              and registration requirements through relevant regulatory bodies.
+            </p>
+            <ul className="text-sm text-gray-600 space-y-1">
+              <li>• Valid practicing licenses</li>
+              <li>• Continuous professional development</li>
+              <li>• Regulatory body registration</li>
+              <li>• Specialized certifications</li>
+            </ul>
+          </div>
+        </div>
+      </motion.div>
+    </div>
+  </motion.section>
+);
+
 const CTASection = () => (
   <motion.section
     className="py-20 bg-gradient-to-r from-blue-600 to-indigo-700"
@@ -755,6 +984,7 @@ export default function Homepage() {
       <JobCategoriesSection onClick={() => router.push("/categories")} />
       <FeaturesSection lastJob={lastJob} isLoading={isLoading} />
       <TestimonialsSection />
+      <SEOBoosterSection />
       <CTASection />
     </>
   );

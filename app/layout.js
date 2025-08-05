@@ -9,6 +9,9 @@ import SessionSyncClient from "../components/general/SessoinClient";
 
 export const metadata = {
   title: "Healthyconnect",
+  icons: {
+    icon: "/logo.png",
+  },
   keywords: [
     "healthcare",
     "medical",

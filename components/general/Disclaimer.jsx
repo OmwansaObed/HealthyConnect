@@ -8,8 +8,7 @@ const Disclaimer = () => (
       <div className="text-sm">
         <p className="font-medium text-amber-800 mb-1">Important Notice</p>
         <p className="text-amber-700 leading-relaxed">
-          Newer jobs have better chances of getting considered. Call to inqure.
-          Thank me later.
+          Newer jobs have better chances of getting considered. Call to inquire.
         </p>
       </div>
     </div>
