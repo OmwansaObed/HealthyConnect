@@ -8,21 +8,34 @@ import ScrollToTop from "../components/general/ScrollToTop";
 import SessionSyncClient from "../components/general/SessoinClient";
 
 export const metadata = {
-  title: "Healthyconnect",
+  title: "HealthyConnect | Apply jobs",
+  description:
+    "HealthyConnect is your trusted healthcare partner for online medical job search.Find and apply for jobs in healthcare, connect with top employers, and manage your applications seamlessly.",
   icons: {
     icon: "/logo.png",
   },
   keywords: [
-    "healthcare",
-    "medical",
-    "appointments",
-    "patient management",
-    "health records",
-    "telemedicine",
-    "healthcare technology",
-    "patient engagement",
+    "HealthyConnect",
+    "healthcare jobs",
+    "medical job search",
+    "apply for healthcare jobs",
+    "healthcare recruitment",
+    "job opportunities in healthcare",
+    "healthcare careers",
+    "find healthcare jobs",
+    "healthcare job listings",
+    "healthcare employment",
+    "healthcare job applications",
+    "healthcare job portal",
+    "healthcare job vacancies",
+    "healthcare job search engine",
+    "healthcare job board",
+    "healthcare job opportunities",
+    "nursing jobs",
+    "doctor jobs",
+    "pharmacist jobs",
+    "healthcare job alerts",
   ],
-  description: "Your trusted healthcare partner",
 };
 
 export default function RootLayout({ children }) {
