@@ -7,6 +7,7 @@ import {
   Shield,
   Users,
 } from "lucide-react";
+import { signIn } from "next-auth/react";
 import { GiLaserWarning } from "react-icons/gi";
 import { MdScience } from "react-icons/md";
 
