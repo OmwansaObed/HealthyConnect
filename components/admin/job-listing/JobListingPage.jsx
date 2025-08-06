@@ -126,9 +126,6 @@ export default function JobListingPage() {
     return colors[status?.toLowerCase()] || "border-l-slate-500 bg-slate-50";
   };
 
-  console.log("Current Page:", page);
-  console.log("Jobs:", jobs);
-
   return (
     <div className="min-h-screen bg-gradient-to-br flex from-purple-50 via-blue-50 to-cyan-50">
       {/* Main Content */}
