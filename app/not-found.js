@@ -26,8 +26,8 @@ export default function NotFound() {
               Page Not Found
             </h1>
             <p className="text-lg sm:text-xl text-gray-600 leading-relaxed max-w-lg mx-auto">
-              Oops! The healthcare opportunity you're looking for seems to have
-              found a new home. Let's get you back on track.
+              Oops! The healthcare opportunity you&apos;re looking for seems to
+              have found a new home. Let&apos;s get you back on track.
             </p>
           </div>
 
