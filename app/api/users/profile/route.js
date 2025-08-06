@@ -5,6 +5,57 @@ import bcrypt from "bcryptjs";
 import { connectDB } from "../../../../lib/db";
 import User from "../../../../models/User";
 
+const VALID_PROFESSIONS = [
+  "nursing",
+  "cna",
+  "adminisration",
+  "medical officer",
+  "clinical officer",
+  "care giver",
+  "home-based caregiver",
+  "public health officer",
+  "community health worker",
+  "pharmacy",
+  "laboratory",
+  "radiology",
+  "nutritionist",
+  "dental",
+  "physiotherapy",
+  "occupational therapy",
+  "speech therapy",
+  "psychology",
+  "psychiatry",
+  "medical technician",
+  "medical engineer",
+  "orthopedics",
+  "optometry",
+  "anesthesiology",
+  "surgery",
+  "midwifery",
+  "pediatrics",
+  "gynecology",
+  "general practitioner",
+  "health records officer",
+  "health administration",
+  "hospital porter",
+  "hospital cleaner",
+  "ambulance driver",
+  "emergency medical technician (emt)",
+  "telemedicine",
+  "health educator",
+  "hiv/aids counselor",
+  "social worker",
+  "vaccination outreach",
+  "medical sales rep",
+  "health insurance agent",
+  "occupational health officer",
+  "environmental health officer",
+  "biomedical scientist",
+  "mortuary attendant",
+  "first responder",
+  "coho",
+];
+
 // GET /api/users/profile
 export async function GET(request) {
   try {
@@ -32,6 +83,11 @@ export async function GET(request) {
         },
         { status: 404 }
       );
+    }
+
+    // Ensure profession is always an array for backward compatibility
+    if (typeof user.profession === "string") {
+      user.profession = user.profession ? [user.profession] : [];
     }
 
     return NextResponse.json({
@@ -68,7 +124,7 @@ export async function PUT(request) {
     await connectDB();
 
     const body = await request.json();
-    const { username, email, profession, currentPassword, newPassword } = body;
+    const { username, email, professions, currentPassword, newPassword } = body; // Changed 'profession' to 'professions'
 
     // Basic validation
     if (!username?.trim() || !email?.trim()) {
@@ -89,6 +145,28 @@ export async function PUT(request) {
         },
         { status: 400 }
       );
+    }
+
+    // Validate professions array
+    let validatedProfessions = [];
+    if (professions && Array.isArray(professions)) {
+      // Remove duplicates and validate each profession
+      const uniqueProfessions = [...new Set(professions)];
+      const invalidProfessions = uniqueProfessions.filter(
+        (prof) => !VALID_PROFESSIONS.includes(prof)
+      );
+
+      if (invalidProfessions.length > 0) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: `Invalid professions: ${invalidProfessions.join(", ")}`,
+          },
+          { status: 400 }
+        );
+      }
+
+      validatedProfessions = uniqueProfessions;
     }
 
     // Check for existing email/username
@@ -120,7 +198,7 @@ export async function PUT(request) {
     const updateData = {
       username: username.trim(),
       email: email.trim(),
-      profession: profession || "",
+      profession: validatedProfessions,
       updatedAt: new Date(),
     };
 
@@ -180,11 +258,6 @@ export async function PUT(request) {
       { new: true, select: "-password" }
     );
 
-    // await Notifications.create({
-    //       type: "job_posted",
-    //       message: `${job.title} was posted by ${job.postedBy || "Anonymous"}.`,
-    //       jobId: job._id,
-    //     });
     return NextResponse.json({
       success: true,
       message: "Profile updated successfully",

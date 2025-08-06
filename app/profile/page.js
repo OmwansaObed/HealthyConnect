@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   User,
   Mail,
@@ -21,6 +21,8 @@ import {
   Lock,
   Sparkles,
   Heart,
+  Plus,
+  ChevronDown,
 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import axios from "axios";
@@ -35,6 +37,145 @@ import {
 
 import { PROFESSIONS } from "../../utils/constants";
 
+// Multi-Select Tags Component
+const ProfessionSelector = ({
+  selectedProfessions,
+  onProfessionsChange,
+  disabled,
+}) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const dropdownRef = useRef(null);
+
+  const filteredProfessions = PROFESSIONS.filter(
+    (profession) =>
+      profession.label.toLowerCase().includes(searchTerm.toLowerCase()) &&
+      !selectedProfessions.includes(profession.value)
+  );
+
+  const handleAddProfession = (professionValue) => {
+    if (!selectedProfessions.includes(professionValue)) {
+      onProfessionsChange([...selectedProfessions, professionValue]);
+    }
+    setSearchTerm("");
+    setIsOpen(false);
+  };
+
+  const handleRemoveProfession = (professionValue) => {
+    onProfessionsChange(
+      selectedProfessions.filter((p) => p !== professionValue)
+    );
+  };
+
+  const getProfessionLabel = (value) => {
+    const profession = PROFESSIONS.find((p) => p.value === value);
+    return profession ? profession.label : value;
+  };
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  return (
+    <div className="relative" ref={dropdownRef}>
+      {/* Selected Professions Tags */}
+      <div className="min-h-[48px] p-3 border border-gray-300 rounded-xl bg-white focus-within:ring-2 focus-within:ring-green-500 focus-within:border-transparent hover:border-green-400 transition-all duration-200">
+        <div className="flex flex-wrap gap-2 mb-2">
+          {selectedProfessions.map((professionValue) => (
+            <motion.span
+              key={professionValue}
+              className="inline-flex items-center gap-1 px-3 py-1 bg-gradient-to-r from-green-100 to-blue-100 text-green-800 rounded-full text-sm font-medium border border-green-200"
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.8 }}
+              whileHover={{ scale: 1.05 }}
+            >
+              {getProfessionLabel(professionValue)}
+              {!disabled && (
+                <button
+                  type="button"
+                  onClick={() => handleRemoveProfession(professionValue)}
+                  className="ml-1 p-0.5 hover:bg-green-200 rounded-full transition-colors"
+                >
+                  <X className="w-3 h-3" />
+                </button>
+              )}
+            </motion.span>
+          ))}
+        </div>
+
+        {!disabled && (
+          <button
+            type="button"
+            onClick={() => setIsOpen(!isOpen)}
+            className="flex items-center gap-2 px-2 py-1 text-gray-600 hover:text-green-600 transition-colors text-sm"
+          >
+            <Plus className="w-4 h-4" />
+            Add Profession
+            <ChevronDown
+              className={`w-4 h-4 transition-transform ${
+                isOpen ? "rotate-180" : ""
+              }`}
+            />
+          </button>
+        )}
+      </div>
+
+      {/* Dropdown */}
+      {isOpen && !disabled && (
+        <motion.div
+          className="absolute z-50 w-full mt-2 bg-white border border-gray-300 rounded-xl shadow-lg max-h-64 overflow-hidden"
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.2 }}
+        >
+          {/* Search Input */}
+          <div className="p-3 border-b border-gray-200">
+            <input
+              type="text"
+              placeholder="Search professions..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm"
+              autoFocus
+            />
+          </div>
+
+          {/* Profession List */}
+          <div className="max-h-48 overflow-y-auto">
+            {filteredProfessions.length > 0 ? (
+              filteredProfessions.map((profession) => (
+                <button
+                  key={profession.value}
+                  type="button"
+                  onClick={() => handleAddProfession(profession.value)}
+                  className="w-full px-4 py-3 text-left hover:bg-green-50 transition-colors text-sm border-b border-gray-100 last:border-b-0"
+                >
+                  {profession.label}
+                </button>
+              ))
+            ) : (
+              <div className="px-4 py-6 text-center text-gray-500 text-sm">
+                {searchTerm
+                  ? "No professions found"
+                  : "No more professions to add"}
+              </div>
+            )}
+          </div>
+        </motion.div>
+      )}
+    </div>
+  );
+};
+
 export default function ProfilePage() {
   const { data: session, update } = useSession();
   const [isEditing, setIsEditing] = useState(false);
@@ -47,7 +188,7 @@ export default function ProfilePage() {
   const [formData, setFormData] = useState({
     username: "",
     email: "",
-    profession: "",
+    professions: [], // Changed from profession to professions
     currentPassword: "",
     newPassword: "",
     confirmPassword: "",
@@ -67,10 +208,16 @@ export default function ProfilePage() {
         }
 
         if (isMounted && data.success) {
+          // Handle backward compatibility: convert string profession to array
+          let professions = data.user.profession || [];
+          if (typeof professions === "string") {
+            professions = professions ? [professions] : [];
+          }
+
           setFormData({
             username: data.user.username || "",
             email: data.user.email || "",
-            profession: data.user.profession || "",
+            professions: professions,
             currentPassword: "",
             newPassword: "",
             confirmPassword: "",
@@ -104,6 +251,13 @@ export default function ProfilePage() {
     }));
   };
 
+  const handleProfessionsChange = (newProfessions) => {
+    setFormData((prev) => ({
+      ...prev,
+      professions: newProfessions,
+    }));
+  };
+
   const handleSave = async () => {
     setIsLoading(true);
     setMessage({ type: "", text: "" });
@@ -122,7 +276,7 @@ export default function ProfilePage() {
       const updateData = {
         username: formData.username || session?.user?.username,
         email: formData.email || session?.user?.email,
-        profession: formData.profession || session?.user?.profession,
+        professions: formData.professions, // Send as professions array
         ...(formData.newPassword && {
           currentPassword: formData.currentPassword,
           newPassword: formData.newPassword,
@@ -139,7 +293,7 @@ export default function ProfilePage() {
               ...session.user,
               username: formData.username,
               email: formData.email,
-              profession: formData.profession,
+              profession: formData.professions, // Update session
             },
           });
         }
@@ -158,7 +312,6 @@ export default function ProfilePage() {
           newPassword: "",
           confirmPassword: "",
         }));
-        toast.success("Profile updated successfully!");
       } else {
         const errorMsg = data.error || "Failed to update profile";
         setMessage({ type: "error", text: errorMsg });
@@ -179,10 +332,16 @@ export default function ProfilePage() {
   };
 
   const handleCancel = () => {
+    // Handle backward compatibility for session data
+    let sessionProfessions = session?.user?.profession || [];
+    if (typeof sessionProfessions === "string") {
+      sessionProfessions = sessionProfessions ? [sessionProfessions] : [];
+    }
+
     setFormData({
       username: session?.user?.username || session?.user?.name || "",
       email: session?.user?.email || "",
-      profession: session?.user?.profession || "",
+      professions: sessionProfessions,
       currentPassword: "",
       newPassword: "",
       confirmPassword: "",
@@ -200,9 +359,16 @@ export default function ProfilePage() {
     });
   };
 
-  const getProfessionLabel = (value) => {
-    const profession = PROFESSIONS.find((p) => p.value === value);
-    return profession ? profession.label : value;
+  const getProfessionLabels = (professions) => {
+    if (!professions || professions.length === 0)
+      return "Healthcare Professional";
+
+    return professions
+      .map((value) => {
+        const profession = PROFESSIONS.find((p) => p.value === value);
+        return profession ? profession.label : value;
+      })
+      .join(", ");
   };
 
   if (!session) {
@@ -276,12 +442,14 @@ export default function ProfilePage() {
         animate="show"
       >
         <span className="text-sm sm:text-center text-yellow-600 px-4 py-2 rounded-lg shadow-md backdrop:blur-sm bg-yellow-100/50">
-          Update the profession field if not upto date
+          Update the profession field if not up to date. You can now select
+          multiple professions!
         </span>
+
         {/* Message */}
         {message.text && (
           <motion.div
-            className={`mb-6 p-4 rounded-xl flex items-center gap-3 ${
+            className={`mb-6 mt-4 p-4 rounded-xl flex items-center gap-3 ${
               message.type === "success"
                 ? "bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 text-green-800"
                 : "bg-gradient-to-r from-red-50 to-pink-50 border border-red-200 text-red-800"
@@ -339,10 +507,28 @@ export default function ProfilePage() {
                 >
                   {formData.username || session?.user?.name || "User"}
                 </motion.h3>
-                <p className="text-gray-600 mb-4 font-medium">
-                  {getProfessionLabel(formData.profession) ||
-                    "Healthcare Professional"}
-                </p>
+                <div className="text-gray-600 mb-4 font-medium text-sm">
+                  {formData.professions.length > 0 ? (
+                    <div className="space-y-1">
+                      {formData.professions.length <= 2 ? (
+                        <p>{getProfessionLabels(formData.professions)}</p>
+                      ) : (
+                        <>
+                          <p>
+                            {getProfessionLabels(
+                              formData.professions.slice(0, 2)
+                            )}
+                          </p>
+                          <p className="text-xs text-blue-600">
+                            +{formData.professions.length - 2} more
+                          </p>
+                        </>
+                      )}
+                    </div>
+                  ) : (
+                    "Healthcare Professional"
+                  )}
+                </div>
 
                 <div className="space-y-3 text-sm">
                   <motion.div
@@ -357,7 +543,7 @@ export default function ProfilePage() {
                     whileHover={{ scale: 1.05 }}
                   >
                     <Mail className="w-4 h-4 text-purple-500" />
-                    <span>{formData.email}</span>
+                    <span className="truncate">{formData.email}</span>
                   </motion.div>
                 </div>
               </div>
@@ -410,26 +596,22 @@ export default function ProfilePage() {
                   />
                 </motion.div>
 
-                {/* Profession */}
+                {/* Professions Multi-Select */}
                 <motion.div variants={fadeIn("up", "spring", 0.6, 0.6)}>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     <Briefcase className="w-4 h-4 inline mr-2 text-green-500" />
-                    Profession
+                    Professions{" "}
+                    {formData.professions.length > 0 && (
+                      <span className="text-xs text-gray-500">
+                        ({formData.professions.length} selected)
+                      </span>
+                    )}
                   </label>
-                  <select
-                    name="profession"
-                    value={formData.profession}
-                    onChange={handleInputChange}
+                  <ProfessionSelector
+                    selectedProfessions={formData.professions}
+                    onProfessionsChange={handleProfessionsChange}
                     disabled={!isEditing}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent disabled:bg-gray-50 disabled:text-gray-500 transition-all duration-200 hover:border-green-400"
-                  >
-                    <option value="">Select your profession</option>
-                    {PROFESSIONS.map((profession) => (
-                      <option key={profession.value} value={profession.value}>
-                        {profession.label}
-                      </option>
-                    ))}
-                  </select>
+                  />
                 </motion.div>
 
                 {/* Password Change Section */}
@@ -505,48 +687,56 @@ export default function ProfilePage() {
                     </div>
                   </motion.div>
                 )}
-                {!isEditing ? (
-                  <motion.button
-                    onClick={() => setIsEditing(true)}
-                    className="flex items-center gap-1 sm:gap-2 px-3 sm:px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-200 font-medium shadow-lg hover:shadow-xl whitespace-nowrap"
-                    whileHover={{ scale: 1.02, y: -1 }}
-                    whileTap={{ scale: 0.98 }}
-                  >
-                    <Edit3 className="w-3 sm:w-4 h-3 sm:h-4" />
-                    <span className="text-sm sm:text-base">Edit Profile</span>
-                  </motion.button>
-                ) : (
-                  <div className="flex flex-wrap items-center gap-2">
+
+                {/* Action Buttons */}
+                <div className="pt-4">
+                  {!isEditing ? (
                     <motion.button
-                      onClick={handleCancel}
-                      className="flex items-center gap-1 sm:gap-2 px-3 sm:px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-xl transition-colors font-medium whitespace-nowrap"
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                    >
-                      <X className="w-3 sm:w-4 h-3 sm:h-4 text-gray-600" />
-                      <span className="text-sm sm:text-base">Cancel</span>
-                    </motion.button>
-                    <motion.button
-                      onClick={handleSave}
-                      disabled={isLoading}
-                      className="flex items-center gap-1 sm:gap-2 px-3 sm:px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-200 font-medium disabled:opacity-50 shadow-lg hover:shadow-xl whitespace-nowrap"
+                      onClick={() => setIsEditing(true)}
+                      className="flex items-center gap-1 sm:gap-2 px-3 sm:px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-200 font-medium shadow-lg hover:shadow-xl whitespace-nowrap"
                       whileHover={{ scale: 1.02, y: -1 }}
                       whileTap={{ scale: 0.98 }}
                     >
-                      {isLoading ? (
-                        <Loader2 className="w-3 sm:w-4 h-3 sm:h-4 animate-spin" />
-                      ) : (
-                        <Save className="w-3 sm:w-4 h-3 sm:h-4" />
-                      )}
-                      <span className="text-sm sm:text-base">Save Changes</span>
+                      <Edit3 className="w-3 sm:w-4 h-3 sm:h-4" />
+                      <span className="text-sm sm:text-base">Edit Profile</span>
                     </motion.button>
-                  </div>
-                )}
+                  ) : (
+                    <div className="flex flex-wrap items-center gap-2">
+                      <motion.button
+                        onClick={handleCancel}
+                        className="flex items-center gap-1 sm:gap-2 px-3 sm:px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-xl transition-colors font-medium whitespace-nowrap"
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                      >
+                        <X className="w-3 sm:w-4 h-3 sm:h-4 text-gray-600" />
+                        <span className="text-sm sm:text-base">Cancel</span>
+                      </motion.button>
+                      <motion.button
+                        onClick={handleSave}
+                        disabled={isLoading}
+                        className="flex items-center gap-1 sm:gap-2 px-3 sm:px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-200 font-medium disabled:opacity-50 shadow-lg hover:shadow-xl whitespace-nowrap"
+                        whileHover={{ scale: 1.02, y: -1 }}
+                        whileTap={{ scale: 0.98 }}
+                      >
+                        {isLoading ? (
+                          <Loader2 className="w-3 sm:w-4 h-3 sm:h-4 animate-spin" />
+                        ) : (
+                          <Save className="w-3 sm:w-4 h-3 sm:h-4" />
+                        )}
+                        <span className="text-sm sm:text-base">
+                          Save Changes
+                        </span>
+                      </motion.button>
+                    </div>
+                  )}
+                </div>
+
                 {!isEditing && (
-                  <div className="flex  items-center gap-2  align-center mt-6">
+                  <div className="flex items-center gap-2 align-center mt-6">
                     <MapPin className="w-3 sm:w-4 h-3 sm:h-4 text-green-500" />
                     <p className="text-sm font-light sm:text-base text-gray-600 mt-2">
-                      Use the edit button to update your profile.
+                      Use the edit button to update your profile. You can now
+                      select multiple professions!
                     </p>
                   </div>
                 )}

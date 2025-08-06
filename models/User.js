@@ -19,7 +19,7 @@ const userSchema = new mongoose.Schema(
       default: false,
     },
     profession: {
-      type: String,
+      type: [String],
       enum: [
         "nursing",
         "cna",

@@ -328,7 +328,8 @@ export const jobNotificationTemplate = (
             .cta-button {
                 padding: 14px 28px;
                 font-size: 15px;
-            }
+             color: white;
+             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);   }
         }
     </style>
 </head>
@@ -398,11 +399,11 @@ export const jobNotificationTemplate = (
                     }
                     
                     <div class="cta-section">
-                        <a href="https://healthyconnect.vercel.app/job" class="cta-button">
+                        <a href="https://healthyconnect.co.ke/jobs" class="cta-button">
                             View Full Details & Apply
                         </a>
                         <div class="secondary-cta">
-                            <a href="https://healthyconnect.vercel.app/jobs" class="secondary-link">
+                            <a href="https://healthyconnect.co.ke/jobs" class="secondary-link">
                                 Browse all available positions →
                             </a>
                         </div>
