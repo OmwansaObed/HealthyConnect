@@ -26,6 +26,8 @@ export default function Navbar() {
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [unread, setUnread] = useState(false);
+  const [isNavVisible, setIsNavVisible] = useState(true);
+  const [lastScrollY, setLastScrollY] = useState(0);
   const { data: session } = useSession();
   const dispatch = useDispatch();
 
@@ -34,20 +36,31 @@ export default function Navbar() {
     { name: "Categories", href: "/categories", icon: Grid3X3 },
   ];
 
+  // Enhanced scroll behavior for navbar visibility
+  useEffect(() => {
+    const controlNavbar = () => {
+      if (typeof window !== "undefined") {
+        const currentScrollY = window.scrollY;
+        setIsNavVisible(currentScrollY < lastScrollY || currentScrollY < 10);
+        setLastScrollY(currentScrollY);
+      }
+    };
+
+    if (typeof window !== "undefined") {
+      window.addEventListener("scroll", controlNavbar);
+      return () => window.removeEventListener("scroll", controlNavbar);
+    }
+  }, [lastScrollY]);
+
   const handleProfileMenuToggle = () => setProfileMenuOpen((prev) => !prev);
   const handleProfileMenuClose = () => setProfileMenuOpen(false);
   const closeMobileMenu = () => setIsMenuOpen(false);
 
   const handleLogout = async () => {
     try {
-      // Close any open menus
       handleProfileMenuClose();
       closeMobileMenu();
-
-      // Clear Redux state
       dispatch(clearUser());
-
-      // Sign out from NextAuth
       await signOut({ callbackUrl: "/auth/login" });
     } catch (error) {
       console.error("Logout error:", error);
@@ -55,25 +68,35 @@ export default function Navbar() {
   };
 
   const NavLinks = ({ mobile = false }) =>
-    navLinks.map((link) => {
+    navLinks.map((link, index) => {
       const Icon = link.icon;
       return (
         <Link
           key={link.name}
           href={link.href}
-          className={`group flex items-center space-x-3 font-medium transition-all duration-300 transform hover:scale-105 ${
+          className={`group flex items-center space-x-3 font-medium transition-all duration-500 ease-out transform hover:scale-105 ${
             mobile
-              ? "px-5 py-4 text-white hover:text-blue-200 hover:bg-white/10 rounded-xl text-lg shadow-sm hover:shadow-md backdrop-blur-sm border border-transparent hover:border-white/20"
-              : "px-4 py-2 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg shadow-sm hover:shadow-md"
+              ? "px-5 py-4 text-white hover:text-blue-200 hover:bg-white/10 rounded-xl text-lg shadow-sm hover:shadow-md backdrop-blur-sm border border-transparent hover:border-white/20 animate-slide-in-left opacity-0"
+              : "px-4 py-2 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg shadow-sm hover:shadow-md hover:translate-y-[-2px]"
           }`}
+          style={
+            mobile
+              ? {
+                  animationDelay: `${index * 100}ms`,
+                  animationFillMode: "forwards",
+                }
+              : {}
+          }
           onClick={closeMobileMenu}
         >
           <Icon
             className={`${
               mobile ? "w-5 h-5" : "w-4 h-4"
-            } transition-all duration-300 group-hover:rotate-3`}
+            } transition-all duration-300 group-hover:rotate-12 group-hover:scale-110`}
           />
-          <span>{link.name}</span>
+          <span className="group-hover:translate-x-1 transition-transform duration-300">
+            {link.name}
+          </span>
         </Link>
       );
     });
@@ -89,10 +112,10 @@ export default function Navbar() {
   const NotificationBell = ({ mobile = false }) => (
     <div className="relative">
       <button
-        className={`relative p-2 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 transform hover:scale-110 ${
+        className={`relative p-2 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 transform hover:scale-110 hover:rotate-12 ${
           mobile
             ? "hover:bg-white/10 text-white shadow-lg backdrop-blur-sm"
-            : "hover:bg-blue-50 text-gray-700 shadow-sm hover:shadow-md"
+            : "hover:bg-blue-50 text-gray-700 shadow-sm hover:shadow-md hover:translate-y-[-2px]"
         } ${unread ? "animate-pulse" : ""}`}
         onClick={mobile ? () => setUnread(false) : handleBellClick}
       >
@@ -110,7 +133,7 @@ export default function Navbar() {
         {unread && (
           <>
             <span
-              className={`absolute -top-1 -right-1 block w-3 h-3 rounded-full ring-2 ${
+              className={`absolute -top-1 -right-1 block w-3 h-3 rounded-full ring-2 animate-scale-in ${
                 mobile ? "bg-yellow-400 ring-blue-600" : "bg-red-600 ring-white"
               }`}
             />
@@ -123,7 +146,7 @@ export default function Navbar() {
         )}
       </button>
       {!mobile && showNotifications && (
-        <div className="absolute right-0 mt-2 z-50">
+        <div className="absolute right-0 mt-2 z-50 animate-slide-in-down">
           <Notifications />
         </div>
       )}
@@ -138,9 +161,9 @@ export default function Navbar() {
           <div className="relative">
             <button
               onClick={handleProfileMenuToggle}
-              className="flex items-center space-x-3 px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 backdrop-blur-sm"
+              className="flex items-center space-x-3 px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 hover:translate-y-[-2px] backdrop-blur-sm"
             >
-              <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center shadow-md">
+              <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center shadow-md transition-transform duration-300 hover:rotate-12">
                 <User className="w-4 h-4 text-white" />
               </div>
               <span className="font-medium">
@@ -152,13 +175,13 @@ export default function Navbar() {
             {profileMenuOpen && (
               <>
                 <div
-                  className="fixed inset-0 z-40"
+                  className="fixed inset-0 z-40 animate-fade-in"
                   onClick={handleProfileMenuClose}
                   aria-label="Close profile menu"
                 />
-                <div className="absolute right-0 mt-3 w-64 bg-white/95 backdrop-blur-md border border-gray-200 rounded-2xl shadow-2xl z-50 overflow-hidden animate-in slide-in-from-top-2 duration-300">
+                <div className="absolute right-0 mt-3 w-64 bg-white/95 backdrop-blur-md border border-gray-200 rounded-2xl shadow-2xl z-50 overflow-hidden animate-slide-in-down origin-top-right">
                   <div className="p-3">
-                    <div className="px-4 py-4 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl mb-3">
+                    <div className="px-4 py-4 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl mb-3 animate-slide-in-left">
                       <p className="text-sm font-bold text-gray-900">
                         {session.user?.name}
                       </p>
@@ -167,33 +190,38 @@ export default function Navbar() {
                       </p>
                     </div>
 
-                    {session.user?.role === true && (
+                    <div className="space-y-1">
+                      {session.user?.role === true && (
+                        <Link
+                          href="/admin/dashboard"
+                          className="flex items-center space-x-3 px-4 py-3 text-emerald-700 hover:bg-emerald-50 hover:text-emerald-800 rounded-xl transition-all duration-300 transform hover:scale-105 hover:translate-x-2 shadow-sm hover:shadow-md mb-2 animate-slide-in-left"
+                          style={{ animationDelay: "100ms" }}
+                          onClick={handleProfileMenuClose}
+                        >
+                          <Shield className="w-5 h-5 transition-transform duration-300 hover:rotate-12" />
+                          <span className="font-medium">Admin Dashboard</span>
+                        </Link>
+                      )}
+
                       <Link
-                        href="/admin/dashboard"
-                        className="flex items-center space-x-3 px-4 py-3 text-emerald-700 hover:bg-emerald-50 hover:text-emerald-800 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-sm hover:shadow-md mb-2"
+                        href="/profile"
+                        className="flex items-center space-x-3 px-4 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-700 rounded-xl transition-all duration-300 transform hover:scale-105 hover:translate-x-2 shadow-sm hover:shadow-md animate-slide-in-left"
+                        style={{ animationDelay: "200ms" }}
                         onClick={handleProfileMenuClose}
                       >
-                        <Shield className="w-5 h-5" />
-                        <span className="font-medium">Admin Dashboard</span>
+                        <User className="w-5 h-5 transition-transform duration-300 hover:rotate-12" />
+                        <span className="font-medium">My Profile</span>
                       </Link>
-                    )}
 
-                    <Link
-                      href="/profile"
-                      className="flex items-center space-x-3 px-4 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-700 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-sm hover:shadow-md"
-                      onClick={handleProfileMenuClose}
-                    >
-                      <User className="w-5 h-5" />
-                      <span className="font-medium">My Profile</span>
-                    </Link>
-
-                    <button
-                      onClick={handleLogout}
-                      className="flex items-center space-x-3 w-full px-4 py-3 text-red-600 hover:bg-red-50 rounded-xl transition-all duration-300 mt-2 transform hover:scale-105 shadow-sm hover:shadow-md"
-                    >
-                      <LogOut className="w-5 h-5" />
-                      <span className="font-medium">Sign Out</span>
-                    </button>
+                      <button
+                        onClick={handleLogout}
+                        className="flex items-center space-x-3 w-full px-4 py-3 text-red-600 hover:bg-red-50 rounded-xl transition-all duration-300 mt-2 transform hover:scale-105 hover:translate-x-2 shadow-sm hover:shadow-md animate-slide-in-left"
+                        style={{ animationDelay: "300ms" }}
+                      >
+                        <LogOut className="w-5 h-5 transition-transform duration-300 hover:rotate-12" />
+                        <span className="font-medium">Sign Out</span>
+                      </button>
+                    </div>
                   </div>
                 </div>
               </>
@@ -206,13 +234,13 @@ export default function Navbar() {
       <div className="flex items-center space-x-4 z-10">
         <button
           onClick={() => signIn()}
-          className="px-6 py-3 text-gray-700 hover:text-blue-600 font-medium transition-all duration-300 rounded-xl hover:bg-blue-50 transform hover:scale-105 shadow-sm hover:shadow-md backdrop-blur-sm"
+          className="px-6 py-3 text-gray-700 hover:text-blue-600 font-medium transition-all duration-300 rounded-xl hover:bg-blue-50 transform hover:scale-105 hover:translate-y-[-2px] shadow-sm hover:shadow-md backdrop-blur-sm"
         >
           Sign In
         </button>
         <Link
           href="/auth/signup"
-          className="px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 font-medium transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 backdrop-blur-sm"
+          className="px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 font-medium transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 hover:translate-y-[-2px] backdrop-blur-sm"
         >
           Sign Up
         </Link>
@@ -222,8 +250,11 @@ export default function Navbar() {
 
   const MobileAuth = () =>
     session ? (
-      <div className="space-y-4 bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-sm border border-white/20 rounded-2xl p-4 shadow-lg">
-        <div className="flex items-center px-4 py-4 bg-white/10 rounded-xl border border-white/20 shadow-md">
+      <div className="space-y-4 bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-sm border border-white/20 rounded-2xl p-4 shadow-lg animate-slide-in-up">
+        <div
+          className="flex items-center px-4 py-4 bg-white/10 rounded-xl border border-white/20 shadow-md animate-slide-in-right"
+          style={{ animationDelay: "200ms" }}
+        >
           <div className="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center mr-4 shadow-lg">
             <User className="w-6 h-6 text-white" />
           </div>
@@ -233,48 +264,55 @@ export default function Navbar() {
           </div>
         </div>
 
-        {session.user?.role === true && (
+        <div className="space-y-2">
+          {session.user?.role === true && (
+            <Link
+              href="/admin/dashboard"
+              className="flex items-center space-x-3 px-4 py-4 text-emerald-200 hover:text-emerald-100 hover:bg-emerald-500/20 rounded-xl transition-all duration-300 border border-transparent hover:border-emerald-400/30 shadow-sm hover:shadow-md transform hover:scale-105 hover:translate-x-2 animate-slide-in-left opacity-0"
+              style={{ animationDelay: "300ms", animationFillMode: "forwards" }}
+              onClick={closeMobileMenu}
+            >
+              <Shield className="w-5 h-5" />
+              <span className="text-lg font-medium">Admin Dashboard</span>
+            </Link>
+          )}
+
           <Link
-            href="/admin/dashboard"
-            className="flex items-center space-x-3 px-4 py-4 text-emerald-200 hover:text-emerald-100 hover:bg-emerald-500/20 rounded-xl transition-all duration-300 border border-transparent hover:border-emerald-400/30 shadow-sm hover:shadow-md transform hover:scale-105"
+            href="/profile"
+            className="flex items-center space-x-3 px-4 py-4 text-white hover:text-blue-200 hover:bg-white/10 rounded-xl transition-all duration-300 border border-transparent hover:border-white/20 shadow-sm hover:shadow-md transform hover:scale-105 hover:translate-x-2 animate-slide-in-left opacity-0"
+            style={{ animationDelay: "400ms", animationFillMode: "forwards" }}
             onClick={closeMobileMenu}
           >
-            <Shield className="w-5 h-5" />
-            <span className="text-lg font-medium">Admin Dashboard</span>
+            <User className="w-5 h-5" />
+            <span className="text-lg font-medium">My Profile</span>
           </Link>
-        )}
 
-        <Link
-          href="/profile"
-          className="flex items-center space-x-3 px-4 py-4 text-white hover:text-blue-200 hover:bg-white/10 rounded-xl transition-all duration-300 border border-transparent hover:border-white/20 shadow-sm hover:shadow-md transform hover:scale-105"
-          onClick={closeMobileMenu}
-        >
-          <User className="w-5 h-5" />
-          <span className="text-lg font-medium">My Profile</span>
-        </Link>
-
-        <button
-          onClick={handleLogout}
-          className="flex items-center space-x-3 w-full px-4 py-4 text-red-300 hover:text-red-200 hover:bg-red-500/20 rounded-xl transition-all duration-300 border border-transparent hover:border-red-400/30 shadow-sm hover:shadow-md transform hover:scale-105"
-        >
-          <LogOut className="w-5 h-5" />
-          <span className="text-lg font-medium">Sign Out</span>
-        </button>
+          <button
+            onClick={handleLogout}
+            className="flex items-center space-x-3 w-full px-4 py-4 text-red-300 hover:text-red-200 hover:bg-red-500/20 rounded-xl transition-all duration-300 border border-transparent hover:border-red-400/30 shadow-sm hover:shadow-md transform hover:scale-105 hover:translate-x-2 animate-slide-in-left opacity-0"
+            style={{ animationDelay: "500ms", animationFillMode: "forwards" }}
+          >
+            <LogOut className="w-5 h-5" />
+            <span className="text-lg font-medium">Sign Out</span>
+          </button>
+        </div>
       </div>
     ) : (
-      <div className="space-y-4">
+      <div className="space-y-4 animate-slide-in-up">
         <button
           onClick={() => {
             closeMobileMenu();
             signIn();
           }}
-          className="block w-full px-6 py-4 text-center text-white hover:text-blue-100 border-2 border-white/30 rounded-2xl hover:bg-white/10 font-bold transition-all duration-300 text-lg transform hover:scale-105 backdrop-blur-sm shadow-lg hover:shadow-xl"
+          className="block w-full px-6 py-4 text-center text-white hover:text-blue-100 border-2 border-white/30 rounded-2xl hover:bg-white/10 font-bold transition-all duration-300 text-lg transform hover:scale-105 hover:translate-y-[-2px] backdrop-blur-sm shadow-lg hover:shadow-xl animate-slide-in-left opacity-0"
+          style={{ animationDelay: "200ms", animationFillMode: "forwards" }}
         >
           Sign In
         </button>
         <Link
           href="/auth/signup"
-          className="block w-full px-6 py-4 text-center bg-white text-blue-600 rounded-2xl hover:bg-blue-50 font-bold transition-all duration-300 text-lg shadow-xl hover:shadow-2xl transform hover:scale-105"
+          className="block w-full px-6 py-4 text-center bg-white text-blue-600 rounded-2xl hover:bg-blue-50 font-bold transition-all duration-300 text-lg shadow-xl hover:shadow-2xl transform hover:scale-105 hover:translate-y-[-2px] animate-slide-in-left opacity-0"
+          style={{ animationDelay: "300ms", animationFillMode: "forwards" }}
           onClick={closeMobileMenu}
         >
           Sign Up
@@ -316,16 +354,138 @@ export default function Navbar() {
 
   return (
     <>
-      <nav className="border-b border-gray-200 sticky top-0 z-50 shadow-lg backdrop-blur-md bg-white/95">
+      <style jsx global>{`
+        @keyframes slide-in-down {
+          from {
+            opacity: 0;
+            transform: translateY(-10px) scale(0.95);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+          }
+        }
+
+        @keyframes slide-in-up {
+          from {
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        @keyframes slide-in-left {
+          from {
+            opacity: 0;
+            transform: translateX(-20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateX(0);
+          }
+        }
+
+        @keyframes slide-in-right {
+          from {
+            opacity: 0;
+            transform: translateX(20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateX(0);
+          }
+        }
+
+        @keyframes fade-in {
+          from {
+            opacity: 0;
+          }
+          to {
+            opacity: 1;
+          }
+        }
+
+        @keyframes scale-in {
+          from {
+            transform: scale(0);
+          }
+          to {
+            transform: scale(1);
+          }
+        }
+
+        @keyframes slide-down {
+          from {
+            transform: translateY(-100%);
+          }
+          to {
+            transform: translateY(0);
+          }
+        }
+
+        @keyframes slide-up {
+          from {
+            transform: translateY(0);
+          }
+          to {
+            transform: translateY(-100%);
+          }
+        }
+
+        .animate-slide-in-down {
+          animation: slide-in-down 0.3s ease-out;
+        }
+
+        .animate-slide-in-up {
+          animation: slide-in-up 0.4s ease-out;
+        }
+
+        .animate-slide-in-left {
+          animation: slide-in-left 0.4s ease-out;
+        }
+
+        .animate-slide-in-right {
+          animation: slide-in-right 0.4s ease-out;
+        }
+
+        .animate-fade-in {
+          animation: fade-in 0.2s ease-out;
+        }
+
+        .animate-scale-in {
+          animation: scale-in 0.3s ease-out;
+        }
+
+        .navbar-slide-down {
+          animation: slide-down 0.3s ease-out;
+        }
+
+        .navbar-slide-up {
+          animation: slide-up 0.3s ease-out;
+        }
+      `}</style>
+
+      <nav
+        className={`border-b border-gray-200 sticky top-0 z-50 shadow-lg backdrop-blur-md bg-white/95 transition-transform duration-300 ease-in-out ${
+          isNavVisible ? "translate-y-0" : "-translate-y-full"
+        }`}
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-18">
             <Link href="/" className="flex items-center space-x-3 group">
-              <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-110 transform">
-                <Heart className="w-6 h-6 text-white" />
+              <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-110 group-hover:rotate-12 transform">
+                <Heart className="w-6 h-6 text-white transition-transform duration-300 group-hover:scale-110" />
               </div>
               <div className="text-2xl">
-                <span className="font-bold text-blue-600">Healthy</span>
-                <span className="font-light text-gray-700">Connect</span>
+                <span className="font-bold text-blue-600 transition-all duration-300 group-hover:text-blue-700">
+                  Healthy
+                </span>
+                <span className="font-light text-gray-700 transition-all duration-300 group-hover:text-gray-800">
+                  Connect
+                </span>
               </div>
             </Link>
 
@@ -341,44 +501,57 @@ export default function Navbar() {
               {session && <NotificationBell mobile={false} />}
               <button
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
-                className="p-2 text-gray-600 hover:text-blue-600 transition-all duration-300 hover:bg-blue-50 rounded-xl shadow-sm hover:shadow-md transform hover:scale-110"
+                className="p-2 text-gray-600 hover:text-blue-600 transition-all duration-300 hover:bg-blue-50 rounded-xl shadow-sm hover:shadow-md transform hover:scale-110 hover:rotate-180"
               >
-                {isMenuOpen ? (
-                  <X className="w-6 h-6" />
-                ) : (
-                  <Menu className="w-6 h-6" />
-                )}
+                <div
+                  className={`transition-all duration-300 ${
+                    isMenuOpen ? "rotate-180" : "rotate-0"
+                  }`}
+                >
+                  {isMenuOpen ? (
+                    <X className="w-6 h-6" />
+                  ) : (
+                    <Menu className="w-6 h-6" />
+                  )}
+                </div>
               </button>
             </div>
           </div>
         </div>
       </nav>
 
-      {isMenuOpen && (
-        <div className="md:hidden fixed inset-0 z-40 animate-in fade-in duration-300">
-          <div className="absolute inset-0 bg-gradient-to-br from-blue-600 via-blue-700 to-blue-800">
-            <div className="flex flex-col h-full animate-in slide-in-from-top duration-500">
-              <div className="flex-1 flex flex-col justify-center px-6 space-y-3">
-                <div className="mb-8 text-center">
-                  <div className="inline-flex items-center space-x-3 group">
-                    <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center shadow-xl backdrop-blur-sm">
-                      <Heart className="w-6 h-6 text-white" />
-                    </div>
-                    <div className="text-3xl">
-                      <span className="font-bold text-white">Healthy</span>
-                      <span className="font-light text-blue-100">Connect</span>
-                    </div>
+      {/* Enhanced Mobile Menu with Slide Animation */}
+      <div
+        className={`md:hidden fixed inset-0 z-40 transition-all duration-500 ${
+          isMenuOpen ? "opacity-100 visible" : "opacity-0 invisible"
+        }`}
+      >
+        <div
+          className={`absolute inset-0 bg-gradient-to-br from-blue-600 via-blue-700 to-blue-800 transition-transform duration-500 ease-out ${
+            isMenuOpen ? "translate-x-0" : "translate-x-full"
+          }`}
+        >
+          <div className="flex flex-col h-full">
+            <div className="flex-1 flex flex-col justify-center px-6 space-y-3">
+              <div className="mb-8 text-center animate-slide-in-down">
+                <div className="inline-flex items-center space-x-3 group">
+                  <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center shadow-xl backdrop-blur-sm">
+                    <Heart className="w-6 h-6 text-white" />
+                  </div>
+                  <div className="text-3xl">
+                    <span className="font-bold text-white">Healthy</span>
+                    <span className="font-light text-blue-100">Connect</span>
                   </div>
                 </div>
-                <NavLinks mobile={true} />
               </div>
-              <div className="px-6 pb-8">
-                <MobileAuth />
-              </div>
+              <NavLinks mobile={true} />
+            </div>
+            <div className="px-6 pb-8">
+              <MobileAuth />
             </div>
           </div>
         </div>
-      )}
+      </div>
     </>
   );
 }

@@ -48,31 +48,6 @@ export default function NotFound() {
             </Link>
           </div>
 
-          {/* Search Suggestion */}
-          <div className="pt-8 border-t border-gray-200 max-w-md mx-auto">
-            <p className="text-sm text-gray-500 mb-4">
-              Or try searching for what you need:
-            </p>
-            <div className="relative">
-              <input
-                type="text"
-                placeholder="Search healthcare jobs..."
-                className="w-full px-4 py-3 pl-12 pr-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                onKeyPress={(e) => {
-                  if (e.key === "Enter") {
-                    const searchTerm = e.target.value.trim();
-                    if (searchTerm) {
-                      window.location.href = `/jobs?search=${encodeURIComponent(
-                        searchTerm
-                      )}`;
-                    }
-                  }
-                }}
-              />
-              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-            </div>
-          </div>
-
           {/* Quick Links */}
           <div className="pt-8">
             <p className="text-sm text-gray-500 mb-4">Popular destinations:</p>

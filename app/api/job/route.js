@@ -750,7 +750,7 @@ export async function POST(request) {
 
     await Notification.create({
       type: "job_posted",
-      message: `${job.title}position was posted`,
+      message: `${job.title} position was posted`,
       jobId: job._id,
     });
 
