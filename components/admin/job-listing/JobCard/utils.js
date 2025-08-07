@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   calculateJobStatus,
   CATEGORIES,
@@ -28,6 +29,7 @@ import {
   Award,
   MessageCircle,
   X,
+  ChevronDown,
 } from "lucide-react";
 
 const SearchBar = ({
@@ -130,6 +132,8 @@ const JobDetailModal = ({ job, isOpen, onClose }) => {
   const category = CATEGORIES.find((c) => c.value === job.category);
   const IconComponent = category?.icon || Briefcase;
   const jobStatus = calculateJobStatus(job.createdAt);
+
+  const [showContactOptions, setShowContactOptions] = useState(false);
 
   const whatsappLink = job.phone
     ? (() => {
@@ -472,37 +476,68 @@ const JobDetailModal = ({ job, isOpen, onClose }) => {
               </div>
             </div>
           )}
-
-          {/* Action Buttons */}
-          <div className="flex gap-3 pt-4 border-t border-gray-200">
-            {job.phone && (
-              <a
-                href={`tel:${job.phone}`}
-                className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl"
-              >
-                <Phone className="w-5 h-5" />
-                Call Now
-              </a>
-            )}
-
-            {whatsappLink && (
-              <a
-                href={whatsappLink}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center justify-center gap-2 px-6 py-3 bg-green-500 text-white rounded-xl hover:bg-green-600 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl"
-              >
-                <MessageCircle className="w-5 h-5" />
-                WhatsApp
-              </a>
-            )}
-
+          {/* Call TO Action */}
+          <div className="flex gap-2 pt-4 border-t border-gray-200">
+            {/* Toggle Contact Options */}
             <button
+              type="button"
+              onClick={() => setShowContactOptions(!showContactOptions)}
+              aria-expanded={showContactOptions}
+              className="flex items-center justify-center gap-2 px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 hover:scale-105 active:scale-95 transition-all duration-300 font-medium text-sm transform"
+            >
+              <MessageCircle className="w-4 h-4" />
+              Contact
+              <ChevronDown
+                className={`w-3 h-3 transition-transform duration-300 ${
+                  showContactOptions ? "rotate-180" : "rotate-0"
+                }`}
+              />
+            </button>
+
+            {/* Close Button */}
+            <button
+              type="button"
               onClick={onClose}
-              className="px-6 py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-colors font-medium"
+              className="flex-1 px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 hover:scale-105 active:scale-95 transition-all duration-300 font-medium text-sm transform"
             >
               Close
             </button>
+          </div>
+
+          {/* Animated Contact Options */}
+          <div
+            aria-hidden={!showContactOptions}
+            className={`overflow-hidden transition-all duration-300 ease-in-out ${
+              showContactOptions
+                ? "max-h-32 opacity-100 mt-2"
+                : "max-h-0 opacity-0"
+            }`}
+          >
+            <div className="flex gap-2">
+              {/* Phone Button */}
+              {job.phone && (
+                <a
+                  href={`tel:${job.phone}`}
+                  className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 hover:scale-105 active:scale-95 transition-all duration-300 text-sm font-medium transform"
+                >
+                  <Phone className="w-4 h-4" />
+                  Call
+                </a>
+              )}
+
+              {/* WhatsApp Button */}
+              {whatsappLink && (
+                <a
+                  href={whatsappLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 hover:scale-105 active:scale-95 transition-all duration-300 text-sm font-medium transform"
+                >
+                  <MessageCircle className="w-4 h-4" />
+                  WhatsApp
+                </a>
+              )}
+            </div>
           </div>
         </div>
       </div>
