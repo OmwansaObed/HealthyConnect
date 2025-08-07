@@ -324,9 +324,6 @@ export default function JobSearchPage() {
                     <span>Past</span>
                   </div>
                 </div>
-                <p className="text-sm text-center font-light text-gray-600">
-                  The older the job, the lower the chance of getting hired
-                </p>
               </div>
             </div>
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useGetJobsQuery } from "../../redux/api/jobApiSlice";
 import { useGetUsersQuery } from "../../redux/api/usersApiSlice";
 import {
@@ -13,6 +13,94 @@ import {
   UserPlus,
   Users,
 } from "lucide-react";
+import { useInView } from "framer-motion"; // You might need to install framer-motion or use an alternative
+
+// AnimatedCounter Component
+const AnimatedCounter = ({
+  end,
+  duration = 2,
+  delay = 0,
+  prefix = "",
+  suffix = "",
+}) => {
+  const [count, setCount] = useState(0);
+  const [hasStarted, setHasStarted] = useState(false);
+  const [lastEnd, setLastEnd] = useState("");
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true, threshold: 0.3 });
+
+  useEffect(() => {
+    // Reset animation when end value changes significantly or when first coming into view
+    const shouldAnimate =
+      (isInView && !hasStarted) || (end !== lastEnd && end !== "0");
+
+    if (shouldAnimate && end && end !== "0") {
+      // Add delay before starting animation
+      const timer = setTimeout(() => {
+        setHasStarted(true);
+        setLastEnd(end);
+        let startTime;
+
+        let endValue;
+        const isPercentage = end.includes("%");
+        const isK = end.includes("K");
+
+        if (isK) {
+          endValue = parseFloat(end.replace(/[^\d.]/g, "")) * 1000;
+        } else if (isPercentage) {
+          endValue = parseFloat(end.replace(/[^\d.]/g, ""));
+        } else {
+          endValue = parseFloat(end.replace(/[^\d.]/g, ""));
+        }
+
+        // Don't animate if the value is 0 or invalid
+        if (endValue === 0) {
+          setCount(0);
+          return;
+        }
+
+        const animate = (timestamp) => {
+          if (!startTime) startTime = timestamp;
+          const progress = Math.min(
+            (timestamp - startTime) / (duration * 1000),
+            1
+          );
+          const easeOutQuart = 1 - Math.pow(1 - progress, 4);
+          setCount(Math.floor(easeOutQuart * endValue));
+
+          if (progress < 1) {
+            requestAnimationFrame(animate);
+          }
+        };
+
+        requestAnimationFrame(animate);
+      }, delay);
+
+      return () => clearTimeout(timer);
+    }
+  }, [isInView, end, duration, delay, hasStarted, lastEnd]);
+
+  const formatNumber = (num) => {
+    if (end.includes("K")) {
+      const kValue = num / 1000;
+      return kValue >= 10 ? Math.floor(kValue) + "K" : kValue.toFixed(1) + "K";
+    }
+    if (end.includes("%")) return num + "%";
+    return num.toLocaleString();
+  };
+
+  const formattedCount = formatNumber(count);
+  const hasPlus = end.includes("+");
+
+  return (
+    <span ref={ref}>
+      {prefix}
+      {formattedCount}
+      {hasPlus && "+"}
+      {suffix}
+    </span>
+  );
+};
 
 const AdminStatsWidget = () => {
   const [page, setPage] = useState(1);
@@ -27,18 +115,33 @@ const AdminStatsWidget = () => {
 
   const jobs = data?.jobs ?? [];
   const totalPages = data?.page || 1;
-  const totalCount = data?.total || 0;
+  const totalCount = jobs.length;
 
   const totalUsers = userData?.length || 0;
 
-  // Calculate percentage change (mock for now - you'd need historical data for real calculation)
-  const jobsChangePercentage = 12; // This should be calculated based on previous period
-  const activeUsersChangePercentage = 8; // This should come from your users API
+  const jobsChangePercentage = 12;
+  const activeUsersChangePercentage = 8;
+
+  // Calculate new jobs this month
+  const newJobsThisMonth = jobs.filter((job) => {
+    const jobDate = new Date(job.createdAt);
+    const currentDate = new Date();
+    return (
+      jobDate.getMonth() === currentDate.getMonth() &&
+      jobDate.getFullYear() === currentDate.getFullYear()
+    );
+  }).length;
+
+  // Calculate total applications
+  const totalApplications = jobs.reduce(
+    (acc, job) => acc + (job.applications?.length || 0),
+    0
+  );
 
   const stats = [
     {
       title: "Total Jobs",
-      value: totalCount.toLocaleString(),
+      value: totalCount.toString(),
       change: `${jobsChangePercentage}%`,
       trend: jobsChangePercentage >= 0 ? "up" : "down",
       icon: Briefcase,
@@ -47,7 +150,10 @@ const AdminStatsWidget = () => {
     },
     {
       title: "Active Users",
-      value: totalUsers.toLocaleString(),
+      value:
+        totalUsers > 1000
+          ? `${(totalUsers / 1000).toFixed(1)}K`
+          : totalUsers.toString(),
       change: `${activeUsersChangePercentage}%`,
       trend: activeUsersChangePercentage >= 0 ? "up" : "down",
       icon: Users,
@@ -56,17 +162,8 @@ const AdminStatsWidget = () => {
     },
     {
       title: "New Jobs This Month",
-      value: jobs
-        .filter((job) => {
-          const jobDate = new Date(job.createdAt);
-          const currentDate = new Date();
-          return (
-            jobDate.getMonth() === currentDate.getMonth() &&
-            jobDate.getFullYear() === currentDate.getFullYear()
-          );
-        })
-        .length.toString(),
-      change: "+5%", // Replace with real calculation
+      value: newJobsThisMonth.toString(),
+      change: "+5%",
       trend: "up",
       icon: Activity,
       color: "bg-purple-500",
@@ -74,10 +171,8 @@ const AdminStatsWidget = () => {
     },
     {
       title: "Applications (Coming Soon)",
-      value: jobs
-        .reduce((acc, job) => acc + (job.applications?.length || 0), 0)
-        .toString(),
-      change: "0%", // Replace with real calculation
+      value: totalApplications.toString(),
+      change: "0%",
       trend: "up",
       icon: Heart,
       color: "bg-red-500",
@@ -115,8 +210,18 @@ const AdminStatsWidget = () => {
     return `${days} day${days === 1 ? "" : "s"} ago`;
   }
 
-  if (isLoading)
-    return <div className="text-center py-8">Loading stats...</div>;
+  // Don't render animated counter until we have real data
+  if (isLoading || userLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center py-12 px-4">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mb-4"></div>
+        <div className="text-gray-600 text-lg font-medium">
+          Loading stats...
+        </div>
+        <div className="text-gray-400 text-sm mt-1">Please wait a moment</div>
+      </div>
+    );
+  }
   if (isError)
     return (
       <div className="text-center py-8 text-red-500">Error loading stats</div>
@@ -153,7 +258,11 @@ const AdminStatsWidget = () => {
             </div>
             <div>
               <h3 className="text-2xl font-bold text-gray-900 mb-1">
-                {stat.value}
+                <AnimatedCounter
+                  end={stat.value}
+                  duration={2.5 + Math.random() * 0.5} // Random duration between 2.5-3s
+                  delay={index * 250 + Math.random() * 100} // Staggered delay with some randomness
+                />
               </h3>
               <p className="text-gray-600 text-sm">{stat.title}</p>
             </div>
@@ -165,9 +274,6 @@ const AdminStatsWidget = () => {
         <div className="p-6 border-b border-gray-100">
           <div className="flex items-center justify-between">
             <h3 className="text-lg font-bold text-gray-900">Recent Activity</h3>
-            <button className="text-sm text-blue-600 hover:text-blue-700 font-medium">
-              View All
-            </button>
           </div>
         </div>
         <div className="p-6 space-y-4">

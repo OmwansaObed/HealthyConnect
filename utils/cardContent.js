@@ -14,7 +14,7 @@ const calculateJobStatus = (createdAt) => {
   } else if (daysDifference === 1) {
     return "medium"; // Yesterday
   } else {
-    return "low"; // Older
+    return "low";
   }
 };
 

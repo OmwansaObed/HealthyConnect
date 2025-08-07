@@ -164,25 +164,25 @@ const calculateJobStatus = (createdAt) => {
   const daysDiff = Math.ceil((now - postDate) / (1000 * 60 * 60 * 24));
 
   if (daysDiff <= 1) return "new";
-  if (daysDiff <= 2) return "older";
+  if (daysDiff <= 2) return "recent";
   if (daysDiff <= 30) return "past";
-  return "older";
+  return "recent";
 };
 
 const getStatusBadge = (status) => {
   const statusMap = {
     new: "bg-green-100 text-green-800 border-green-200",
     past: "bg-red-100 text-red-800 border-red-200",
-    older: "bg-yellow-100 text-yellow-800 border-yellow-200",
+    recent: "bg-yellow-100 text-yellow-800 border-yellow-200",
   };
-  return statusMap[status] || statusMap.older;
+  return statusMap[status] || statusMap.recent;
 };
 
 const getStatusText = (status) => {
   const textMap = {
     new: "New",
-    past: "Past",
-    older: "Older",
+    past: "Older",
+    recent: "Recently",
   };
   return textMap[status] || "Active";
 };

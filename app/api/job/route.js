@@ -785,42 +785,59 @@ export async function POST(request) {
   }
 }
 
-export async function GET(request) {
+// export async function GET(request) {
+//   try {
+//     await connectDB();
+//     const { searchParams } = new URL(request.url);
+//     const page = parseInt(searchParams.get("page")) || 1;
+//     const limit = parseInt(searchParams.get("limit")) || 50;
+//     const category = searchParams.get("category");
+//     const location = searchParams.get("location");
+//     const type = searchParams.get("type");
+
+//     const filter = {};
+//     if (category) filter.category = category;
+//     if (location) {
+//       filter.$or = [
+//         { "location.county": new RegExp(location, "i") },
+//         { "location.state": new RegExp(location, "i") },
+//       ];
+//     }
+//     if (type) filter.type = type;
+
+//     const skip = (page - 1) * limit;
+//     const [jobs, total] = await Promise.all([
+//       Job.find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit).lean(),
+//       Job.countDocuments(filter),
+//     ]);
+
+//     return NextResponse.json({
+//       success: true,
+//       jobs,
+//       pagination: {
+//         currentPage: page,
+//         totalPages: Math.ceil(total / limit),
+//         totalJobs: total,
+//         hasNextPage: page < Math.ceil(total / limit),
+//         hasPrevPage: page > 1,
+//       },
+//     });
+//   } catch (error) {
+//     console.error("Jobs fetch error:", error);
+//     return NextResponse.json(
+//       { error: "Failed to fetch jobs" },
+//       { status: 500 }
+//     );
+//   }
+// }
+export async function GET() {
   try {
     await connectDB();
-    const { searchParams } = new URL(request.url);
-    const page = parseInt(searchParams.get("page")) || 1;
-    const limit = parseInt(searchParams.get("limit")) || 50;
-    const category = searchParams.get("category");
-    const location = searchParams.get("location");
-    const type = searchParams.get("type");
-
-    const filter = {};
-    if (category) filter.category = category;
-    if (location) {
-      filter.$or = [
-        { "location.county": new RegExp(location, "i") },
-        { "location.state": new RegExp(location, "i") },
-      ];
-    }
-    if (type) filter.type = type;
-
-    const skip = (page - 1) * limit;
-    const [jobs, total] = await Promise.all([
-      Job.find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit).lean(),
-      Job.countDocuments(filter),
-    ]);
+    const jobs = await Job.find().sort({ createdAt: -1 }).lean();
 
     return NextResponse.json({
       success: true,
       jobs,
-      pagination: {
-        currentPage: page,
-        totalPages: Math.ceil(total / limit),
-        totalJobs: total,
-        hasNextPage: page < Math.ceil(total / limit),
-        hasPrevPage: page > 1,
-      },
     });
   } catch (error) {
     console.error("Jobs fetch error:", error);
@@ -830,7 +847,6 @@ export async function GET(request) {
     );
   }
 }
-
 export async function PATCH(request) {
   try {
     await connectDB();
