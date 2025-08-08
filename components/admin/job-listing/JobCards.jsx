@@ -245,29 +245,6 @@ export default function JobSearchPage() {
                         </span>
                       </div>
                     )}
-                    {selectedExperience && (
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="text-gray-600">Experience:</span>
-                        <span className="font-medium text-gray-900">
-                          {
-                            EXPERIENCE_LEVELS.find(
-                              (e) => e.value === selectedExperience
-                            )?.label
-                          }
-                        </span>
-                      </div>
-                    )}
-                    {selectedLocation && (
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="text-gray-600">Location:</span>
-                        <span className="font-medium text-gray-900">
-                          {
-                            LOCATIONS.find((l) => l.value === selectedLocation)
-                              ?.label
-                          }
-                        </span>
-                      </div>
-                    )}
                   </div>
                 </div>
               )}
@@ -295,13 +272,6 @@ export default function JobSearchPage() {
                             ?.label,
                         selectedType &&
                           JOB_TYPES.find((t) => t.value === selectedType)
-                            ?.label,
-                        selectedExperience &&
-                          EXPERIENCE_LEVELS.find(
-                            (e) => e.value === selectedExperience
-                          )?.label,
-                        selectedLocation &&
-                          LOCATIONS.find((l) => l.value === selectedLocation)
                             ?.label,
                       ]
                         .filter(Boolean)
