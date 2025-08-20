@@ -1,16 +1,15 @@
 import "./globals.css";
 import Navbar from "../components/general/Navbar";
 import Footer from "../components/general/Footer";
-import { Toaster } from "sonner";
 import Providers from "../components/general/Providers";
 import { Analytics } from "@vercel/analytics/next";
 import ScrollToTop from "../components/general/ScrollToTop";
 import SessionSyncClient from "../components/general/SessoinClient";
 
 export const metadata = {
-  title: "HealthyConnect | Apply jobs",
+  title: "HealthyConnect | Search & Apply for Medical Jobs",
   description:
-    "HealthyConnect is your trusted healthcare partner for online medical job search.Find and apply for jobs in healthcare, connect with top employers, and manage your applications seamlessly.",
+    "HealthyConnect is your trusted healthcare partner for online medical job search.Find and apply for jobs in healthcare and connect with top employers.",
   icons: {
     icon: "/logo.png",
   },

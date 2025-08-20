@@ -1,4 +1,3 @@
-import { GiConsoleController } from "react-icons/gi";
 import { connectDB } from "../../../../lib/db";
 // import User from "../models/User.js";
 import User from "../../../../models/User.js";
