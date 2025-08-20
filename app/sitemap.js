@@ -33,12 +33,6 @@ export default function sitemap() {
       priority: 0.7,
     },
     {
-      url: `${baseUrl}/contact`,
-      lastModified: new Date(),
-      changeFrequency: "monthly",
-      priority: 0.7,
-    },
-    {
       url: `${baseUrl}/help-center`,
       lastModified: new Date(),
       changeFrequency: "yearly",
@@ -58,12 +52,6 @@ export default function sitemap() {
     },
     {
       url: `${baseUrl}/interview-tips`,
-      lastModified: new Date(),
-      changeFrequency: "yearly",
-      priority: 0.6,
-    },
-    {
-      url: " https://www.jobseeker.com/app/resumes/start",
       lastModified: new Date(),
       changeFrequency: "yearly",
       priority: 0.6,
