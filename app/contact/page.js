@@ -131,10 +131,10 @@ const Contact = () => {
               const contactProps = method.isClickable
                 ? {
                     href: method.href,
-                    target: method.href?.startsWith("http")
+                    target: method.href?.startsWith("https")
                       ? "_blank"
                       : "_self",
-                    rel: method.href?.startsWith("http")
+                    rel: method.href?.startsWith("https")
                       ? "noopener noreferrer"
                       : undefined,
                   }

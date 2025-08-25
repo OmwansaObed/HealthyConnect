@@ -1,7 +1,9 @@
-export default function sitemap() {
-  const baseUrl = "https://healthyconnect.co.ke";
+import { blogPosts } from "./blogs/data";
 
-  return [
+export default function sitemap() {
+  const baseUrl = "https://www.healthyconnect.co.ke";
+
+  const staticPages = [
     {
       url: baseUrl,
       lastModified: new Date(),
@@ -56,5 +58,20 @@ export default function sitemap() {
       changeFrequency: "yearly",
       priority: 0.6,
     },
+    {
+      url: `${baseUrl}/blogs`,
+      lastModified: new Date(),
+      changeFrequency: "weekly",
+      priority: 0.9,
+    },
   ];
+  //  Blog posts
+  const blogPages = blogPosts.map((post) => ({
+    url: `${baseUrl}/blogs/${post.slug}`,
+    lastModified: new Date(post.date),
+    changeFrequency: "monthly",
+    priority: 0.8,
+  }));
+
+  return [...staticPages, ...blogPages];
 }

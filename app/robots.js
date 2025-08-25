@@ -1,18 +1,22 @@
 export default function robots() {
   return {
-    rules: {
-      userAgent: "*",
-      allow: [
-        "/",
-        "/about",
-        "/contact",
-        "/jobs",
-        "/interview-tips",
-        "/mission",
-        "/terms",
-      ],
-      disallow: ["/admin/", "/api/", "/private/", "/_next/", "/dashboard/"],
-    },
+    rules: [
+      {
+        userAgent: "*",
+        allow: "/",
+        disallow: ["/admin/", "/api/", "/private/", "/_next/", "/dashboard/"],
+      },
+      {
+        userAgent: "Googlebot",
+        allow: "/",
+        crawlDelay: 1,
+      },
+      {
+        userAgent: "Bingbot",
+        allow: "/",
+        crawlDelay: 1,
+      },
+    ],
     sitemap: "https://healthyconnect.co.ke/sitemap.xml",
     host: "https://healthyconnect.co.ke",
   };

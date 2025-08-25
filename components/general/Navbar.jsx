@@ -12,6 +12,7 @@ import {
   LogOut,
   Bell,
   Shield,
+  Map,
 } from "lucide-react";
 import Link from "next/link";
 import { useSession, signIn, signOut } from "next-auth/react";
@@ -34,6 +35,7 @@ export default function Navbar() {
   const navLinks = [
     { name: "Find Jobs", href: "/jobs", icon: Briefcase },
     { name: "Categories", href: "/categories", icon: Grid3X3 },
+    { name: "Must know's", href: "/blogs", icon: Map },
   ];
 
   // Enhanced scroll behavior for navbar visibility
